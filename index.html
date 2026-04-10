@@ -830,14 +830,16 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
 // ═══════════════════════════════════════════════════════════
 const GRID=60,SEAT_W=52,SEAT_H=44,SEAT_GAP=6,ZONE_PAD=12,ZONE_GAP=16;
 
-const ZONES=[
-  {id:'fps',name:'FPS존',color:'#6c5ce7'},{id:'lol',name:'LOL존',color:'#e17055'},
-  {id:'vip',name:'VIP존',color:'#fdcb6e'},{id:'team',name:'팀룸',color:'#ff6348'},
-  {id:'couple',name:'커플존',color:'#fd79a8'},{id:'friends',name:'프렌즈존',color:'#00cec9'},
-  {id:'first',name:'퍼스트클래스존',color:'#f9ca24'},{id:'multi',name:'멀티존',color:'#636e72'},
-  {id:'fc',name:'FC ONLINE존',color:'#00b894'},{id:'dental',name:'덴탈존',color:'#74b9ff'},
-];
+let ZONES=[];
 const UNASSIGNED={id:'_unassigned',name:'미지정 좌석',color:'#95a5a6',fixed:true};
+
+// Load zones from Supabase for a store
+async function loadZonesFromDB(storeId){
+  if(!storeId){ZONES=[];return;}
+  const {data,error}=await supabase.from('pc_zones').select('*').eq('store_id',storeId).order('sort_order');
+  if(error){console.error('Zone load error:',error);ZONES=[];return;}
+  ZONES=data.map(z=>({id:z.id,name:z.name,color:z.color||'#636e72',dbData:z}));
+}
 
 let STORES=[];
 const STORES_WITH_SEATS=new Set();
@@ -864,13 +866,13 @@ async function loadStoresFromDB(){
 
 // Load seats from Supabase for a store
 async function loadSeatsFromDB(storeId){
-  const {data:zones}=await supabase.from('pc_zones').select('*').eq('store_id',storeId);
+  await loadZonesFromDB(storeId);
   const {data:seatData}=await supabase.from('pc_seats').select('*').eq('store_id',storeId);
   if(seatData&&seatData.length>0){
     STORES_WITH_SEATS.add(storeId);
     seats=seatData.map((s,i)=>{
-      const z=zones?.find(z=>z.id===s.zone_id);
-      return {id:s.id,pcNumber:s.seat_label||`PC${String(i+1).padStart(3,'0')}`,zone:z?.zone_type||'_unassigned',status:'off',isOn:false,
+      const z=ZONES.find(z=>z.id===s.zone_id);
+      return {id:s.id,pcNumber:s.seat_label||`PC${String(i+1).padStart(3,'0')}`,zone:z?.id||'_unassigned',status:'off',isOn:false,
         ip:s.ip_address||'',cpuModel:'',gpuModel:'',ram:16,cpuTemp:0,gpuTemp:0,cpuMax:0,gpuMax:0,cpuWarn:0,gpuWarn:0,
         devices:[],deviceCount:0,version:'-',utilization:Array.from({length:24},()=>0),lastUpdate:'-'};
     });
@@ -879,6 +881,7 @@ async function loadSeatsFromDB(storeId){
     seats=[];storeHasSeats=false;
   }
   initZoneLayout();
+  renderZoneList();
 }
 
 const CPU=['Intel Core i9-9900K','Intel Core i5-13400F','Intel Core i7-10700'];
@@ -1505,15 +1508,18 @@ function showAddZoneModal(){
     </div>
     <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-primary" onclick="addZone()">추가</button></div>`);
 }
-function addZone(){
+async function addZone(){
   const name=document.getElementById('nzName').value.trim();
   const cb=document.querySelector('.color-swatch.active,.color-custom.active');
   if(!name){showToast('구역명을 입력하세요');return;}
   if(!cb){showToast('색상을 선택하세요');return;}
+  if(!curStoreId){showToast('매장을 먼저 등록하세요');return;}
   const color=cb.dataset.color||cb.querySelector('input')?.value||'#636e72';
-  const id=name.toLowerCase().replace(/\s/g,'')+'_'+Date.now();
-  ZONES.push({id,name,color});
-  zoneLayout[id]={x:0,y:0,cols:3,rows:1,w:200,h:100};
+  const sortOrder=ZONES.length;
+  const {data,error}=await supabase.from('pc_zones').insert({store_id:curStoreId,name,color,sort_order:sortOrder}).select().single();
+  if(error){showToast('구역 추가 실패: '+error.message);return;}
+  ZONES.push({id:data.id,name:data.name,color:data.color||'#636e72',dbData:data});
+  zoneLayout[data.id]={x:0,y:0,cols:3,rows:1,w:200,h:100};
   renderZoneList();renderCurView();hideModal();showToast(`${name} 구역 추가됨`);
 }
 function showEditZoneModal(zid){
@@ -1525,11 +1531,17 @@ function showEditZoneModal(zid){
     </div>
     <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-primary" onclick="saveZoneEdit('${zid}')">저장</button></div>`);
 }
-function saveZoneEdit(zid){
+async function saveZoneEdit(zid){
   const z=ZONES.find(z=>z.id===zid);if(!z)return;
   const n=document.getElementById('ezName').value.trim();
   const cb=document.querySelector('.color-swatch.active,.color-custom.active');
-  if(n)z.name=n;if(cb)z.color=cb.dataset.color||cb.querySelector('input')?.value||z.color;
+  const updates={};
+  if(n){updates.name=n;z.name=n;}
+  if(cb){const c=cb.dataset.color||cb.querySelector('input')?.value||z.color;updates.color=c;z.color=c;}
+  if(Object.keys(updates).length){
+    const {error}=await supabase.from('pc_zones').update(updates).eq('id',zid);
+    if(error){showToast('수정 실패: '+error.message);return;}
+  }
   renderZoneList();renderCurView();hideModal();showToast('구역이 수정되었습니다');
 }
 function confirmDelZone(zid){
@@ -1543,7 +1555,9 @@ function confirmDelZone(zid){
     </div>
     <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-danger" onclick="delZone('${zid}')"><i class="ri-delete-bin-line"></i> 삭제</button></div>`);
 }
-function delZone(zid){
+async function delZone(zid){
+  const {error}=await supabase.from('pc_zones').delete().eq('id',zid);
+  if(error){showToast('삭제 실패: '+error.message);return;}
   seats.forEach(s=>{if(s.zone===zid)s.zone=UNASSIGNED.id;});
   const i=ZONES.findIndex(z=>z.id===zid);if(i!==-1)ZONES.splice(i,1);
   delete zoneLayout[zid];renderZoneList();renderCurView();hideModal();showToast('구역이 삭제되었습니다');
