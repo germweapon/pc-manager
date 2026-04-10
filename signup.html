@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iSens Manager - 회원가입</title>
+<link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+:root{
+  --bg-primary:#0f1117;--bg-secondary:#1a1d27;--bg-tertiary:#242736;--bg-card:#1e2130;--bg-hover:#2a2d3e;
+  --border:#2e3144;--border-light:#3a3d50;
+  --text-primary:#e8eaed;--text-secondary:#9aa0b0;--text-muted:#6b7185;
+  --accent:#6c5ce7;--accent-light:#a29bfe;--accent-bg:rgba(108,92,231,0.12);
+  --success:#00cec9;--success-bg:rgba(0,206,201,0.12);
+  --warning:#fdcb6e;--warning-bg:rgba(253,203,110,0.12);
+  --danger:#ff6b6b;--danger-bg:rgba(255,107,107,0.12);
+  --info:#74b9ff;
+  --radius-sm:6px;--radius-md:10px;--radius-lg:16px;--radius-xl:20px;
+  --shadow:0 4px 24px rgba(0,0,0,0.3);--shadow-lg:0 8px 40px rgba(0,0,0,0.4);
+  --transition:all .2s cubic-bezier(.4,0,.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:40px 0}
+
+.bg-decor{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.bg-decor .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.12;animation:float 12s ease-in-out infinite}
+.bg-decor .orb:nth-child(1){width:500px;height:500px;background:var(--accent);top:-120px;right:-100px}
+.bg-decor .orb:nth-child(2){width:400px;height:400px;background:var(--success);bottom:-100px;left:-80px;animation-delay:-4s}
+.bg-decor .orb:nth-child(3){width:300px;height:300px;background:var(--danger);bottom:20%;right:15%;animation-delay:-8s;opacity:.07}
+@keyframes float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-20px) scale(1.05)}66%{transform:translate(-20px,15px) scale(.95)}}
+
+.bg-grid{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(circle at 1px 1px, rgba(108,92,231,0.06) 1px, transparent 0);
+  background-size:32px 32px}
+
+.signup-wrapper{position:relative;z-index:1;width:100%;max-width:520px;padding:20px}
+
+/* Logo */
+.signup-logo{text-align:center;margin-bottom:32px}
+.signup-logo img{height:90px;margin-bottom:4px;filter:drop-shadow(0 4px 20px rgba(0,0,0,.4))}
+.signup-logo p{font-size:12px;color:var(--text-muted);margin-top:4px}
+
+/* Card */
+.signup-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-lg);padding:36px 32px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.signup-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--success),var(--accent),var(--accent-light));opacity:.7}
+
+/* Form */
+.form-group{margin-bottom:18px}
+.form-label{display:flex;align-items:center;gap:0;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;letter-spacing:.3px}
+.form-label .req{width:5px;height:5px;border-radius:50%;background:var(--danger);flex-shrink:0;margin-left:4px;position:relative;top:-4px}
+.input-wrap{position:relative}
+.input-wrap i.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--text-muted);transition:color .2s;pointer-events:none}
+.input-wrap input,.input-wrap select{width:100%;padding:12px 14px 12px 42px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-primary);font-size:14px;font-family:inherit;transition:var(--transition)}
+.input-wrap select{cursor:pointer;padding-right:36px;appearance:none}
+.input-wrap .select-arrow{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:16px;pointer-events:none;transition:transform .2s}
+.input-wrap input:focus,.input-wrap select:focus{outline:none;border-color:var(--accent);background:var(--bg-card);box-shadow:0 0 0 3px rgba(108,92,231,.15)}
+.input-wrap input:focus ~ i.input-icon{color:var(--accent-light)}
+.input-wrap input::placeholder{color:var(--text-muted);font-size:13px}
+.input-wrap .toggle-pw{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px;transition:color .2s}
+.input-wrap .toggle-pw:hover{color:var(--text-primary)}
+
+/* Custom dropdown */
+.custom-select{position:relative}
+.custom-select-trigger{display:flex;align-items:center;width:100%;padding:12px 14px 12px 42px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-primary);font-size:14px;font-family:inherit;cursor:pointer;transition:var(--transition);user-select:none}
+.custom-select-trigger.placeholder{color:var(--text-muted);font-size:13px}
+.custom-select-trigger:hover{border-color:var(--border-light)}
+.custom-select-trigger.open{border-color:var(--accent);background:var(--bg-card);box-shadow:0 0 0 3px rgba(108,92,231,.15);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.custom-select-trigger .cs-arrow{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:16px;transition:transform .2s}
+.custom-select-trigger.open .cs-arrow{transform:translateY(-50%) rotate(180deg);color:var(--accent-light)}
+.custom-select-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--bg-card);border:1px solid var(--accent);border-top:none;border-bottom-left-radius:var(--radius-md);border-bottom-right-radius:var(--radius-md);box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:100;display:none;overflow:hidden}
+.custom-select-dropdown.open{display:block}
+.cs-option{padding:11px 14px 11px 42px;font-size:14px;cursor:pointer;transition:var(--transition);color:var(--text-secondary);position:relative}
+.cs-option:hover{background:var(--bg-hover);color:var(--text-primary)}
+.cs-option.selected{background:var(--accent-bg);color:var(--accent-light)}
+.cs-option.selected::after{content:'\eb7b';font-family:'remixicon';position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--accent-light)}
+.cs-option+.cs-option{border-top:1px solid var(--border)}
+
+/* Validation hint */
+.input-hint{font-size:11px;color:var(--text-muted);margin-top:5px;display:flex;align-items:center;gap:4px}
+.input-hint.error{color:var(--danger)}
+.input-hint.success{color:var(--success)}
+.input-hint i{font-size:13px}
+
+/* Password strength */
+.pw-strength{display:flex;gap:4px;margin-top:8px}
+.pw-bar{flex:1;height:3px;border-radius:2px;background:var(--border);transition:background .3s}
+.pw-bar.weak{background:var(--danger)}
+.pw-bar.medium{background:var(--warning)}
+.pw-bar.strong{background:var(--success)}
+.pw-text{font-size:10px;margin-top:4px;font-weight:500}
+
+/* Section divider */
+.section-divider{display:flex;align-items:center;gap:12px;margin:24px 0 20px;padding:0}
+.section-divider::before,.section-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.section-divider span{font-size:11px;color:var(--text-muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+
+/* Buttons */
+.signup-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--accent),#5b4bd5);border:none;border-radius:var(--radius-md);color:#fff;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.3px;position:relative;overflow:hidden;margin-top:6px}
+.signup-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(108,92,231,0.4)}
+.signup-btn:active{transform:translateY(0)}
+.signup-btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.signup-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,.1),transparent);opacity:0;transition:opacity .3s}
+.signup-btn:hover::after{opacity:1}
+
+/* Terms */
+.terms-row{display:flex;align-items:flex-start;gap:10px;margin:20px 0 6px;cursor:pointer}
+.terms-row input[type="checkbox"]{appearance:none;width:16px;height:16px;border:1.5px solid var(--border-light);border-radius:4px;background:var(--bg-tertiary);cursor:pointer;position:relative;transition:var(--transition);flex-shrink:0;margin-top:1px}
+.terms-row input[type="checkbox"]:checked{background:var(--accent);border-color:var(--accent)}
+.terms-row input[type="checkbox"]:checked::after{content:'\eb7b';font-family:'remixicon';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px}
+.terms-text{font-size:12px;color:var(--text-secondary);line-height:1.6}
+.terms-text a{color:var(--accent-light);text-decoration:underline;cursor:pointer}
+.terms-text a:hover{color:#fff}
+
+/* Divider */
+.divider{display:flex;align-items:center;gap:14px;margin:24px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider span{font-size:11px;color:var(--text-muted);font-weight:500;letter-spacing:.5px}
+
+/* Login link */
+.login-link{text-align:center;font-size:13px;color:var(--text-secondary)}
+.login-link a{color:var(--accent-light);font-weight:600;cursor:pointer;text-decoration:none;transition:color .2s}
+.login-link a:hover{color:#fff;text-decoration:underline}
+
+/* Success animation */
+.success-view{display:none;text-align:center;padding:30px 0}
+.success-view.active{display:block}
+.success-icon{width:80px;height:80px;border-radius:50%;background:var(--success-bg);border:2px solid var(--success);display:inline-flex;align-items:center;justify-content:center;font-size:36px;color:var(--success);margin-bottom:20px;animation:popIn .5s cubic-bezier(.4,0,.2,1)}
+@keyframes popIn{0%{transform:scale(0);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.success-view h2{font-size:20px;font-weight:700;margin-bottom:8px;color:var(--text-primary)}
+.success-view p{font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:6px}
+.success-notice{margin-top:16px;padding:14px 18px;background:var(--accent-bg);border:1px solid rgba(108,92,231,.25);border-radius:var(--radius-md);font-size:12px;color:var(--accent-light);line-height:1.7;text-align:left}
+.success-notice i{font-size:15px;margin-right:4px;vertical-align:middle}
+
+/* Toast */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 20px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);z-index:1000;opacity:0;transition:all .3s;pointer-events:none}
+.toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.error{border-color:rgba(255,107,107,.3)}
+.toast.error i{color:var(--danger)}
+.toast.success i{color:var(--success)}
+
+@media(max-width:540px){
+  .signup-wrapper{padding:16px}
+  .signup-card{padding:28px 20px}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-decor">
+  <div class="orb"></div>
+  <div class="orb"></div>
+  <div class="orb"></div>
+</div>
+<div class="bg-grid"></div>
+
+<div class="signup-wrapper">
+  <!-- Logo -->
+  <div class="signup-logo">
+    <img src="logo.png" alt="아이센스리그 PC방">
+    <p>회원가입</p>
+  </div>
+
+  <!-- Card -->
+  <div class="signup-card">
+    <form id="signupForm" onsubmit="return false">
+      <!-- 회원 구분 -->
+      <div class="form-group">
+        <label class="form-label">회원 구분<span class="req"></span></label>
+        <div class="custom-select" id="memberTypeSelect">
+          <i class="ri-shield-user-line input-icon" style="position:absolute;left:14px;top:14px;font-size:17px;color:var(--text-muted);pointer-events:none;z-index:2"></i>
+          <div class="custom-select-trigger placeholder" onclick="toggleCustomSelect('memberTypeSelect')">
+            회원 구분을 선택하세요
+            <i class="ri-arrow-down-s-line cs-arrow"></i>
+          </div>
+          <div class="custom-select-dropdown">
+            <div class="cs-option" data-value="owner" onclick="selectOption('memberTypeSelect','owner','점주')">점주</div>
+            <div class="cs-option" data-value="manager" onclick="selectOption('memberTypeSelect','manager','매니저')">매니저</div>
+            <div class="cs-option" data-value="staff" onclick="selectOption('memberTypeSelect','staff','알바')">알바</div>
+          </div>
+          <input type="hidden" id="memberType" value="">
+        </div>
+      </div>
+
+      <!-- 아이디 -->
+      <div class="form-group">
+        <label class="form-label">아이디<span class="req"></span></label>
+        <div class="input-wrap">
+          <input type="text" id="userId" placeholder="영문, 숫자 조합 4-20자" oninput="checkId()">
+          <i class="ri-user-3-line input-icon"></i>
+        </div>
+        <div class="input-hint" id="idHint"><i class="ri-information-line"></i> 4-20자의 영문, 숫자 조합</div>
+      </div>
+
+      <!-- 비밀번호 -->
+      <div class="form-group">
+        <label class="form-label">비밀번호<span class="req"></span></label>
+        <div class="input-wrap">
+          <input type="password" id="userPw" placeholder="비밀번호" oninput="checkPwStrength()">
+          <i class="ri-lock-line input-icon"></i>
+          <button type="button" class="toggle-pw" onclick="togglePassword('userPw', this)"><i class="ri-eye-off-line"></i></button>
+        </div>
+        <div class="pw-strength" id="pwStrength">
+          <div class="pw-bar" id="pwBar1"></div>
+          <div class="pw-bar" id="pwBar2"></div>
+          <div class="pw-bar" id="pwBar3"></div>
+          <div class="pw-bar" id="pwBar4"></div>
+        </div>
+        <div class="pw-text" id="pwText" style="color:var(--text-muted)">8자 이상, 영문·숫자·특수문자 포함</div>
+      </div>
+
+      <!-- 비밀번호 확인 -->
+      <div class="form-group">
+        <label class="form-label">비밀번호 확인<span class="req"></span></label>
+        <div class="input-wrap">
+          <input type="password" id="userPwConfirm" placeholder="비밀번호 확인" oninput="checkPwMatch()">
+          <i class="ri-lock-check-line input-icon"></i>
+          <button type="button" class="toggle-pw" onclick="togglePassword('userPwConfirm', this)"><i class="ri-eye-off-line"></i></button>
+        </div>
+        <div class="input-hint" id="pwMatchHint" style="display:none"><i class="ri-close-circle-line"></i> 비밀번호가 일치하지 않습니다</div>
+      </div>
+
+      <!-- 이름 -->
+      <div class="form-group">
+        <label class="form-label">이름<span class="req"></span></label>
+        <div class="input-wrap">
+          <input type="text" id="userName" placeholder="이름을 입력하세요">
+          <i class="ri-user-line input-icon"></i>
+        </div>
+      </div>
+
+      <!-- 휴대폰 번호 -->
+      <div class="form-group">
+        <label class="form-label">휴대폰 번호<span class="req"></span></label>
+        <div class="input-wrap">
+          <input type="tel" id="userPhone" placeholder="010-0000-0000" oninput="formatPhone(this)">
+          <i class="ri-phone-line input-icon"></i>
+        </div>
+      </div>
+
+      <!-- 이메일 -->
+      <div class="form-group">
+        <label class="form-label">E-mail<span class="req"></span></label>
+        <div class="input-wrap">
+          <input type="email" id="userEmail" placeholder="이메일 주소를 입력하세요">
+          <i class="ri-mail-line input-icon"></i>
+        </div>
+      </div>
+
+      <!-- 소속 정보 구분선 -->
+      <div class="section-divider"><span>소속 정보 (선택)</span></div>
+
+      <!-- 소속 -->
+      <div class="form-group">
+        <label class="form-label">소속</label>
+        <div class="input-wrap">
+          <input type="text" id="userOrg" placeholder="소속 회사/매장명">
+          <i class="ri-building-line input-icon"></i>
+        </div>
+      </div>
+
+      <!-- 직급 -->
+      <div class="form-group">
+        <label class="form-label">직급</label>
+        <div class="input-wrap">
+          <input type="text" id="userPosition" placeholder="직급을 입력하세요">
+          <i class="ri-briefcase-line input-icon"></i>
+        </div>
+      </div>
+
+      <!-- 이용약관 -->
+      <div class="form-group">
+        <label class="terms-row" for="agreeTerms">
+          <input type="checkbox" id="agreeTerms">
+          <span class="terms-text"><a href="#">이용약관</a> 및 <a href="#">개인정보 처리방침</a>에 동의합니다</span>
+        </label>
+      </div>
+
+      <!-- 가입 버튼 -->
+      <button type="button" class="signup-btn" onclick="handleSignup()">
+        <i class="ri-user-add-line"></i> 회원가입
+      </button>
+    </form>
+
+    <!-- Success -->
+    <div class="success-view" id="successView">
+      <div class="success-icon"><i class="ri-check-line"></i></div>
+      <h2>가입 신청이 완료되었습니다</h2>
+      <p>iSens Manager에 관심을 가져주셔서 감사합니다.</p>
+      <div class="success-notice">
+        <i class="ri-information-line"></i>
+        관리자가 가입 신청을 확인한 후 승인이 완료되면 로그인이 가능합니다.<br>
+        승인까지 다소 시간이 소요될 수 있으니 불편하시더라도 조금만 기다려주세요.
+      </div>
+      <button class="signup-btn" onclick="window.location.href='login.html'" style="margin-top:20px">
+        <i class="ri-login-box-line"></i> 로그인하러 가기
+      </button>
+    </div>
+
+    <div class="divider" id="dividerBottom"><span>또는</span></div>
+    <div class="login-link" id="loginLinkBottom">
+      이미 계정이 있으신가요? <a href="login.html">로그인</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <i class="ri-information-line"></i>
+  <span id="toastTxt"></span>
+</div>
+
+<script>
+function togglePassword(id, btn) {
+  const input = document.getElementById(id);
+  const icon = btn.querySelector('i');
+  if (input.type === 'password') { input.type = 'text'; icon.className = 'ri-eye-line'; }
+  else { input.type = 'password'; icon.className = 'ri-eye-off-line'; }
+}
+
+function showToast(msg, type = 'error') {
+  const t = document.getElementById('toast');
+  const icon = t.querySelector('i');
+  t.className = 'toast ' + type;
+  icon.className = type === 'error' ? 'ri-error-warning-line' : 'ri-checkbox-circle-line';
+  document.getElementById('toastTxt').textContent = msg;
+  t.classList.add('visible');
+  setTimeout(() => t.classList.remove('visible'), 2500);
+}
+
+// Custom select dropdown
+function toggleCustomSelect(id) {
+  const wrap = document.getElementById(id);
+  const trigger = wrap.querySelector('.custom-select-trigger');
+  const dd = wrap.querySelector('.custom-select-dropdown');
+  const isOpen = trigger.classList.contains('open');
+  // Close all others
+  document.querySelectorAll('.custom-select-trigger.open').forEach(t => {
+    t.classList.remove('open');
+    t.closest('.custom-select').querySelector('.custom-select-dropdown').classList.remove('open');
+  });
+  if (!isOpen) {
+    trigger.classList.add('open');
+    dd.classList.add('open');
+  }
+}
+
+function selectOption(wrapId, value, label) {
+  const wrap = document.getElementById(wrapId);
+  const trigger = wrap.querySelector('.custom-select-trigger');
+  const dd = wrap.querySelector('.custom-select-dropdown');
+  const hidden = wrap.querySelector('input[type="hidden"]');
+  trigger.textContent = label;
+  trigger.classList.remove('placeholder');
+  // Re-add arrow
+  const arrow = document.createElement('i');
+  arrow.className = 'ri-arrow-down-s-line cs-arrow';
+  trigger.appendChild(arrow);
+  trigger.classList.remove('open');
+  dd.classList.remove('open');
+  hidden.value = value;
+  // Mark selected
+  dd.querySelectorAll('.cs-option').forEach(o => o.classList.remove('selected'));
+  dd.querySelector(`[data-value="${value}"]`).classList.add('selected');
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('.custom-select')) {
+    document.querySelectorAll('.custom-select-trigger.open').forEach(t => {
+      t.classList.remove('open');
+      t.closest('.custom-select').querySelector('.custom-select-dropdown').classList.remove('open');
+    });
+  }
+});
+
+function checkId() {
+  const v = document.getElementById('userId').value;
+  const hint = document.getElementById('idHint');
+  if (!v) { hint.className = 'input-hint'; hint.innerHTML = '<i class="ri-information-line"></i> 4-20자의 영문, 숫자 조합'; return; }
+  const valid = /^[a-zA-Z0-9]{4,20}$/.test(v);
+  if (valid) { hint.className = 'input-hint success'; hint.innerHTML = '<i class="ri-checkbox-circle-line"></i> 사용 가능한 아이디입니다'; }
+  else { hint.className = 'input-hint error'; hint.innerHTML = '<i class="ri-close-circle-line"></i> 4-20자의 영문, 숫자만 사용 가능합니다'; }
+}
+
+function checkPwStrength() {
+  const pw = document.getElementById('userPw').value;
+  const bars = [document.getElementById('pwBar1'), document.getElementById('pwBar2'), document.getElementById('pwBar3'), document.getElementById('pwBar4')];
+  const text = document.getElementById('pwText');
+  bars.forEach(b => b.className = 'pw-bar');
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+  if (/\d/.test(pw)) score++;
+  if (/[^a-zA-Z0-9]/.test(pw)) score++;
+  const levels = ['', 'weak', 'medium', 'medium', 'strong'];
+  const labels = ['', '약함', '보통', '보통', '강함'];
+  const colors = ['var(--text-muted)', 'var(--danger)', 'var(--warning)', 'var(--warning)', 'var(--success)'];
+  for (let i = 0; i < score; i++) bars[i].classList.add(levels[score]);
+  text.textContent = score ? `비밀번호 강도: ${labels[score]}` : '8자 이상, 영문·숫자·특수문자 포함';
+  text.style.color = colors[score];
+}
+
+function checkPwMatch() {
+  const pw = document.getElementById('userPw').value;
+  const confirm = document.getElementById('userPwConfirm').value;
+  const hint = document.getElementById('pwMatchHint');
+  if (!confirm) { hint.style.display = 'none'; return; }
+  if (pw === confirm) {
+    hint.style.display = 'flex'; hint.className = 'input-hint success';
+    hint.innerHTML = '<i class="ri-checkbox-circle-line"></i> 비밀번호가 일치합니다';
+  } else {
+    hint.style.display = 'flex'; hint.className = 'input-hint error';
+    hint.innerHTML = '<i class="ri-close-circle-line"></i> 비밀번호가 일치하지 않습니다';
+  }
+}
+
+function formatPhone(input) {
+  let v = input.value.replace(/\D/g, '');
+  if (v.length > 11) v = v.slice(0, 11);
+  if (v.length > 7) v = v.replace(/(\d{3})(\d{4})(\d{0,4})/, '$1-$2-$3');
+  else if (v.length > 3) v = v.replace(/(\d{3})(\d{0,4})/, '$1-$2');
+  input.value = v;
+}
+
+function handleSignup() {
+  if (!document.getElementById('memberType').value) { showToast('회원 구분을 선택해주세요'); return; }
+  if (!/^[a-zA-Z0-9]{4,20}$/.test(document.getElementById('userId').value)) { showToast('아이디를 올바르게 입력해주세요'); return; }
+  const pw = document.getElementById('userPw').value;
+  if (pw.length < 8) { showToast('비밀번호를 8자 이상 입력해주세요'); return; }
+  if (pw !== document.getElementById('userPwConfirm').value) { showToast('비밀번호가 일치하지 않습니다'); return; }
+  if (!document.getElementById('userName').value.trim()) { showToast('이름을 입력해주세요'); return; }
+  if (!document.getElementById('userPhone').value.trim()) { showToast('휴대폰 번호를 입력해주세요'); return; }
+  if (!document.getElementById('userEmail').value.trim()) { showToast('이메일을 입력해주세요'); return; }
+  if (!document.getElementById('agreeTerms').checked) { showToast('이용약관에 동의해주세요'); return; }
+
+  // Show success
+  document.getElementById('signupForm').style.display = 'none';
+  document.getElementById('dividerBottom').style.display = 'none';
+  document.getElementById('loginLinkBottom').style.display = 'none';
+  document.getElementById('successView').classList.add('active');
+  showToast('가입 신청이 완료되었습니다', 'success');
+}
+</script>
+</body>
+</html>

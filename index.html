@@ -1,0 +1,3038 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iSens Manager - PC 좌석 매니저</title>
+<link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+:root{
+  --bg-primary:#0f1117;--bg-secondary:#1a1d27;--bg-tertiary:#242736;--bg-card:#1e2130;--bg-hover:#2a2d3e;
+  --border:#2e3144;--border-light:#3a3d50;
+  --text-primary:#e8eaed;--text-secondary:#9aa0b0;--text-muted:#6b7185;
+  --accent:#6c5ce7;--accent-light:#a29bfe;--accent-bg:rgba(108,92,231,0.12);
+  --success:#00cec9;--success-bg:rgba(0,206,201,0.12);
+  --warning:#fdcb6e;--warning-bg:rgba(253,203,110,0.12);
+  --danger:#ff6b6b;--danger-bg:rgba(255,107,107,0.12);
+  --info:#74b9ff;
+  --radius-sm:6px;--radius-md:10px;--radius-lg:16px;--radius-xl:20px;
+  --shadow:0 4px 24px rgba(0,0,0,0.3);--shadow-lg:0 8px 40px rgba(0,0,0,0.4);
+  --transition:all .2s cubic-bezier(.4,0,.2,1);
+  --zone-gap:16px;--grid-size:60px;--seat-w:52px;--seat-h:44px;
+  --topbar-h:52px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Pretendard',-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);height:100vh;overflow:hidden}
+.app{display:flex;height:100vh}
+
+/* Sidebar */
+.sidebar{width:250px;background:var(--bg-secondary);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;z-index:100}
+.sidebar-header{padding:0 18px;border-bottom:1px solid var(--border);height:var(--topbar-h);display:flex;align-items:center}
+.sidebar-logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800}
+.sidebar-logo i{font-size:22px;color:var(--accent-light)}
+.sidebar-logo span{background:linear-gradient(135deg,var(--accent-light),var(--success));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sidebar-nav{flex:1;padding:10px 8px;overflow-y:auto}
+.nav-section{margin-bottom:6px}
+.nav-section-title{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:8px 12px 4px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:var(--radius-md);cursor:pointer;transition:var(--transition);font-size:13px;color:var(--text-secondary)}
+.nav-item:hover{background:var(--bg-hover);color:var(--text-primary)}
+.nav-item.active{background:var(--accent-bg);color:var(--accent-light)}
+.nav-item i{font-size:17px;width:20px;text-align:center}
+.nav-item .badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px}
+.nav-item.disabled{opacity:.45;pointer-events:none;cursor:default}
+
+/* Store Dropdown */
+.store-dd{position:relative;flex-shrink:0}
+.store-dd-trigger{display:flex;align-items:center;gap:8px;padding:7px 14px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;cursor:pointer;transition:var(--transition);min-width:170px;font-weight:600;font-family:inherit}
+.store-dd-trigger:hover{border-color:var(--accent)}
+.store-dd-trigger i:first-child{color:var(--accent-light);font-size:15px}
+.store-dd-trigger .arrow{margin-left:auto;color:var(--text-muted);font-size:14px;transition:transform .2s}
+.store-dd-trigger.open .arrow{transform:rotate(180deg)}
+.store-dd-panel{position:absolute;top:calc(100% + 4px);left:0;width:300px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);z-index:200;display:none;max-height:400px;overflow:hidden;flex-direction:column}
+.store-dd-panel.open{display:flex}
+.store-search{padding:10px;border-bottom:1px solid var(--border);position:relative}
+.store-search i{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:14px}
+.store-search input{width:100%;padding:8px 10px 8px 32px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;font-family:inherit}
+.store-search input:focus{outline:none;border-color:var(--accent)}
+.store-list{overflow-y:auto;max-height:320px;padding:4px}
+.store-list-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--text-secondary);transition:var(--transition)}
+.store-list-item:hover{background:var(--bg-hover);color:var(--text-primary)}
+.store-list-item.active{background:var(--accent-bg);color:var(--accent-light)}
+.store-list-item .cur{margin-left:auto;font-size:10px;color:var(--success);font-weight:600}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* Topbar */
+.topbar{min-height:var(--topbar-h);background:var(--bg-secondary);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:8px;flex-shrink:0;flex-wrap:wrap;padding-top:4px;padding-bottom:4px}
+.topbar-stats{display:flex;gap:4px;flex-shrink:0}
+.stat-chip{display:flex;align-items:center;gap:4px;padding:4px 8px;background:var(--bg-tertiary);border-radius:var(--radius-sm);font-size:11px;font-weight:500;white-space:nowrap}
+.stat-chip .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.stat-chip .dot.on{background:var(--success);box-shadow:0 0 6px var(--success)}
+.stat-chip .dot.off{background:var(--text-muted)}
+.stat-chip .dot.warn{background:var(--warning);box-shadow:0 0 5px var(--warning)}
+.stat-chip .dot.err{background:var(--danger);box-shadow:0 0 5px var(--danger)}
+.topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center;padding-right:4px}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:var(--radius-sm);font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg-tertiary);color:var(--text-primary);transition:var(--transition);white-space:nowrap;font-family:inherit}
+.btn:hover{background:var(--bg-hover);border-color:var(--border-light)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{background:#5b4bd5}
+.btn-danger{background:var(--danger-bg);border-color:transparent;color:var(--danger)}
+.btn-danger:hover{background:rgba(255,107,107,.2)}
+.btn-success{background:var(--success-bg);border-color:transparent;color:var(--success)}
+.btn i{font-size:15px}
+
+.view-toggle{display:flex;background:var(--bg-tertiary);border-radius:var(--radius-sm);padding:2px;border:1px solid var(--border)}
+.view-toggle-btn{padding:4px 11px;border-radius:4px;font-size:12px;cursor:pointer;color:var(--text-muted);transition:var(--transition);display:flex;align-items:center;gap:4px;border:none;background:none;font-family:inherit}
+.view-toggle-btn.active{background:var(--accent);color:#fff}
+
+/* Workspace */
+.workspace{flex:1;display:flex;overflow:hidden;position:relative}
+
+/* Empty State */
+.empty-state{flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+.empty-state i{font-size:60px;color:var(--text-muted);opacity:.4}
+.empty-state h3{font-size:17px;color:var(--text-secondary)}
+.empty-state p{font-size:13px;color:var(--text-muted);max-width:340px;text-align:center;line-height:1.6}
+
+/* Floor Plan */
+.floor-plan-container{flex:1;overflow:auto;position:relative;display:none}
+.floor-plan{position:relative;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin:20px}
+.floor-plan-bg{position:absolute;inset:0;opacity:.08;background-size:contain;background-repeat:no-repeat;background-position:center;pointer-events:none}
+.seat-grid{position:relative;padding:var(--zone-gap);display:flex;flex-wrap:wrap;gap:var(--zone-gap);align-content:flex-start}
+
+/* Edit grid */
+.edit-grid-bg{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s}
+.edit-grid-bg.visible{opacity:1}
+
+/* Zone areas */
+.zone-area{position:relative;border:1px dashed;border-radius:var(--radius-md);transition:background .2s,border-color .2s;background:transparent;flex-shrink:0}
+.zone-area.highlighted{background:rgba(108,92,231,0.06)}
+.zone-area-label{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:700;letter-spacing:.3px;margin-bottom:8px;cursor:default;position:relative;z-index:5}
+.zone-area-seats{display:flex;flex-wrap:wrap;gap:6px;padding:4px}
+/* In edit mode the entire zone-area is draggable */
+.zone-area.edit-mode{cursor:grab}
+.zone-area.edit-mode:active{cursor:grabbing}
+.zone-area.edit-mode .zone-area-label{cursor:inherit}
+.zone-area.drop-target{outline:2px dashed var(--accent-light);outline-offset:2px;background:var(--accent-bg)!important}
+
+/* Resize handles */
+.zone-resize-handle{position:absolute;z-index:15;display:none}
+.zone-area.edit-mode .zone-resize-handle{display:block}
+.zone-resize-handle.right{right:-4px;top:0;bottom:0;width:8px;cursor:ew-resize}
+.zone-resize-handle.bottom{bottom:-4px;left:0;right:0;height:8px;cursor:ns-resize}
+.zone-resize-handle.corner{right:-5px;bottom:-5px;width:12px;height:12px;cursor:nwse-resize;border-radius:2px}
+.zone-resize-handle:hover{background:rgba(108,92,231,.3)}
+
+/* Unassigned zone */
+.unassigned-area{margin-top:var(--zone-gap);padding-top:var(--zone-gap);border-top:1px dashed var(--text-muted)}
+
+/* Seats */
+.seat{width:var(--seat-w);height:var(--seat-h);border-radius:var(--radius-sm);cursor:pointer;transition:all .15s ease;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:1.5px solid;user-select:none;flex-shrink:0;position:relative}
+.seat:hover{transform:scale(1.1);z-index:20;box-shadow:var(--shadow)}
+.seat.selected{transform:scale(1.1);z-index:20;box-shadow:0 0 0 2px var(--accent-light),var(--shadow)}
+.seat.status-on{background:rgba(0,206,201,.15);border-color:var(--success);color:var(--success)}
+.seat.status-on .seat-ind{background:var(--success);box-shadow:0 0 6px var(--success)}
+.seat.status-off{background:rgba(107,113,133,.1);border-color:var(--text-muted);color:var(--text-muted)}
+.seat.status-off .seat-ind{background:var(--text-muted)}
+.seat.status-warning{background:rgba(253,203,110,.15);border-color:var(--warning);color:var(--warning)}
+.seat.status-warning .seat-ind{background:var(--warning);box-shadow:0 0 6px var(--warning);animation:pulse 1.5s infinite}
+.seat.status-error{background:rgba(255,107,107,.15);border-color:var(--danger);color:var(--danger)}
+.seat.status-error .seat-ind{background:var(--danger);box-shadow:0 0 6px var(--danger);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.seat-num{font-size:13px;font-weight:700;line-height:1}
+.seat-ind{width:5px;height:5px;border-radius:50%;margin-top:3px}
+.seat-temp{font-size:9px;font-weight:500;margin-top:1px;opacity:.8}
+.seat.multi-selected{box-shadow:0 0 0 2px var(--danger),var(--shadow)!important;animation:selPulse 1s infinite}
+@keyframes selPulse{0%,100%{box-shadow:0 0 0 2px var(--danger),var(--shadow)}50%{box-shadow:0 0 0 3px var(--danger),0 0 12px rgba(255,107,107,.3)}}
+.seat.drag-over{outline:2px dashed var(--accent-light);outline-offset:2px}
+.seat.dragging{opacity:.4}
+
+/* Tooltip */
+.seat-tooltip{position:fixed;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 16px;box-shadow:var(--shadow-lg);z-index:1000;pointer-events:none;opacity:0;transition:opacity .15s;min-width:200px}
+.seat-tooltip.visible{opacity:1}
+.tt-hdr{display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.tt-hdr .pc-id{font-weight:700;font-size:14px}
+.tt-hdr .badge{margin-left:auto;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.tt-row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0}
+.tt-row .lb{color:var(--text-muted)}
+.tt-row .vl{font-weight:500}
+
+/* Detail Panel */
+.detail-panel{width:370px;background:var(--bg-secondary);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);position:absolute;right:0;top:0;bottom:0;z-index:50}
+.detail-panel.open{transform:translateX(0)}
+.detail-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.detail-close{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);cursor:pointer;color:var(--text-muted);transition:var(--transition);border:none;background:none}
+.detail-close:hover{background:var(--bg-hover);color:var(--text-primary)}
+.detail-title{font-size:15px;font-weight:700}
+.detail-status{margin-left:auto;padding:3px 9px;border-radius:var(--radius-sm);font-size:11px;font-weight:600}
+.detail-body{flex:1;overflow-y:auto;padding:18px}
+.d-section{margin-bottom:18px}
+.d-section-title{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.d-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.d-item{background:var(--bg-tertiary);border-radius:var(--radius-sm);padding:8px 10px}
+.d-item.full{grid-column:1/-1}
+.d-item-label{font-size:10px;color:var(--text-muted);margin-bottom:3px}
+.d-item-value{font-size:13px;font-weight:600}
+.temp-gauge{display:flex;align-items:center;gap:8px}
+.temp-bar{flex:1;height:6px;background:var(--bg-primary);border-radius:3px;overflow:hidden}
+.temp-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}
+.temp-val{font-size:14px;font-weight:700;min-width:36px;text-align:right}
+.device-tags{display:flex;flex-wrap:wrap;gap:4px}
+.device-tag{padding:3px 8px;border-radius:4px;font-size:11px;font-weight:500;background:var(--accent-bg);color:var(--accent-light)}
+.util-chart{display:flex;align-items:flex-end;gap:1px;height:32px}
+.util-bar{flex:1;min-width:3px;border-radius:1px 1px 0 0;transition:height .3s}
+
+/* Edit toolbar */
+.edit-toolbar{display:none;align-items:center;gap:8px;padding:8px 20px;background:var(--accent-bg);border-bottom:1px solid rgba(108,92,231,.3)}
+.edit-toolbar.visible{display:flex}
+.edit-toolbar-text{font-size:12px;color:var(--accent-light);font-weight:500}
+.edit-toolbar-text i{margin-right:4px}
+.multi-badge{display:none;align-items:center;gap:5px;padding:3px 10px;background:var(--danger-bg);border-radius:var(--radius-sm);font-size:11px;font-weight:600;color:var(--danger)}
+.multi-badge.visible{display:flex}
+
+/* Zone panel */
+.zone-panel{width:220px;background:var(--bg-secondary);border-right:1px solid var(--border);flex-shrink:0;overflow-y:auto;display:none}
+.zone-panel.visible{display:flex;flex-direction:column}
+.zone-panel-hdr{padding:14px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600}
+.zone-list{flex:1;padding:6px;overflow-y:auto}
+.zone-item{display:flex;align-items:center;gap:7px;padding:7px 8px;border-radius:var(--radius-sm);cursor:pointer;transition:var(--transition);font-size:12px;margin-bottom:1px}
+.zone-item:hover{background:var(--bg-hover)}
+.zone-item.active{background:var(--accent-bg);box-shadow:inset 2px 0 0 var(--accent-light)}
+.zone-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.zone-cnt{margin-left:auto;font-size:10px;color:var(--text-muted)}
+.zone-acts{display:flex;gap:2px;margin-left:3px;opacity:0;transition:opacity .15s}
+.zone-item:hover .zone-acts{opacity:1}
+.zone-act{width:20px;height:20px;display:flex;align-items:center;justify-content:center;border:none;background:none;color:var(--text-muted);cursor:pointer;border-radius:3px;font-size:12px}
+.zone-act:hover{background:var(--bg-hover);color:var(--text-primary)}
+.zone-act.dng:hover{color:var(--danger)}
+.zone-sep{border-top:1px solid var(--border);margin-top:4px;padding-top:4px}
+
+/* Context menu */
+.ctx-menu{position:fixed;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);z-index:1000;min-width:170px;padding:5px;display:none}
+.ctx-menu.visible{display:block}
+.ctx-item{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;color:var(--text-secondary);transition:var(--transition)}
+.ctx-item:hover{background:var(--bg-hover);color:var(--text-primary)}
+.ctx-item.danger{color:var(--danger)}
+.ctx-item i{font-size:15px;width:16px;text-align:center}
+.ctx-divider{height:1px;background:var(--border);margin:3px 0}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center}
+.modal-overlay.visible{display:flex}
+.modal{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);width:460px;max-width:90vw;max-height:90vh;overflow-y:auto}
+.modal-hdr{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-hdr h3{font-size:15px;font-weight:700}
+.modal-body{padding:20px 22px}
+.modal-footer{padding:14px 22px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:5px}
+.form-input{width:100%;padding:9px 12px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;font-family:inherit;transition:var(--transition)}
+.form-input:focus{outline:none;border-color:var(--accent)}
+select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%239aa0b0' viewBox='0 0 24 24'%3E%3Cpath d='M12 15l-5-5h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+
+/* Color palette */
+.color-palette{display:flex;flex-wrap:wrap;gap:5px}
+.color-swatch{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:var(--transition)}
+.color-swatch:hover,.color-swatch.active{border-color:#fff;transform:scale(1.15)}
+.color-custom{width:26px;height:26px;border-radius:50%;border:2px dashed var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-muted);position:relative;overflow:hidden}
+.color-custom input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
+/* Upload area - improved design */
+.upload-area{border:2px dashed var(--border);border-radius:var(--radius-lg);padding:32px 20px;text-align:center;cursor:pointer;transition:var(--transition);position:relative}
+.upload-area:hover,.upload-area.drag-over{border-color:var(--accent);background:var(--accent-bg)}
+.upload-area i{font-size:36px;color:var(--text-muted);margin-bottom:10px;display:block}
+.upload-area p{color:var(--text-secondary);font-size:13px;margin-bottom:4px}
+.upload-area small{color:var(--text-muted);font-size:11px}
+/* Upload preview */
+.upload-preview-wrap{border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;background:var(--bg-tertiary);position:relative}
+.upload-preview-img{width:100%;max-height:200px;object-fit:contain;display:block;padding:10px}
+.upload-preview-bar{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg-card);border-top:1px solid var(--border)}
+.upload-preview-bar span{font-size:12px;color:var(--success);font-weight:500;flex:1}
+.upload-preview-bar button{padding:4px 10px;font-size:11px}
+
+/* Delete preview */
+.del-preview{display:flex;flex-wrap:wrap;gap:5px;padding:10px;background:var(--bg-tertiary);border-radius:var(--radius-md);margin-bottom:14px;max-height:100px;overflow-y:auto}
+.del-chip{padding:3px 9px;background:var(--danger-bg);color:var(--danger);border-radius:4px;font-size:11px;font-weight:600}
+
+/* Zone View */
+.zone-view{display:none;flex:1;overflow:auto;padding:22px}
+.zone-view.active{display:block}
+.zv-group{margin-bottom:20px}
+.zv-hdr{display:flex;align-items:center;gap:9px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);cursor:default}
+.zv-hdr.edit-mode{cursor:grab}
+.zv-hdr.edit-mode:active{cursor:grabbing}
+.zv-hdr h3{font-size:14px;font-weight:700}
+.zv-cnt{font-size:11px;color:var(--text-muted);margin-left:auto}
+.zv-seats{display:flex;flex-wrap:wrap;gap:6px}
+.zv-group.drop-target .zv-seats{outline:2px dashed var(--accent-light);outline-offset:4px;border-radius:var(--radius-sm);background:var(--accent-bg)}
+.zv-group.dragging-zone{opacity:.4}
+
+/* Table View */
+.table-view{display:none;flex:1;overflow:auto;padding:22px}
+.table-view.active{display:block}
+.data-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--bg-secondary);border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border)}
+.data-table th{padding:10px 14px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;text-align:left;background:var(--bg-tertiary);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5;white-space:nowrap}
+.data-table td{padding:12px 14px;font-size:12px;border-bottom:1px solid var(--border);white-space:nowrap}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--bg-hover)}
+.st-dot{display:inline-flex;align-items:center;gap:5px}
+.st-dot::before{content:'';width:7px;height:7px;border-radius:50%}
+.st-dot.on::before{background:var(--success);box-shadow:0 0 6px var(--success)}
+.st-dot.off::before{background:var(--text-muted)}
+
+/* Pagination */
+.table-pagination{display:flex;align-items:center;justify-content:flex-end;padding:10px 16px;flex-shrink:0;gap:10px;white-space:nowrap}
+.pagination-info{font-size:11px;color:var(--text-muted)}
+.pagination-controls{display:flex;gap:4px;align-items:center}
+.pagination-controls .page-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg-tertiary);color:var(--text-secondary);transition:var(--transition)}
+.pagination-controls .page-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.pagination-controls .page-btn:hover:not(.active){background:var(--bg-hover)}
+.table-perpage-top{display:flex;align-items:center;gap:8px}
+
+/* Ceremony Settings Layout */
+.ceremony-settings-layout{display:flex;gap:0;min-height:500px;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-top:16px}
+.ceremony-sidebar{width:220px;background:var(--bg-card);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.ceremony-sidebar-section{padding:8px}
+.ceremony-sidebar-title{font-size:10px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;padding:8px 12px 6px}
+.ceremony-sidebar-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:12px;color:var(--text-secondary);transition:var(--transition)}
+.ceremony-sidebar-item:hover{background:var(--bg-hover);color:var(--text-primary)}
+.ceremony-sidebar-item.active{background:var(--accent-bg);color:var(--accent-light);font-weight:600}
+.ceremony-sidebar-item .delete-btn{margin-left:auto;color:var(--text-muted);font-size:14px;opacity:0;transition:var(--transition)}
+.ceremony-sidebar-item:hover .delete-btn{opacity:1}
+.ceremony-sidebar-item .delete-btn:hover{color:var(--danger)}
+.ceremony-settings-content{flex:1;padding:20px;overflow-y:auto}
+.ceremony-sidebar-divider{border-top:1px solid var(--border);margin:4px 8px}
+.ceremony-sidebar-add{display:flex;align-items:center;gap:6px;padding:8px 12px;font-size:11px;color:var(--accent-light);cursor:pointer;border-radius:var(--radius-sm);transition:var(--transition)}
+.ceremony-sidebar-add:hover{background:var(--accent-bg)}
+.ceremony-sidebar-add i{font-size:14px}
+
+/* Zoom */
+.zoom-ctrl{position:absolute;bottom:20px;right:20px;display:flex;flex-direction:column;gap:3px;z-index:30}
+.zoom-btn{width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;font-size:15px;transition:var(--transition)}
+.zoom-btn:hover{background:var(--bg-hover);color:var(--text-primary)}
+.zoom-lv{text-align:center;font-size:10px;color:var(--text-muted);padding:3px 0}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:10px 18px;display:flex;align-items:center;gap:8px;box-shadow:var(--shadow-lg);z-index:2000;transition:transform .3s cubic-bezier(.4,0,.2,1);font-size:12px}
+.toast.visible{transform:translateX(-50%) translateY(0)}
+
+/* Drag ghost */
+.drag-ghost{position:fixed;pointer-events:none;z-index:9999;opacity:.7}
+
+/* Preview modal */
+.preview-modal{width:560px}
+.preview-zones{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.preview-zone-chip{display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--bg-tertiary);border-radius:var(--radius-sm);font-size:12px;border:1px solid var(--border)}
+
+/* Profile section */
+.sidebar-profile{padding:8px;border-top:1px solid var(--border);position:relative}
+.profile-trigger{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-md);cursor:pointer;transition:var(--transition)}
+.profile-trigger:hover{background:var(--bg-hover)}
+.profile-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#5b4bd5);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.profile-info{display:flex;flex-direction:column;min-width:0}
+.profile-name{font-size:13px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.profile-role{font-size:10px;color:var(--text-muted);margin-top:1px}
+.profile-menu{position:absolute;bottom:calc(100% + 4px);left:8px;right:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);z-index:200;display:none;padding:5px;overflow:hidden}
+.profile-menu.open{display:block}
+.profile-menu-item{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--text-secondary);transition:var(--transition)}
+.profile-menu-item:hover{background:var(--bg-hover);color:var(--text-primary)}
+.profile-menu-item.danger{color:var(--danger)}
+.profile-menu-item.danger:hover{background:var(--danger-bg)}
+.profile-menu-item i{font-size:16px;width:18px;text-align:center}
+.profile-menu-divider{height:1px;background:var(--border);margin:3px 0}
+
+/* Settings view */
+.settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center}
+.settings-overlay.visible{display:flex}
+.settings-panel{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);width:680px;max-width:90vw;max-height:85vh;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.settings-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--success),var(--accent-light));opacity:.7;border-radius:var(--radius-xl) var(--radius-xl) 0 0;z-index:1}
+.settings-hdr{padding:22px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.settings-hdr h2{font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px}
+.settings-hdr h2 i{color:var(--accent-light)}
+.settings-body{padding:24px 28px;overflow-y:auto;flex:1}
+.settings-section{margin-bottom:24px}
+.settings-section-title{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.settings-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px}
+.settings-row.full{grid-template-columns:1fr}
+.settings-field{position:relative}
+.settings-field-label{font-size:11px;font-weight:500;color:var(--text-muted);margin-bottom:5px}
+.settings-field-value{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-md);font-size:13px;font-weight:500;color:var(--text-primary);min-height:42px;transition:var(--transition)}
+.settings-field-value.readonly{color:var(--text-secondary);background:var(--bg-primary);border-style:dashed}
+.settings-field-value input{flex:1;background:none;border:none;color:var(--text-primary);font-size:13px;font-weight:500;font-family:inherit;outline:none}
+.settings-field-value input::placeholder{color:var(--text-muted)}
+.settings-edit-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);cursor:pointer;color:var(--accent-light);background:var(--accent-bg);border:none;font-size:13px;transition:var(--transition);flex-shrink:0}
+.settings-edit-btn:hover{background:var(--accent);color:#fff}
+.settings-footer{padding:16px 28px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;flex-shrink:0}
+.settings-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--radius-sm);font-size:11px;font-weight:600}
+.settings-badge.normal{background:var(--success-bg);color:var(--success)}
+
+/* Management Views */
+.mgmt-view{display:none;flex:1;flex-direction:column;overflow:auto;padding:24px 28px;background:var(--bg-primary)}
+.mgmt-view.active{display:flex}
+.mgmt-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.mgmt-header h2{font-size:18px;font-weight:700;white-space:nowrap}
+.mgmt-header .search-box{display:flex;align-items:center;gap:6px;padding:7px 12px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;min-width:220px}
+.mgmt-header .search-box input{flex:1;background:none;border:none;color:var(--text-primary);font-size:13px;font-family:inherit;outline:none}
+.mgmt-header .search-box input::placeholder{color:var(--text-muted)}
+.mgmt-header .search-box i{color:var(--text-muted);font-size:15px}
+.mgmt-header-right{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.mgmt-table{width:100%;border-collapse:separate;border-spacing:0;background:var(--bg-secondary);border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border)}
+.mgmt-table th{padding:10px 12px;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;text-align:left;background:var(--bg-tertiary);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5;white-space:nowrap}
+.mgmt-table td{padding:12px 12px;font-size:12px;border-bottom:1px solid var(--border);white-space:nowrap}
+.mgmt-table tr:last-child td{border-bottom:none}
+.mgmt-table tr:hover td{background:var(--bg-hover)}
+.mgmt-table td.highlight{background:var(--warning-bg);color:var(--warning);font-weight:600}
+.mgmt-table .cb-cell{width:36px;text-align:center}
+.mgmt-table input[type="checkbox"]{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.status-badge.on{background:var(--success-bg);color:var(--success)}
+.status-badge.off{background:rgba(107,113,133,.1);color:var(--text-muted)}
+.check-btn{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--warning);background:var(--warning-bg);color:var(--warning)}
+.check-btn:hover{background:rgba(253,203,110,.25)}
+.mgmt-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mgmt-filters select{padding:6px 28px 6px 10px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:inherit;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%239aa0b0' viewBox='0 0 24 24'%3E%3Cpath d='M12 15l-5-5h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center}
+/* Modal wide */
+.modal.wide{width:700px}
+.modal-two-col{display:flex;gap:20px}
+.modal-two-col .col-left{flex:1}
+.modal-two-col .col-right{width:240px;background:var(--bg-tertiary);border-radius:var(--radius-md);padding:12px;max-height:320px;overflow-y:auto}
+.col-right-title{font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:8px}
+.pc-list-item{display:flex;align-items:center;gap:6px;padding:5px 8px;font-size:12px;border-bottom:1px solid var(--border)}
+.pc-list-item:last-child{border-bottom:none}
+.pc-list-item .pc-name{font-weight:600;flex:1}
+.pc-list-item .pc-ip{color:var(--text-muted);font-size:11px}
+
+/* Topbar Tabs */
+.topbar-tabs{display:flex;gap:2px;background:var(--bg-tertiary);border-radius:var(--radius-md);padding:3px;flex-shrink:0}
+.topbar-tab{padding:6px 14px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;color:var(--text-muted);transition:var(--transition);border:none;background:none;font-family:inherit;white-space:nowrap}
+.topbar-tab.active{background:var(--accent);color:#fff}
+.topbar-tab:hover:not(.active){color:var(--text-primary);background:var(--bg-hover)}
+
+/* Util legend */
+.util-legend{display:flex;gap:2px;margin-left:8px}
+.ul-item{padding:2px 6px;border-radius:3px;font-size:9px;font-weight:600;color:#fff}
+
+/* Detail toolbar */
+.detail-toolbar{display:flex;gap:6px;padding:10px 16px;border-top:1px solid var(--border);justify-content:center;flex-shrink:0;background:var(--bg-secondary)}
+.btn-sm{padding:5px 12px;font-size:11px}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* Ceremony Management */
+.ceremony-tabs{display:flex;gap:2px;background:var(--bg-tertiary);border-radius:var(--radius-md);padding:3px;width:fit-content}
+.ceremony-tab{padding:8px 24px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;color:var(--text-muted);transition:var(--transition);border:none;background:none;font-family:inherit}
+.ceremony-tab.active{background:var(--accent);color:#fff}
+.ceremony-tab:hover:not(.active){color:var(--text-primary);background:var(--bg-hover)}
+.summary-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.summary-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:24px}
+.summary-card-title{font-size:12px;color:var(--text-muted);margin-bottom:12px}
+.summary-card-value{font-size:40px;font-weight:800;letter-spacing:-1px}
+.time-filter{display:flex;gap:2px;background:var(--bg-tertiary);border-radius:var(--radius-sm);padding:2px}
+.time-filter-btn{padding:5px 14px;border-radius:var(--radius-sm);font-size:11px;font-weight:600;cursor:pointer;color:var(--text-muted);border:none;background:none;font-family:inherit;transition:var(--transition)}
+.time-filter-btn.active{background:var(--accent-bg);color:var(--accent-light)}
+.time-filter-btn:hover:not(.active){color:var(--text-primary)}
+.ceremony-filter-bar{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.ceremony-date-range{display:flex;align-items:center;gap:6px}
+.ceremony-date-range input[type="date"]{padding:5px 10px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:inherit}
+.ceremony-date-range input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.7)}
+.ceremony-ranking-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.ceremony-ranking{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden}
+.ceremony-ranking-title{padding:14px 16px 10px;font-size:13px;font-weight:700;color:var(--text-primary)}
+.ceremony-chart-area{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;margin-bottom:24px}
+.ceremony-chart-title{font-size:13px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:12px}
+.ceremony-chart-legend{display:flex;gap:16px;margin-left:auto;font-size:11px;color:var(--text-muted)}
+.ceremony-chart-legend span{display:flex;align-items:center;gap:5px}
+.ceremony-chart-legend .ldot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.ceremony-chart-legend .ldash{width:16px;height:0;border-top:2px dashed;display:inline-block}
+.ceremony-settings-section{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px;margin-bottom:20px}
+.ceremony-settings-section h3{font-size:14px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.ceremony-settings-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px}
+.ceremony-settings-row.col3{grid-template-columns:1fr 1fr 1fr}
+.ceremony-settings-row.col4{grid-template-columns:1fr 1fr 1fr 1fr}
+.ceremony-field{display:flex;flex-direction:column;gap:5px}
+.ceremony-field label{font-size:11px;font-weight:500;color:var(--text-muted)}
+.ceremony-field input,.ceremony-field select{padding:8px 12px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;font-family:inherit}
+.ceremony-field input:focus,.ceremony-field select:focus{outline:none;border-color:var(--accent)}
+.ceremony-field input[readonly]{color:var(--text-muted);border-style:dashed;background:var(--bg-primary)}
+.ceremony-field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%239aa0b0' viewBox='0 0 24 24'%3E%3Cpath d='M12 15l-5-5h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.toggle-switch{position:relative;width:44px;height:24px;background:var(--border);border-radius:12px;cursor:pointer;transition:var(--transition);flex-shrink:0}
+.toggle-switch.on{background:var(--accent)}
+.toggle-switch::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:var(--transition)}
+.toggle-switch.on::after{left:23px}
+.ceremony-slot{background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;margin-bottom:12px}
+.ceremony-slot-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.ceremony-slot-header .slot-title{font-size:13px;font-weight:700;color:var(--text-primary)}
+.ceremony-slot-header .slot-sound{font-size:11px;color:var(--text-muted);margin-left:4px}
+.ceremony-slot-header .slot-toggle-label{font-size:11px;color:var(--text-secondary);margin-left:auto;margin-right:6px}
+.ceremony-slot-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ceremony-volume-section{display:flex;align-items:center;gap:16px;margin-top:8px}
+.ceremony-volume-section .vol-label{font-size:12px;color:var(--text-secondary);white-space:nowrap}
+.ceremony-volume-section input[type="range"]{flex:1;-webkit-appearance:none;height:6px;border-radius:3px;background:var(--border);outline:none}
+.ceremony-volume-section input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--warning);cursor:pointer;border:2px solid var(--bg-card)}
+.ceremony-volume-section .vol-val{font-size:13px;font-weight:700;color:var(--warning);min-width:36px;text-align:right}
+.ceremony-connection{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg-tertiary);border-radius:var(--radius-sm)}
+.ceremony-connection .conn-status{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
+.ceremony-connection .conn-status.connected{color:var(--success)}
+.ceremony-connection .conn-status.disconnected{color:var(--danger)}
+.ceremony-connection .conn-status::before{content:'';width:8px;height:8px;border-radius:50%;background:currentColor}
+.ceremony-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}
+
+.store-tab{padding:8px 24px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;color:var(--text-muted);transition:var(--transition);border:none;background:none;font-family:inherit}
+.store-tab.active{background:var(--accent);color:#fff}
+.store-tab:hover:not(.active){color:var(--text-primary);background:var(--bg-hover)}
+
+.agent-section{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:20px}
+.agent-section-title{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.agent-section-desc{font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6}
+
+.agent-steps{display:flex;gap:0;margin:20px 0;position:relative}
+.agent-step{flex:1;text-align:center;position:relative;padding:0 12px}
+.agent-step-num{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;margin:0 auto 10px}
+.agent-step-title{font-size:13px;font-weight:600;margin-bottom:4px}
+.agent-step-desc{font-size:11px;color:var(--text-muted);line-height:1.4}
+.agent-step::after{content:'';position:absolute;top:18px;left:calc(50% + 24px);width:calc(100% - 48px);height:2px;background:var(--border)}
+.agent-step:last-child::after{display:none}
+
+.agent-warn{background:var(--warning-bg);border:1px solid rgba(253,203,110,0.3);border-radius:var(--radius-lg);padding:20px 24px}
+.agent-warn-title{font-size:14px;font-weight:700;color:var(--warning);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.agent-warn-method{padding:10px 14px;background:rgba(0,0,0,0.15);border-radius:var(--radius-md);margin-bottom:8px}
+.agent-warn-method strong{color:var(--text-primary);font-size:13px}
+.agent-warn-method p{font-size:12px;color:var(--text-secondary);margin-top:4px;line-height:1.5}
+
+.agent-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.agent-stat-card{background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;text-align:center}
+.agent-stat-val{font-size:28px;font-weight:800;margin-bottom:2px}
+.agent-stat-label{font-size:11px;color:var(--text-muted);font-weight:500}
+
+.agent-info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.agent-info-item{background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-md);padding:14px}
+.agent-info-item strong{display:block;font-size:12px;margin-bottom:4px;color:var(--text-primary)}
+.agent-info-item p{font-size:11px;color:var(--text-secondary);line-height:1.5;margin:0}
+
+.agent-data-table{width:100%;border-collapse:collapse;font-size:12px}
+.agent-data-table td{padding:8px 12px;border-bottom:1px solid var(--border)}
+.agent-data-table td:first-child{font-weight:600;color:var(--text-primary);white-space:nowrap;width:200px}
+.agent-data-table td:last-child{color:var(--text-secondary)}
+
+.agent-download-box{display:flex;align-items:center;gap:16px;padding:16px;background:var(--bg-tertiary);border-radius:var(--radius-md);border:1px solid var(--border)}
+.agent-download-box select{padding:9px 12px;background:var(--bg-primary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;font-family:inherit;min-width:200px}
+.agent-download-info{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted);background:var(--bg-primary);padding:6px 12px;border-radius:20px;margin-top:10px}
+
+.agent-store-table{width:100%;border-collapse:collapse;font-size:12px}
+.agent-store-table th{text-align:center;padding:8px 10px;border-bottom:2px solid var(--border);font-weight:600;color:var(--text-secondary);font-size:11px}
+.agent-store-table td{text-align:center;padding:8px 10px;border-bottom:1px solid var(--border)}
+
+@media(max-width:900px){
+  .agent-stats{grid-template-columns:repeat(2,1fr)}
+  .agent-info-grid{grid-template-columns:1fr}
+  .agent-steps{flex-direction:column;gap:12px}
+  .agent-step::after{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-header"><div class="sidebar-logo"><i class="ri-computer-line"></i><span>iSens Manager</span></div></div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-title">관리</div>
+        <div class="nav-item active" data-view="floor"><i class="ri-layout-masonry-line"></i>PC 관리</div>
+        <div class="nav-item" onclick="switchToPage('pc-mgmt')"><i class="ri-computer-line"></i>PC 등록/수정</div>
+        <div class="nav-item" onclick="switchToPage('ceremony')"><i class="ri-music-2-line"></i>세리머니 관리</div>
+      </div>
+      <div style="height:1px;background:var(--border);margin:6px 12px"></div>
+      <div class="nav-section">
+        <div class="nav-section-title">운영</div>
+        <div class="nav-item" onclick="switchToPage('store-mgmt')"><i class="ri-store-2-line"></i>매장 관리</div>
+      </div>
+    </nav>
+    <div class="sidebar-profile" id="sidebarProfile">
+      <div class="profile-trigger" onclick="toggleProfileMenu()">
+        <div class="profile-avatar" id="profileAvatar">유</div>
+        <div class="profile-info">
+          <span class="profile-name" id="profileName">유세균</span>
+          <span class="profile-role">총괄관리자</span>
+        </div>
+        <i class="ri-more-2-fill" style="color:var(--text-muted);margin-left:auto;font-size:16px"></i>
+      </div>
+      <div class="profile-menu" id="profileMenu">
+        <div class="profile-menu-item" onclick="openSettings()"><i class="ri-settings-3-line"></i>설정</div>
+        <div class="profile-menu-divider"></div>
+        <div class="profile-menu-item danger" onclick="logout()"><i class="ri-logout-box-r-line"></i>로그아웃</div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="store-dd" id="storeDd">
+        <button class="store-dd-trigger" id="storeTrigger" onclick="toggleStoreDd()">
+          <i class="ri-store-2-line"></i><span id="curStoreName">수원경희대점</span><i class="ri-arrow-down-s-line arrow"></i>
+        </button>
+        <div class="store-dd-panel" id="storePanel">
+          <div class="store-search"><i class="ri-search-line"></i><input id="storeSearch" placeholder="매장 검색..." oninput="filterStores(this.value)"></div>
+          <div class="store-list" id="storeList"></div>
+        </div>
+      </div>
+      <div class="topbar-tabs" id="topbarTabs">
+        <button class="topbar-tab active" onclick="switchTab('pc')" data-tab="pc">PC 관리</button>
+        <button class="topbar-tab" onclick="switchTab('util')" data-tab="util">가동률</button>
+      </div>
+      <div class="topbar-stats" id="topStats">
+        <div class="stat-chip"><div class="dot on"></div>가동 <strong id="sOn">0</strong></div>
+        <div class="stat-chip"><div class="dot off"></div>미사용 <strong id="sOff">0</strong></div>
+        <div class="stat-chip"><div class="dot warn"></div>주의 <strong id="sWarn">0</strong></div>
+        <div class="stat-chip"><div class="dot err"></div>경고 <strong id="sErr">0</strong></div>
+      </div>
+      <div class="topbar-right">
+        <div class="view-toggle">
+          <button class="view-toggle-btn active" data-view="floor"><i class="ri-layout-masonry-line"></i> 도면</button>
+          <button class="view-toggle-btn" data-view="zone"><i class="ri-layout-grid-line"></i> 구역</button>
+          <button class="view-toggle-btn" data-view="list"><i class="ri-list-unordered"></i> 목록</button>
+        </div>
+        <button class="btn" id="zonePanelBtn" onclick="toggleZonePanel()"><i class="ri-palette-line"></i> 구역</button>
+        <button class="btn btn-primary" id="editModeBtn" onclick="toggleEditMode()"><i class="ri-edit-line"></i> 편집</button>
+      </div>
+    </div>
+
+    <div class="edit-toolbar" id="editToolbar">
+      <span class="edit-toolbar-text"><i class="ri-information-line"></i>편집 모드 - 구역 카드/헤더 드래그로 순서 변경 · 좌석 드래그로 이동 · Shift+클릭 다중선택 · 우클릭 메뉴</span>
+      <div class="multi-badge" id="multiBadge"><i class="ri-checkbox-multiple-line"></i><span id="multiCnt">0</span>개 선택</div>
+      <div style="margin-left:auto;display:flex;gap:6px;">
+        <button class="btn btn-success" onclick="addSeatToZone()"><i class="ri-add-line"></i> 좌석 추가</button>
+        <button class="btn btn-danger" id="delSelBtn" style="display:none" onclick="showDelSelModal()"><i class="ri-delete-bin-line"></i> 선택 삭제</button>
+        <button class="btn btn-danger" onclick="toggleEditMode()"><i class="ri-close-line"></i> 편집 종료</button>
+      </div>
+    </div>
+
+    <div class="workspace" id="workspace">
+      <div class="zone-panel" id="zonePanel">
+        <div class="zone-panel-hdr"><i class="ri-palette-line"></i> 구역 관리</div>
+        <div class="zone-list" id="zoneList"></div>
+        <div style="padding:6px"><button class="btn btn-primary" style="width:100%" onclick="showAddZoneModal()"><i class="ri-add-line"></i> 구역 추가</button></div>
+      </div>
+
+      <div class="empty-state" id="emptyState">
+        <i class="ri-map-pin-add-line"></i><h3>등록된 좌석이 없습니다</h3>
+        <p>도면 이미지를 등록하면 자동으로 좌석을 감지하여 배치합니다.</p>
+        <button class="btn btn-primary" onclick="showUploadModal()" style="margin-top:8px;padding:10px 22px;font-size:13px"><i class="ri-image-add-line"></i> 도면 이미지 등록</button>
+      </div>
+
+      <div class="floor-plan-container" id="floorCont">
+        <div class="floor-plan" id="floorPlan">
+          <div class="floor-plan-bg" id="floorBg"></div>
+          <canvas class="edit-grid-bg" id="editGrid"></canvas>
+          <div class="seat-grid" id="seatGrid"></div>
+        </div>
+        <div class="zoom-ctrl">
+          <button class="zoom-btn" onclick="zoomIn()"><i class="ri-zoom-in-line"></i></button>
+          <div class="zoom-lv" id="zoomLv">100%</div>
+          <button class="zoom-btn" onclick="zoomOut()"><i class="ri-zoom-out-line"></i></button>
+          <button class="zoom-btn" onclick="zoomReset()" style="margin-top:3px"><i class="ri-refresh-line"></i></button>
+        </div>
+      </div>
+
+      <div class="zone-view" id="zoneView"></div>
+      <div class="table-view" id="tableView"></div>
+
+      <div class="detail-panel" id="detailPanel">
+        <div class="detail-hdr">
+          <button class="detail-close" onclick="closeDetail()"><i class="ri-arrow-right-s-line"></i></button>
+          <div class="detail-title" id="detailTitle">PC001</div>
+          <div class="detail-status" id="detailSt">ON</div>
+        </div>
+        <div class="detail-body" id="detailBody"></div>
+        <div class="detail-toolbar" id="detailToolbar">
+          <button class="btn btn-sm" onclick="navigateSeat(-1)"><i class="ri-arrow-left-s-line"></i> 이전</button>
+          <button class="btn btn-sm btn-primary" onclick="showPcEditModal()"><i class="ri-edit-line"></i> 수정</button>
+          <button class="btn btn-sm" onclick="navigateSeat(1)">다음 <i class="ri-arrow-right-s-line"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Store Management View -->
+    <div class="mgmt-view" id="storeMgmtView"></div>
+    <!-- PC Management View -->
+    <div class="mgmt-view" id="pcMgmtView"></div>
+    <!-- Ceremony Management View -->
+    <div class="mgmt-view" id="ceremonyView"></div>
+  </div>
+</div>
+
+<div class="seat-tooltip" id="tooltip"></div>
+<div class="ctx-menu" id="ctxMenu"></div>
+<div class="modal-overlay" id="modalOv"><div class="modal" id="modal"></div></div>
+
+<!-- Settings Overlay -->
+<div class="settings-overlay" id="settingsOv">
+  <div class="settings-panel">
+    <div class="settings-hdr">
+      <h2><i class="ri-user-settings-line"></i>개인정보관리</h2>
+      <button class="detail-close" onclick="closeSettings()"><i class="ri-close-line"></i></button>
+    </div>
+    <div class="settings-body">
+      <div class="settings-section">
+        <div class="settings-section-title">계정 정보</div>
+        <div class="settings-row">
+          <div class="settings-field">
+            <div class="settings-field-label">아이디</div>
+            <div class="settings-field-value readonly" id="setUserId">skyoo</div>
+          </div>
+          <div class="settings-field">
+            <div class="settings-field-label">비밀번호</div>
+            <div class="settings-field-value">
+              <span style="letter-spacing:3px">********</span>
+              <button class="settings-edit-btn" onclick="showChangePwModal()"><i class="ri-edit-line"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">개인 정보</div>
+        <div class="settings-row">
+          <div class="settings-field">
+            <div class="settings-field-label">이름</div>
+            <div class="settings-field-value">
+              <input type="text" id="setName" value="유세균">
+              <button class="settings-edit-btn" onclick="focusSettingsField('setName')"><i class="ri-edit-line"></i></button>
+            </div>
+          </div>
+          <div class="settings-field">
+            <div class="settings-field-label">휴대폰 번호</div>
+            <div class="settings-field-value">
+              <input type="tel" id="setPhone" value="01096367152">
+              <button class="settings-edit-btn" onclick="focusSettingsField('setPhone')"><i class="ri-edit-line"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="settings-row full">
+          <div class="settings-field">
+            <div class="settings-field-label">E-mail</div>
+            <div class="settings-field-value">
+              <input type="email" id="setEmail" value="skyoo@isens.camp">
+              <button class="settings-edit-btn" onclick="focusSettingsField('setEmail')"><i class="ri-edit-line"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">소속 정보</div>
+        <div class="settings-row">
+          <div class="settings-field">
+            <div class="settings-field-label">소속</div>
+            <div class="settings-field-value">
+              <input type="text" id="setOrg" value="IT사업부">
+              <button class="settings-edit-btn" onclick="focusSettingsField('setOrg')"><i class="ri-edit-line"></i></button>
+            </div>
+          </div>
+          <div class="settings-field">
+            <div class="settings-field-label">직급</div>
+            <div class="settings-field-value">
+              <input type="text" id="setPosition" value="차장">
+              <button class="settings-edit-btn" onclick="focusSettingsField('setPosition')"><i class="ri-edit-line"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-field">
+            <div class="settings-field-label">회원 구분</div>
+            <div class="settings-field-value readonly">총괄관리자</div>
+          </div>
+          <div class="settings-field">
+            <div class="settings-field-label">상태</div>
+            <div class="settings-field-value readonly"><span class="settings-badge normal"><i class="ri-checkbox-circle-line"></i>정상</span></div>
+          </div>
+        </div>
+        <div class="settings-row full">
+          <div class="settings-field">
+            <div class="settings-field-label">메모</div>
+            <div class="settings-field-value">
+              <input type="text" id="setMemo" value="안이쁘다고 뭐라하는 기획자" placeholder="메모를 입력하세요">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="settings-footer">
+      <button class="btn" onclick="closeSettings()">닫기</button>
+      <button class="btn btn-primary" onclick="saveSettings()"><i class="ri-save-line"></i> 저장</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"><i class="ri-check-line" style="color:var(--success)"></i><span id="toastTxt"></span></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════
+const GRID=60,SEAT_W=52,SEAT_H=44,SEAT_GAP=6,ZONE_PAD=12,ZONE_GAP=16;
+
+const ZONES=[
+  {id:'fps',name:'FPS존',color:'#6c5ce7'},{id:'lol',name:'LOL존',color:'#e17055'},
+  {id:'vip',name:'VIP존',color:'#fdcb6e'},{id:'team',name:'팀룸',color:'#ff6348'},
+  {id:'couple',name:'커플존',color:'#fd79a8'},{id:'friends',name:'프렌즈존',color:'#00cec9'},
+  {id:'first',name:'퍼스트클래스존',color:'#f9ca24'},{id:'multi',name:'멀티존',color:'#636e72'},
+  {id:'fc',name:'FC ONLINE존',color:'#00b894'},{id:'dental',name:'덴탈존',color:'#74b9ff'},
+];
+const UNASSIGNED={id:'_unassigned',name:'미지정 좌석',color:'#95a5a6',fixed:true};
+
+const STORES=[];
+const STORE_NAMES=['수원경희대점','강남역점','홍대입구점','부산서면점','대전둔산점','인천구월점','대구동성로점','광주충장로점','울산삼산점','제주시청점','수원역점','분당정자점','일산라페스타점','천안두정점','전주객사점','청주성안점','포항시청점','창원상남점','김해장유점','양산물금점'];
+for(let i=0;i<120;i++){const b=STORE_NAMES[i%STORE_NAMES.length];const s=i>=STORE_NAMES.length?` ${Math.floor(i/STORE_NAMES.length)+1}호점`:'';STORES.push({id:i,name:i<STORE_NAMES.length?b:b.replace('점',s)});}
+const STORES_WITH_SEATS=new Set([0,1,2,3,4]);
+// Track which stores have had image registered (disables upload menu)
+const STORES_IMAGE_REGISTERED=new Set();
+let curStoreId=0;
+
+const CPU=['Intel Core i9-9900K','Intel Core i5-13400F','Intel Core i7-10700'];
+const GPU=['NVIDIA GeForce RTX 3060','NVIDIA GeForce RTX 4060','NVIDIA GeForce RTX 3070'];
+const DEVS=['Mouse','Mouse','Keyboard','Headset','Speaker','Bluetooth'];
+
+function genSeats(){
+  const s=[];
+  const layout=[
+    {zone:'fps',n:15},{zone:'multi',n:22},{zone:'vip',n:12},{zone:'team',n:9},
+    {zone:'friends',n:6},{zone:'first',n:6},{zone:'couple',n:6},
+    {zone:'lol',n:12},{zone:'fc',n:12},{zone:'dental',n:9},
+  ];
+  let id=1;
+  layout.forEach(g=>{
+    for(let i=0;i<g.n;i++){
+      const isOn=Math.random()>.43;
+      const ct=isOn?Math.floor(30+Math.random()*65):0;
+      const gt=isOn?Math.floor(30+Math.random()*60):0;
+      let st='off';
+      if(isOn){if(ct>85||gt>80)st='error';else if(ct>70||gt>65)st='warning';else st='on';}
+      s.push({id,pcNumber:`PC${String(id).padStart(3,'0')}`,zone:g.zone,status:st,isOn,
+        ip:`125.130.6.${140+id}`,cpuModel:CPU[id%3],gpuModel:GPU[id%3],ram:[16,32][id%2],
+        cpuTemp:ct,gpuTemp:gt,cpuMax:isOn?Math.max(ct,Math.floor(60+Math.random()*35)):0,
+        gpuMax:isOn?Math.max(gt,Math.floor(55+Math.random()*40)):0,
+        cpuWarn:ct>85?1:0,gpuWarn:gt>80?1:0,
+        devices:DEVS.slice(0,4+(id%3)),deviceCount:4+(id%3),version:'1.2.0.2',
+        utilization:Array.from({length:24},()=>Math.random()*100),
+        lastUpdate:'2026-03-16 15:18:'+String(id%60).padStart(2,'0'),
+      });
+      id++;
+    }
+  });
+  return s;
+}
+
+let seats=genSeats();
+let curView='floor',editMode=false,addMode=false;
+let listPage=1;
+let listPerPage=100;
+let selectedSeat=null,ctxSeat=null;
+let zoom=1,zonePanelOpen=false;
+let multiSel=new Set();
+let highlightedZone=null;
+let storeHasSeats=true;
+let zoneLayout={};
+let curTab='pc';
+
+function initZoneLayout(){
+  const groups={};
+  seats.forEach(s=>{if(!groups[s.zone])groups[s.zone]=[];groups[s.zone].push(s);});
+  let y=0,maxH=0,rowX=0,col=0;
+  const zonesOrder=[...ZONES.map(z=>z.id)];
+  if(groups[UNASSIGNED.id])zonesOrder.push(UNASSIGNED.id);
+  zonesOrder.forEach(zid=>{
+    const zs=groups[zid]||[];if(!zs.length)return;
+    const cols=Math.min(5,Math.max(2,Math.ceil(Math.sqrt(zs.length*1.5))));
+    const rows=Math.ceil(zs.length/cols);
+    const w=cols*(SEAT_W+SEAT_GAP)-SEAT_GAP+ZONE_PAD*2;
+    const h=rows*(SEAT_H+SEAT_GAP)-SEAT_GAP+ZONE_PAD*2+28;
+    zoneLayout[zid]={x:rowX,y,cols,rows,w,h};
+    rowX+=w+ZONE_GAP;if(h>maxH)maxH=h;col++;
+    if(col>=3){col=0;y+=maxH+ZONE_GAP;rowX=0;maxH=0;}
+  });
+}
+initZoneLayout();
+
+// ═══════════════════════════════════════════════════════════
+// STORE DROPDOWN
+// ═══════════════════════════════════════════════════════════
+function renderStores(f=''){
+  const q=f.toLowerCase();const fl=STORES.filter(s=>s.name.toLowerCase().includes(q));
+  const el=document.getElementById('storeList');
+  if(!fl.length){el.innerHTML='<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px">검색 결과 없음</div>';return;}
+  el.innerHTML=fl.map(s=>`<div class="store-list-item${s.id===curStoreId?' active':''}" onclick="selectStore(${s.id})">
+    <i class="ri-store-2-line" style="color:var(--accent-light);font-size:14px"></i><span>${s.name}</span>
+    ${s.id===curStoreId?'<span class="cur">현재</span>':''}
+  </div>`).join('');
+}
+function toggleStoreDd(){
+  const p=document.getElementById('storePanel'),t=document.getElementById('storeTrigger');
+  const o=p.classList.toggle('open');t.classList.toggle('open',o);
+  if(o){document.getElementById('storeSearch').value='';renderStores();setTimeout(()=>document.getElementById('storeSearch').focus(),50);}
+}
+function filterStores(v){renderStores(v);}
+function selectStore(id){
+  curStoreId=id;
+  document.getElementById('curStoreName').textContent=STORES.find(s=>s.id===id).name;
+  document.getElementById('storePanel').classList.remove('open');document.getElementById('storeTrigger').classList.remove('open');
+  if(STORES_WITH_SEATS.has(id)){seats=genSeats();storeHasSeats=true;initZoneLayout();}
+  else{seats=[];storeHasSeats=false;}
+  updateUploadNavItem();
+  closeDetailOnly();switchView(curView);
+  showToast(STORES.find(s=>s.id===id).name+'(으)로 전환');
+}
+
+function updateUploadNavItem(){
+  const el=document.getElementById('uploadNavItem');
+  if(!el)return;
+  if(STORES_IMAGE_REGISTERED.has(curStoreId)){
+    el.classList.add('disabled');
+    el.title='이미 도면이 등록된 매장입니다';
+  } else {
+    el.classList.remove('disabled');
+    el.title='';
+  }
+}
+
+document.addEventListener('click',e=>{
+  if(!document.getElementById('storeDd').contains(e.target)){document.getElementById('storePanel').classList.remove('open');document.getElementById('storeTrigger').classList.remove('open');}
+  document.getElementById('ctxMenu').classList.remove('visible');
+});
+
+// ═══════════════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════════════
+function updateStats(){
+  const statsEl=document.getElementById('topStats');
+  if(curTab==='util'){
+    const now=new Date();
+    const h=now.getHours();
+    const avg=seats.length?Math.round(seats.reduce((a,s)=>a+s.utilization[h],0)/seats.length):0;
+    const dateStr=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(h).padStart(2,'0')}:00 기준`;
+    statsEl.innerHTML=`
+      <div class="stat-chip"><strong>${String(h).padStart(2,'0')}~${String((h+1)%24).padStart(2,'0')}시</strong></div>
+      <div class="stat-chip">평균 가동률 <strong style="color:var(--accent-light)">${avg}%</strong></div>
+      <div class="stat-chip" style="color:var(--text-muted);font-size:10px"><i class="ri-time-line" style="margin-right:3px"></i>${dateStr}</div>
+      <div class="util-legend">
+        <span class="ul-item" style="background:rgba(107,113,133,0.2);color:var(--text-muted)">0%</span>
+        <span class="ul-item" style="background:rgba(108,92,231,0.15);color:rgba(162,155,254,0.7)">~20%</span>
+        <span class="ul-item" style="background:rgba(108,92,231,0.25);color:var(--accent-light)">~40%</span>
+        <span class="ul-item" style="background:rgba(108,92,231,0.35);color:var(--accent-light)">~60%</span>
+        <span class="ul-item" style="background:rgba(108,92,231,0.5);color:#fff">~80%</span>
+        <span class="ul-item" style="background:rgba(108,92,231,0.7);color:#fff">~100%</span>
+      </div>`;
+    return;
+  }
+  let on=0,off=0,w=0,er=0;
+  seats.forEach(s=>{if(s.status==='on')on++;else if(s.status==='off')off++;else if(s.status==='warning')w++;else er++;});
+  statsEl.innerHTML=`
+    <div class="stat-chip"><div class="dot on"></div>가동 <strong>${on+w+er}</strong>
+      <span style="font-size:10px;color:var(--text-muted);margin-left:4px">(</span>
+      <span style="font-size:10px"><span style="color:var(--warning)">주의 ${w}</span> · <span style="color:var(--danger)">경고 ${er}</span></span>
+      <span style="font-size:10px;color:var(--text-muted)">)</span>
+    </div>
+    <div style="width:1px;height:20px;background:var(--border);margin:0 4px"></div>
+    <div class="stat-chip"><div class="dot off"></div>미사용 <strong>${off}</strong></div>`;
+  const ab=document.getElementById('alertBadge');if(ab)ab.textContent=w+er;
+}
+
+// ═══════════════════════════════════════════════════════════
+// FLOOR PLAN RENDER
+// ═══════════════════════════════════════════════════════════
+function renderFloor(){
+  if(curView!=='floor'){updateStats();return;}
+  if(!storeHasSeats||!seats.length){
+    document.getElementById('emptyState').style.display='flex';
+    document.getElementById('floorCont').style.display='none';
+    updateStats();return;
+  }
+  document.getElementById('emptyState').style.display='none';
+  document.getElementById('floorCont').style.display='block';
+  const grid=document.getElementById('seatGrid');grid.innerHTML='';
+  const groups={};seats.forEach(s=>{if(!groups[s.zone])groups[s.zone]=[];groups[s.zone].push(s);});
+  const zonesOrder=[...ZONES];
+  const hasUnassigned=(groups[UNASSIGNED.id]||[]).length>0;
+
+  zonesOrder.forEach(zone=>{
+    const zs=groups[zone.id]||[];if(!zs.length)return;
+    const zl=zoneLayout[zone.id];if(!zl)return;
+    const area=document.createElement('div');
+    area.className='zone-area'+(editMode?' edit-mode':'')+(highlightedZone===zone.id?' highlighted':'');
+    area.style.cssText=`border-color:${zone.color};min-height:${SEAT_H+ZONE_PAD*2+28}px;padding:${ZONE_PAD}px;width:${zl.w}px;`;
+    if(highlightedZone===zone.id){
+      area.style.background=hexToRgba(zone.color,0.18);
+    }
+    area.dataset.zone=zone.id;
+
+    // In edit mode, entire zone-area card is draggable for reordering
+    if(editMode){
+      area.draggable=true;
+      area.addEventListener('dragstart',e=>{
+        // Ignore if dragging a seat or resize handle
+        if(e.target.closest('.seat')||e.target.closest('.zone-resize-handle'))return;
+        e.dataTransfer.setData('text/plain',JSON.stringify({type:'zone',zoneId:zone.id}));
+        e.dataTransfer.effectAllowed='move';
+        setTimeout(()=>area.style.opacity='0.4',0);
+      });
+      area.addEventListener('dragend',()=>{area.style.opacity='';area.classList.remove('drop-target');});
+      area.addEventListener('dragover',e=>{
+        e.preventDefault();e.dataTransfer.dropEffect='move';
+        area.classList.add('drop-target');
+      });
+      area.addEventListener('dragleave',e=>{
+        if(!area.contains(e.relatedTarget))area.classList.remove('drop-target');
+      });
+      area.addEventListener('drop',e=>{
+        e.preventDefault();e.stopPropagation();
+        area.classList.remove('drop-target');
+        let data;try{data=JSON.parse(e.dataTransfer.getData('text/plain'));}catch{return;}
+        if(data.type==='zone'){
+          const fromIdx=ZONES.findIndex(z=>z.id===data.zoneId);
+          const toIdx=ZONES.findIndex(z=>z.id===zone.id);
+          if(fromIdx===-1||toIdx===-1||fromIdx===toIdx)return;
+          const [moved]=ZONES.splice(fromIdx,1);
+          ZONES.splice(toIdx,0,moved);
+          renderFloor();renderZoneList();showToast('구역 순서 변경됨');
+        } else if(data.type==='seat'){
+          const s=seats.find(x=>x.id===data.seatId);
+          if(!s)return;
+          if(s.zone===zone.id){
+            // Reorder within zone: find drop position and move
+            const targetSeat=e.target.closest('.seat');
+            if(targetSeat&&targetSeat.dataset.id){
+              const toId=parseInt(targetSeat.dataset.id);
+              if(toId!==s.id){
+                const zoneSeats=seats.filter(x=>x.zone===zone.id);
+                const fromPos=zoneSeats.findIndex(x=>x.id===s.id);
+                const toPos=zoneSeats.findIndex(x=>x.id===toId);
+                if(fromPos!==-1&&toPos!==-1){
+                  // Reorder in global seats array within zone
+                  const fromGlobal=seats.indexOf(s);
+                  const toSeatObj=seats.find(x=>x.id===toId);
+                  const toGlobal=seats.indexOf(toSeatObj);
+                  seats.splice(fromGlobal,1);
+                  const newTo=seats.indexOf(toSeatObj);
+                  seats.splice(newTo+(fromGlobal<toGlobal?1:0),0,s);
+                  renderFloor();showToast('좌석 순서 변경됨');
+                }
+              }
+            }
+            return;
+          }
+          const fromZone=ZONES.find(z=>z.id===s.zone)||UNASSIGNED;
+          const toZone=ZONES.find(z=>z.id===zone.id)||UNASSIGNED;
+          s.zone=zone.id;
+          renderFloor();renderZoneList();showToast(`${s.pcNumber}: ${fromZone.name} → ${toZone.name}`);
+        }
+      });
+    }
+
+    const lbl=document.createElement('div');
+    lbl.className='zone-area-label';
+    lbl.style.cssText=`background:${zone.color};color:#000`;
+    lbl.dataset.zone=zone.id;
+    lbl.innerHTML=`${zone.name} <span style="opacity:.6;font-size:10px">(${zs.length})</span>`;
+    area.appendChild(lbl);
+
+    const sc=document.createElement('div');sc.className='zone-area-seats';
+    zs.forEach(seat=>sc.appendChild(createSeatEl(seat,zone.id)));
+    area.appendChild(sc);
+
+    if(editMode){
+      const rr=document.createElement('div');rr.className='zone-resize-handle right';rr.dataset.zone=zone.id;rr.dataset.dir='right';
+      const rb=document.createElement('div');rb.className='zone-resize-handle bottom';rb.dataset.zone=zone.id;rb.dataset.dir='bottom';
+      const rc=document.createElement('div');rc.className='zone-resize-handle corner';rc.dataset.zone=zone.id;rc.dataset.dir='corner';
+      area.appendChild(rr);area.appendChild(rb);area.appendChild(rc);
+    }
+    grid.appendChild(area);
+  });
+
+  if(hasUnassigned){
+    const ua=document.createElement('div');
+    ua.className='zone-area unassigned-area'+(editMode?' edit-mode':'')+(highlightedZone===UNASSIGNED.id?' highlighted':'');
+    ua.style.cssText=`border-color:${UNASSIGNED.color};padding:${ZONE_PAD}px;width:100%;`;
+    if(highlightedZone===UNASSIGNED.id)ua.style.background=hexToRgba(UNASSIGNED.color,0.18);
+    ua.dataset.zone=UNASSIGNED.id;
+
+    if(editMode){
+      ua.addEventListener('dragover',e=>{e.preventDefault();ua.classList.add('drop-target');});
+      ua.addEventListener('dragleave',e=>{if(!ua.contains(e.relatedTarget))ua.classList.remove('drop-target');});
+      ua.addEventListener('drop',e=>{
+        e.preventDefault();ua.classList.remove('drop-target');
+        let data;try{data=JSON.parse(e.dataTransfer.getData('text/plain'));}catch{return;}
+        if(data.type==='seat'){
+          const s=seats.find(x=>x.id===data.seatId);
+          if(!s||s.zone===UNASSIGNED.id)return;
+          const fromZone=ZONES.find(z=>z.id===s.zone)||UNASSIGNED;
+          s.zone=UNASSIGNED.id;
+          renderFloor();renderZoneList();showToast(`${s.pcNumber}: ${fromZone.name} → ${UNASSIGNED.name}`);
+        }
+      });
+    }
+
+    const ulbl=document.createElement('div');ulbl.className='zone-area-label';
+    ulbl.style.cssText=`background:${UNASSIGNED.color};color:#000`;
+    ulbl.innerHTML=`${UNASSIGNED.name} <span style="opacity:.6;font-size:10px">(${groups[UNASSIGNED.id].length})</span>`;
+    ua.appendChild(ulbl);
+
+    const sc=document.createElement('div');sc.className='zone-area-seats';
+    groups[UNASSIGNED.id].forEach(seat=>sc.appendChild(createSeatEl(seat,UNASSIGNED.id)));
+    ua.appendChild(sc);grid.appendChild(ua);
+  }
+  drawEditGrid();updateStats();
+}
+
+function hexToRgba(hex,a){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+function createSeatEl(seat,zoneId){
+  const el=document.createElement('div');
+  if(curTab==='util'){
+    const h=new Date().getHours();
+    const pct=Math.round(seat.utilization[h]);
+    const uc=getUtilColor(pct);
+    el.className=`seat${selectedSeat?.id===seat.id?' selected':''}`;
+    el.dataset.id=seat.id;
+    el.style.cssText=`background:${uc.bg};border-color:${uc.border};color:${uc.text}`;
+    el.innerHTML=`<div class="seat-num">${seat.id}</div><div class="seat-temp">${pct}%</div>`;
+  } else {
+    el.className=`seat status-${seat.status}${selectedSeat?.id===seat.id?' selected':''}${multiSel.has(seat.id)?' multi-selected':''}`;
+    el.dataset.id=seat.id;
+    let tmp=seat.isOn&&seat.cpuTemp?`<div class="seat-temp">${seat.cpuTemp}°</div>`:'';
+    el.innerHTML=`<div class="seat-num">${seat.id}</div><div class="seat-ind"></div>${tmp}`;
+  }
+
+  // Seat drag in edit mode
+  if(editMode){
+    el.draggable=true;
+    el.addEventListener('dragstart',e=>{
+      e.stopPropagation(); // prevent zone drag from firing
+      e.dataTransfer.setData('text/plain',JSON.stringify({type:'seat',seatId:seat.id}));
+      e.dataTransfer.effectAllowed='move';
+      setTimeout(()=>el.classList.add('dragging'),0);
+    });
+    el.addEventListener('dragend',()=>el.classList.remove('dragging'));
+    el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('drag-over');});
+    el.addEventListener('dragleave',()=>el.classList.remove('drag-over'));
+    el.addEventListener('drop',e=>{
+      e.preventDefault();e.stopPropagation();
+      el.classList.remove('drag-over');
+      let data;try{data=JSON.parse(e.dataTransfer.getData('text/plain'));}catch{return;}
+      if(data.type==='seat'&&data.seatId!==seat.id){
+        const dragged=seats.find(x=>x.id===data.seatId);
+        if(!dragged)return;
+        if(dragged.zone===seat.zone){
+          // Reorder within same zone
+          const fromGlobal=seats.indexOf(dragged);
+          const toGlobal=seats.indexOf(seat);
+          if(fromGlobal!==-1&&toGlobal!==-1){
+            seats.splice(fromGlobal,1);
+            const newTo=seats.indexOf(seat);
+            seats.splice(newTo+(fromGlobal<toGlobal?1:0),0,dragged);
+            renderFloor();showToast('좌석 순서 변경됨');
+          }
+        } else {
+          // Move to this seat's zone
+          const fromZone=ZONES.find(z=>z.id===dragged.zone)||UNASSIGNED;
+          const toZone=ZONES.find(z=>z.id===seat.zone)||UNASSIGNED;
+          dragged.zone=seat.zone;
+          renderFloor();renderZoneList();showToast(`${dragged.pcNumber}: ${fromZone.name} → ${toZone.name}`);
+        }
+      }
+    });
+  }
+
+  el.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(editMode){if(e.shiftKey)toggleMultiSel(seat.id);}
+    else{if(selectedSeat?.id===seat.id){closeDetailOnly();return;}selectSeat(seat);}
+  });
+  el.addEventListener('mouseenter',e=>showTT(e,seat));
+  el.addEventListener('mouseleave',hideTT);
+  // Context menu always works regardless of edit mode
+  el.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();showCtx(e,seat);});
+  return el;
+}
+
+function drawEditGrid(){
+  const canvas=document.getElementById('editGrid');
+  canvas.classList.toggle('visible',editMode&&curView==='floor');
+  if(!editMode||curView!=='floor')return;
+  const plan=document.getElementById('floorPlan');
+  const w=plan.scrollWidth,h=plan.scrollHeight;
+  canvas.width=w;canvas.height=h;canvas.style.width=w+'px';canvas.style.height=h+'px';
+  const ctx=canvas.getContext('2d');ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle='rgba(108,92,231,0.08)';ctx.lineWidth=1;
+  for(let x=0;x<w;x+=GRID){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+  for(let y=0;y<h;y+=GRID){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+}
+
+// ═══════════════════════════════════════════════════════════
+// ZONE VIEW
+// ═══════════════════════════════════════════════════════════
+let zvDragZoneId=null;
+
+function renderZoneView(){
+  const c=document.getElementById('zoneView');
+  const groups={};seats.forEach(s=>{if(!groups[s.zone])groups[s.zone]=[];groups[s.zone].push(s);});
+  c.innerHTML='';
+  [...ZONES,UNASSIGNED].forEach(zone=>{
+    const zs=groups[zone.id]||[];if(!zs.length)return;
+    const grp=document.createElement('div');
+    grp.className='zv-group';
+    grp.dataset.zone=zone.id;
+
+    // Header
+    const hdr=document.createElement('div');
+    hdr.className='zv-hdr'+(editMode?' edit-mode':'');
+    if(editMode){
+      hdr.draggable=true;
+      hdr.addEventListener('dragstart',e=>{
+        zvDragZoneId=zone.id;
+        e.dataTransfer.setData('text/plain',JSON.stringify({type:'zone',zoneId:zone.id}));
+        e.dataTransfer.effectAllowed='move';
+        grp.classList.add('dragging-zone');
+      });
+      hdr.addEventListener('dragend',()=>{grp.classList.remove('dragging-zone');zvDragZoneId=null;});
+    }
+    if(curTab==='util'){
+      const h=new Date().getHours();
+      const zAvg=zs.length?Math.round(zs.reduce((a,s)=>a+s.utilization[h],0)/zs.length):0;
+      hdr.innerHTML=`<div class="zone-dot" style="background:${zone.color}"></div><h3>${zone.name}</h3><span class="zv-cnt">평균 ${zAvg}% · ${zs.length}석</span>`;
+    } else {
+      hdr.innerHTML=`<div class="zone-dot" style="background:${zone.color}"></div><h3>${zone.name}</h3><span class="zv-cnt">${zs.length}석</span>`;
+    }
+
+    // Seats container
+    const seatsDiv=document.createElement('div');
+    seatsDiv.className='zv-seats';
+
+    if(editMode){
+      grp.addEventListener('dragover',e=>{
+        e.preventDefault();
+        const d=e.dataTransfer.types.includes('text/plain');
+        if(d)grp.classList.add('drop-target');
+      });
+      grp.addEventListener('dragleave',e=>{if(!grp.contains(e.relatedTarget))grp.classList.remove('drop-target');});
+      grp.addEventListener('drop',e=>{
+        e.preventDefault();grp.classList.remove('drop-target');
+        let data;try{data=JSON.parse(e.dataTransfer.getData('text/plain'));}catch{return;}
+        if(data.type==='zone'){
+          // Reorder zones
+          const fromIdx=ZONES.findIndex(z=>z.id===data.zoneId);
+          const toIdx=ZONES.findIndex(z=>z.id===zone.id);
+          if(fromIdx!==-1&&toIdx!==-1&&fromIdx!==toIdx){
+            const [moved]=ZONES.splice(fromIdx,1);ZONES.splice(toIdx,0,moved);
+            renderZoneView();renderZoneList();showToast('구역 순서 변경됨');
+          }
+        } else if(data.type==='seat'){
+          const s=seats.find(x=>x.id===data.seatId);
+          if(!s||s.zone===zone.id)return;
+          const fromZone=ZONES.find(z=>z.id===s.zone)||UNASSIGNED;
+          const toZone=zone;
+          s.zone=zone.id;
+          renderZoneView();renderZoneList();showToast(`${s.pcNumber}: ${fromZone.name} → ${toZone.name}`);
+        }
+      });
+    }
+
+    zs.forEach(seat=>{
+      const sEl=document.createElement('div');
+      sEl.className='seat';
+      sEl.dataset.sid=seat.id;
+      if(curTab==='util'){
+        const h=new Date().getHours();
+        const pct=Math.round(seat.utilization[h]);
+        const uc=getUtilColor(pct);
+        sEl.style.cssText=`position:relative;border-color:${uc.border};background:${uc.bg};color:${uc.text}`;
+        sEl.innerHTML=`<div class="seat-num">${seat.id}</div><div class="seat-temp">${pct}%</div>`;
+      } else {
+        const sc=seat.status==='on'?'var(--success)':seat.status==='warning'?'var(--warning)':seat.status==='error'?'var(--danger)':'var(--text-muted)';
+        const bg=seat.status==='on'?'var(--success-bg)':seat.status==='warning'?'var(--warning-bg)':seat.status==='error'?'var(--danger-bg)':'rgba(107,113,133,.1)';
+        sEl.style.cssText=`position:relative;border-color:${sc};background:${bg};color:${sc}`;
+        sEl.innerHTML=`<div class="seat-num">${seat.id}</div><div class="seat-ind" style="background:${sc}"></div>${seat.isOn&&seat.cpuTemp?`<div class="seat-temp">${seat.cpuTemp}°</div>`:''}`;
+      }
+
+      if(editMode){
+        sEl.draggable=true;
+        sEl.addEventListener('dragstart',e=>{
+          e.stopPropagation();
+          e.dataTransfer.setData('text/plain',JSON.stringify({type:'seat',seatId:seat.id}));
+          e.dataTransfer.effectAllowed='move';
+          setTimeout(()=>sEl.classList.add('dragging'),0);
+        });
+        sEl.addEventListener('dragend',()=>sEl.classList.remove('dragging'));
+      }
+
+      sEl.addEventListener('click',()=>{if(selectedSeat?.id===seat.id){closeDetailOnly();return;}selectSeatById(seat.id);});
+      sEl.addEventListener('mouseenter',e=>showTTById(e,seat.id));
+      sEl.addEventListener('mouseleave',hideTT);
+      sEl.addEventListener('contextmenu',e=>{e.preventDefault();e.stopPropagation();showCtxById(e,seat.id);});
+      seatsDiv.appendChild(sEl);
+    });
+
+    grp.appendChild(hdr);
+    grp.appendChild(seatsDiv);
+    c.appendChild(grp);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// TABLE VIEW
+// ═══════════════════════════════════════════════════════════
+function buildPaginationHTML(total,page,perPage){
+  const totalPages=Math.ceil(total/perPage);
+  const start=(page-1)*perPage;
+  const end=Math.min(page*perPage,total);
+  let pageNums='';
+  for(let i=1;i<=totalPages;i++){pageNums+=`<div class="page-btn${i===page?' active':''}" onclick="listPage=${i};renderTable()">${i}</div>`;}
+  const perPageOpts=[20,40,60,80,100,120,140,160,180,200].map(n=>`<option value="${n}"${n===perPage?' selected':''}>${n}개씩</option>`).join('');
+  return `<div class="table-pagination">
+    <span style="font-size:11px;color:var(--text-muted)">페이지당</span>
+    <select class="form-input" style="width:auto;padding:4px 8px;font-size:11px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-family:inherit" onchange="listPerPage=parseInt(this.value);listPage=1;renderTable()">${perPageOpts}</select>
+    <span style="font-size:11px;color:var(--text-muted)">${total}개 중 ${start+1}-${end}</span>
+    <div class="pagination-controls">
+      <div class="page-btn" onclick="listPage=1;renderTable()" ${page<=1?'style="opacity:.3;pointer-events:none"':''}>&laquo;</div>
+      <div class="page-btn" onclick="listPage=Math.max(1,listPage-1);renderTable()" ${page<=1?'style="opacity:.3;pointer-events:none"':''}>&lsaquo;</div>
+      ${pageNums}
+      <div class="page-btn" onclick="listPage=Math.min(${totalPages},listPage+1);renderTable()" ${page>=totalPages?'style="opacity:.3;pointer-events:none"':''}>&rsaquo;</div>
+      <div class="page-btn" onclick="listPage=${totalPages};renderTable()" ${page>=totalPages?'style="opacity:.3;pointer-events:none"':''}>&raquo;</div>
+    </div>
+  </div>`;
+}
+function renderTable(){
+  const c=document.getElementById('tableView');
+  const totalSeats=seats.length;
+  const totalPages=Math.ceil(totalSeats/listPerPage);
+  if(listPage>totalPages)listPage=Math.max(1,totalPages);
+  const startIdx=(listPage-1)*listPerPage;
+  const endIdx=Math.min(listPage*listPerPage,totalSeats);
+  const pagedSeats=seats.slice(startIdx,endIdx);
+  const paginationBar=buildPaginationHTML(totalSeats,listPage,listPerPage);
+
+  if(curTab==='util'){
+    let h=paginationBar;
+    h+=`<div style="overflow-x:auto"><table class="data-table"><thead><tr><th style="position:sticky;left:0;z-index:6;background:var(--bg-tertiary);min-width:80px">PC번호</th><th style="position:sticky;left:80px;z-index:6;background:var(--bg-tertiary);min-width:80px;border-right:2px solid var(--border)">구역</th><th>전체가동률</th>`;
+    for(let i=0;i<24;i++)h+=`<th>${String(i).padStart(2,'0')}-${String(i+1).padStart(2,'0')}</th>`;
+    h+=`</tr></thead><tbody>`;
+    pagedSeats.forEach(s=>{
+      const z=ZONES.find(z=>z.id===s.zone)||UNASSIGNED;
+      const totalAvg=Math.round(s.utilization.reduce((a,v)=>a+v,0)/24);
+      const totalUc=getUtilColor(totalAvg);
+      h+=`<tr><td style="position:sticky;left:0;z-index:2;background:var(--bg-secondary);min-width:80px"><strong>${s.pcNumber}</strong></td><td style="position:sticky;left:80px;z-index:2;background:var(--bg-secondary);min-width:80px;border-right:2px solid var(--border)"><span style="color:${z.color}">${z.name}</span></td>`;
+      h+=`<td style="background:${totalUc.bg};color:${totalUc.text};font-weight:700;text-align:center">${totalAvg}%</td>`;
+      for(let i=0;i<24;i++){
+        const pct=Math.round(s.utilization[i]);
+        const uc=getUtilColor(pct);
+        h+=`<td style="background:${uc.bg};color:${uc.text};font-weight:600;text-align:center;font-size:11px;padding:6px 8px">${pct}%</td>`;
+      }
+      h+=`</tr>`;
+    });
+    h+='</tbody></table></div>';
+    h+=paginationBar;
+    c.innerHTML=h;
+    return;
+  }
+  let h=paginationBar;
+  h+=`<div style="overflow-x:auto"><table class="data-table"><thead><tr><th style="position:sticky;left:0;z-index:6;background:var(--bg-tertiary);min-width:80px">PC번호</th><th style="position:sticky;left:80px;z-index:6;background:var(--bg-tertiary);min-width:80px;border-right:2px solid var(--border)">구역</th><th>상태</th><th>IP</th><th>CPU</th><th>RAM</th><th>CPU°</th><th>CPU Max</th><th>GPU</th><th>GPU°</th><th>GPU Max</th><th>버전</th><th>업데이트</th></tr></thead><tbody>`;
+  pagedSeats.forEach(s=>{
+    const z=ZONES.find(z=>z.id===s.zone)||UNASSIGNED;
+    const cc=s.cpuTemp>85?'var(--danger)':s.cpuTemp>70?'var(--warning)':'var(--text-primary)';
+    const gc=s.gpuTemp>80?'var(--danger)':s.gpuTemp>65?'var(--warning)':'var(--text-primary)';
+    h+=`<tr style="cursor:pointer" onclick="if(selectedSeat?.id===${s.id}){closeDetailOnly();return;}selectSeatById(${s.id})" oncontextmenu="event.preventDefault();showCtxById(event,${s.id})">
+      <td style="position:sticky;left:0;z-index:2;background:var(--bg-secondary);min-width:80px"><strong>${s.pcNumber}</strong></td>
+      <td style="position:sticky;left:80px;z-index:2;background:var(--bg-secondary);min-width:80px;border-right:2px solid var(--border)"><span style="color:${z.color}">${z.name}</span></td>
+      <td><span class="st-dot ${s.isOn?'on':'off'}">${s.isOn?'ON':'OFF'}</span></td><td>${s.ip}</td>
+      <td>${s.cpuModel}</td><td>${s.ram}GB</td>
+      <td style="color:${cc};font-weight:600">${s.cpuTemp||'-'}°</td><td>${s.cpuMax||'-'}°</td>
+      <td>${s.gpuModel}</td><td style="color:${gc};font-weight:600">${s.gpuTemp||'-'}°</td><td>${s.gpuMax||'-'}°</td>
+      <td>${s.version}</td><td style="color:var(--text-muted);font-size:11px">${s.lastUpdate}</td></tr>`;
+  });
+  h+='</tbody></table></div>';
+  h+=paginationBar;
+  c.innerHTML=h;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ZONE LIST (side panel)
+// ═══════════════════════════════════════════════════════════
+function renderZoneList(){
+  const el=document.getElementById('zoneList');let html='';
+  ZONES.forEach(z=>{
+    const cnt=seats.filter(s=>s.zone===z.id).length;
+    html+=`<div class="zone-item${highlightedZone===z.id?' active':''}" onclick="highlightZone('${z.id}')">
+      <div class="zone-dot" style="background:${z.color}"></div><span>${z.name}</span><span class="zone-cnt">${cnt}</span>
+      <div class="zone-acts">
+        <button class="zone-act" onclick="event.stopPropagation();showEditZoneModal('${z.id}')" title="수정"><i class="ri-edit-line"></i></button>
+        <button class="zone-act dng" onclick="event.stopPropagation();confirmDelZone('${z.id}')" title="삭제"><i class="ri-delete-bin-line"></i></button>
+      </div>
+    </div>`;
+  });
+  const ucnt=seats.filter(s=>s.zone===UNASSIGNED.id).length;
+  html+=`<div class="zone-item zone-sep${highlightedZone===UNASSIGNED.id?' active':''}" onclick="highlightZone('${UNASSIGNED.id}')">
+    <div class="zone-dot" style="background:${UNASSIGNED.color}"></div><span style="color:var(--text-muted)">${UNASSIGNED.name}</span><span class="zone-cnt">${ucnt}</span>
+  </div>`;
+  el.innerHTML=html;
+}
+
+function highlightZone(zid){
+  highlightedZone=highlightedZone===zid?null:zid;
+  renderZoneList();if(curView==='floor')renderFloor();
+}
+
+// ═══════════════════════════════════════════════════════════
+// ZONE CRUD
+// ═══════════════════════════════════════════════════════════
+const PALETTE=['#6c5ce7','#e17055','#fdcb6e','#fd79a8','#00cec9','#00b894','#74b9ff','#636e72','#f9ca24','#d63031','#2d3436','#0984e3','#e84393','#55efc4','#fab1a0','#81ecec','#dfe6e9','#ffeaa7','#ff7675','#a29bfe'];
+
+function colorPaletteHTML(active=''){
+  return `<div class="color-palette">
+    ${PALETTE.map(c=>`<div class="color-swatch${c===active?' active':''}" style="background:${c}" onclick="document.querySelectorAll('.color-swatch').forEach(b=>b.classList.remove('active'));this.classList.add('active');this.dataset.color='${c}'" data-color="${c}"></div>`).join('')}
+    <div class="color-custom" title="커스텀 색상"><i class="ri-palette-line"></i><input type="color" value="${active||'#6c5ce7'}" onchange="this.parentElement.style.background=this.value;document.querySelectorAll('.color-swatch').forEach(b=>b.classList.remove('active'));this.parentElement.classList.add('active');this.parentElement.dataset.color=this.value"></div>
+  </div>`;
+}
+
+function showAddZoneModal(){
+  showModal(`<div class="modal-hdr"><h3>구역 추가</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">구역명</label><input class="form-input" id="nzName" placeholder="예: 스트리머존"></div>
+      <div class="form-group"><label class="form-label">색상</label>${colorPaletteHTML()}</div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-primary" onclick="addZone()">추가</button></div>`);
+}
+function addZone(){
+  const name=document.getElementById('nzName').value.trim();
+  const cb=document.querySelector('.color-swatch.active,.color-custom.active');
+  if(!name){showToast('구역명을 입력하세요');return;}
+  if(!cb){showToast('색상을 선택하세요');return;}
+  const color=cb.dataset.color||cb.querySelector('input')?.value||'#636e72';
+  const id=name.toLowerCase().replace(/\s/g,'')+'_'+Date.now();
+  ZONES.push({id,name,color});
+  zoneLayout[id]={x:0,y:0,cols:3,rows:1,w:200,h:100};
+  renderZoneList();renderCurView();hideModal();showToast(`${name} 구역 추가됨`);
+}
+function showEditZoneModal(zid){
+  const z=ZONES.find(z=>z.id===zid);if(!z)return;
+  showModal(`<div class="modal-hdr"><h3>구역 수정 - ${z.name}</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">구역명</label><input class="form-input" id="ezName" value="${z.name}"></div>
+      <div class="form-group"><label class="form-label">색상</label>${colorPaletteHTML(z.color)}</div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-primary" onclick="saveZoneEdit('${zid}')">저장</button></div>`);
+}
+function saveZoneEdit(zid){
+  const z=ZONES.find(z=>z.id===zid);if(!z)return;
+  const n=document.getElementById('ezName').value.trim();
+  const cb=document.querySelector('.color-swatch.active,.color-custom.active');
+  if(n)z.name=n;if(cb)z.color=cb.dataset.color||cb.querySelector('input')?.value||z.color;
+  renderZoneList();renderCurView();hideModal();showToast('구역이 수정되었습니다');
+}
+function confirmDelZone(zid){
+  const z=ZONES.find(z=>z.id===zid);if(!z)return;
+  const cnt=seats.filter(s=>s.zone===zid).length;
+  showModal(`<div class="modal-hdr"><h3><i class="ri-delete-bin-line" style="color:var(--danger);margin-right:6px"></i>구역 삭제</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <p style="margin-bottom:10px"><strong style="color:${z.color}">${z.name}</strong> 구역을 삭제하시겠습니까?</p>
+      ${cnt?`<p style="font-size:12px;color:var(--warning);margin-bottom:8px"><i class="ri-error-warning-line"></i> 포함된 <strong>${cnt}개</strong> 좌석이 '미지정 좌석'으로 이동됩니다.</p>`:''}
+      <p style="font-size:11px;color:var(--text-muted)">이 작업은 되돌릴 수 없습니다.</p>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-danger" onclick="delZone('${zid}')"><i class="ri-delete-bin-line"></i> 삭제</button></div>`);
+}
+function delZone(zid){
+  seats.forEach(s=>{if(s.zone===zid)s.zone=UNASSIGNED.id;});
+  const i=ZONES.findIndex(z=>z.id===zid);if(i!==-1)ZONES.splice(i,1);
+  delete zoneLayout[zid];renderZoneList();renderCurView();hideModal();showToast('구역이 삭제되었습니다');
+}
+
+// ═══════════════════════════════════════════════════════════
+// VIEW SWITCHING
+// ═══════════════════════════════════════════════════════════
+function switchView(v){
+  curView=v;
+  document.querySelectorAll('.view-toggle-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
+  document.querySelectorAll('.nav-item[data-view]').forEach(i=>i.classList.toggle('active',i.dataset.view===v));
+  const fl=document.getElementById('floorCont'),zv=document.getElementById('zoneView'),tv=document.getElementById('tableView'),es=document.getElementById('emptyState');
+  // Always hide all first
+  fl.style.display='none';zv.classList.remove('active');tv.classList.remove('active');es.style.display='none';
+  closeDetailOnly();
+  if(!storeHasSeats||!seats.length){es.style.display='flex';updateStats();return;}
+  if(v==='floor'){renderFloor();}
+  else if(v==='zone'){zv.classList.add('active');renderZoneView();}
+  else if(v==='list'){tv.classList.add('active');renderTable();}
+  updateStats();
+}
+document.querySelectorAll('.view-toggle-btn').forEach(b=>b.addEventListener('click',()=>{if(currentPage!=='monitor')switchToPage('monitor');switchView(b.dataset.view);}));
+document.querySelectorAll('.nav-item[data-view]').forEach(i=>i.addEventListener('click',()=>{if(currentPage!=='monitor')switchToPage('monitor');switchView(i.dataset.view);}));
+
+// ═══════════════════════════════════════════════════════════
+// SEAT INTERACTIONS
+// ═══════════════════════════════════════════════════════════
+function selectSeat(s){selectedSeat=s;renderCurView();openDetail(s);}
+function selectSeatById(id){const s=seats.find(x=>x.id===id);if(s)selectSeat(s);}
+
+function openDetail(s){
+  const p=document.getElementById('detailPanel');
+  document.getElementById('detailTitle').textContent=s.pcNumber;
+  const z=ZONES.find(z=>z.id===s.zone)||UNASSIGNED;
+  const st=document.getElementById('detailSt');
+  if(s.isOn){st.textContent='ON';st.style.background='var(--success-bg)';st.style.color='var(--success)';}
+  else{st.textContent='OFF';st.style.background='rgba(107,113,133,.15)';st.style.color='var(--text-muted)';}
+  const cc=s.cpuTemp>85?'var(--danger)':s.cpuTemp>70?'var(--warning)':'var(--success)';
+  const gc=s.gpuTemp>80?'var(--danger)':s.gpuTemp>65?'var(--warning)':'var(--success)';
+  let ub='';s.utilization.forEach((v,i)=>{const h=Math.max(2,(v/100)*30);const c=v>70?'var(--success)':v>30?'var(--accent)':'var(--text-muted)';ub+=`<div class="util-bar" style="height:${h}px;background:${c}" title="${i}:00 ${v.toFixed(0)}%"></div>`;});
+  document.getElementById('detailBody').innerHTML=`
+    <div class="d-section" style="margin-top:12px"><div class="d-section-title">기본 정보</div><div class="d-grid">
+      <div class="d-item"><div class="d-item-label">PC번호</div><div class="d-item-value">${s.pcNumber}</div></div>
+      <div class="d-item"><div class="d-item-label">구역</div><div class="d-item-value" style="color:${z.color}">${z.name}</div></div>
+      <div class="d-item"><div class="d-item-label">IP</div><div class="d-item-value" style="font-size:11px">${s.ip}</div></div>
+      <div class="d-item"><div class="d-item-label">버전</div><div class="d-item-value">${s.version}</div></div>
+      <div class="d-item"><div class="d-item-label">RAM</div><div class="d-item-value">${s.ram}GB</div></div>
+      <div class="d-item"><div class="d-item-label">장치</div><div class="d-item-value">${s.deviceCount}</div></div>
+    </div></div>
+    <div class="d-section"><div class="d-section-title">CPU</div><div class="d-item full"><div class="d-item-label">${s.cpuModel}</div>
+      <div class="temp-gauge" style="margin-top:6px"><div class="temp-bar"><div class="temp-bar-fill" style="width:${Math.min(s.cpuTemp,100)}%;background:${cc}"></div></div><div class="temp-val" style="color:${cc}">${s.cpuTemp}°</div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:var(--text-muted)"><span>현재 ${s.cpuTemp}°</span><span>최고 ${s.cpuMax}°</span><span>경고 ${s.cpuWarn}회</span></div></div></div>
+    <div class="d-section"><div class="d-section-title">GPU</div><div class="d-item full"><div class="d-item-label">${s.gpuModel}</div>
+      <div class="temp-gauge" style="margin-top:6px"><div class="temp-bar"><div class="temp-bar-fill" style="width:${Math.min(s.gpuTemp,100)}%;background:${gc}"></div></div><div class="temp-val" style="color:${gc}">${s.gpuTemp}°</div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:var(--text-muted)"><span>현재 ${s.gpuTemp}°</span><span>최고 ${s.gpuMax}°</span><span>경고 ${s.gpuWarn}회</span></div></div></div>
+    <div class="d-section"><div class="d-section-title">연결 장치</div><div class="device-tags">${s.devices.map(d=>`<span class="device-tag">${d}</span>`).join('')}</div></div>
+    <div class="d-section"><div class="d-section-title" style="display:flex;justify-content:space-between;align-items:center">24시간 가동률<span style="font-size:13px;font-weight:700;color:var(--success);text-transform:none;letter-spacing:0">${Math.round(s.utilization.reduce((a,v)=>a+v,0)/24)}%</span></div><div class="d-item full"><div class="util-chart">${ub}</div>
+      <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:9px;color:var(--text-muted)"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div></div></div>
+    <div class="d-section"><div style="font-size:10px;color:var(--text-muted)">업데이트: ${s.lastUpdate}</div></div>`;
+  p.classList.add('open');
+}
+function closeDetailOnly(){document.getElementById('detailPanel').classList.remove('open');selectedSeat=null;document.querySelectorAll('.seat.selected').forEach(el=>el.classList.remove('selected'));}
+function closeDetail(){closeDetailOnly();renderCurView();}
+
+function renderCurView(){
+  if(curView==='floor')renderFloor();
+  else if(curView==='zone'){renderZoneView();updateStats();}
+  else{renderTable();updateStats();}
+}
+
+// Tooltip
+function showTT(e,s){
+  const t=document.getElementById('tooltip');
+  const z=ZONES.find(z=>z.id===s.zone)||UNASSIGNED;
+  const sc=s.isOn?'var(--success)':'var(--text-muted)';const sb=s.isOn?'var(--success-bg)':'rgba(107,113,133,.1)';
+  t.innerHTML=`<div class="tt-hdr"><span class="pc-id">${s.pcNumber}</span><span style="color:${z.color};font-size:11px">${z.name}</span><span class="badge" style="background:${sb};color:${sc}">${s.isOn?'ON':'OFF'}</span></div>
+    <div class="tt-row"><span class="lb">IP</span><span class="vl">${s.ip}</span></div>
+    <div class="tt-row"><span class="lb">CPU</span><span class="vl">${s.cpuModel.split(' ').pop()}</span></div>
+    <div class="tt-row"><span class="lb">CPU°</span><span class="vl" style="color:${s.cpuTemp>85?'var(--danger)':s.cpuTemp>70?'var(--warning)':'inherit'}">${s.cpuTemp||'-'}°C</span></div>
+    <div class="tt-row"><span class="lb">GPU°</span><span class="vl" style="color:${s.gpuTemp>80?'var(--danger)':s.gpuTemp>65?'var(--warning)':'inherit'}">${s.gpuTemp||'-'}°C</span></div>
+    <div class="tt-row"><span class="lb">RAM</span><span class="vl">${s.ram}GB</span></div>`;
+  t.classList.add('visible');t.style.left=(e.clientX+14)+'px';t.style.top=(e.clientY-16)+'px';
+}
+function showTTById(e,id){const s=seats.find(x=>x.id===id);if(s)showTT(e,s);}
+function hideTT(){document.getElementById('tooltip').classList.remove('visible');}
+document.addEventListener('mousemove',e=>{const t=document.getElementById('tooltip');if(t.classList.contains('visible')){t.style.left=(e.clientX+14)+'px';t.style.top=(e.clientY-16)+'px';}});
+
+// ═══════════════════════════════════════════════════════════
+// CONTEXT MENU - always works regardless of edit mode
+// ═══════════════════════════════════════════════════════════
+function showCtx(e,s){
+  ctxSeat=s;
+  const m=document.getElementById('ctxMenu');
+  m.innerHTML=`
+    <div class="ctx-item" onclick="showEditSeatModal()"><i class="ri-edit-line"></i> 좌석 정보 수정</div>
+    <div class="ctx-divider"></div>
+    <div class="ctx-item danger" onclick="deleteSeatCtx()"><i class="ri-delete-bin-line"></i> 좌석 삭제</div>`;
+  m.style.left=e.clientX+'px';m.style.top=e.clientY+'px';m.classList.add('visible');
+}
+function showCtxById(e,id){const s=seats.find(x=>x.id===id);if(s)showCtx(e,s);}
+
+function showEditSeatModal(){
+  if(!ctxSeat)return;
+  const s=ctxSeat;
+  const zoneOpts=[...ZONES,UNASSIGNED].map(z=>`<option value="${z.id}"${z.id===s.zone?' selected':''}>${z.name}</option>`).join('');
+  showModal(`<div class="modal-hdr"><h3>좌석 정보 수정 - ${s.pcNumber}</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">좌석명 (PC번호)</label><input class="form-input" id="editSeatName" value="${s.pcNumber}"></div>
+      <div class="form-group"><label class="form-label">좌석 번호</label><input class="form-input" id="editSeatNum" type="number" value="${s.id}" min="1"></div>
+      <div class="form-group"><label class="form-label">구역</label><select class="form-input" id="editSeatZone">${zoneOpts}</select></div>
+      <div class="form-group"><label class="form-label">IP</label><input class="form-input" id="editSeatIp" value="${s.ip}"></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-primary" onclick="saveEditSeat(${s.id})">저장</button></div>`);
+}
+function saveEditSeat(sid){
+  const s=seats.find(x=>x.id===sid);if(!s)return;
+  const name=document.getElementById('editSeatName').value.trim();
+  const num=parseInt(document.getElementById('editSeatNum').value);
+  const zone=document.getElementById('editSeatZone').value;
+  const ip=document.getElementById('editSeatIp').value.trim();
+  if(name)s.pcNumber=name;
+  if(num&&num>0)s.id=num;
+  if(zone)s.zone=zone;
+  if(ip)s.ip=ip;
+  renderCurView();renderZoneList();hideModal();showToast('좌석 정보가 수정되었습니다');
+  if(selectedSeat?.id===sid)openDetail(s);
+}
+
+function deleteSeatCtx(){if(!ctxSeat)return;showDelModal([ctxSeat]);}
+
+function showDelModal(sl){
+  showModal(`<div class="modal-hdr"><h3><i class="ri-delete-bin-line" style="color:var(--danger);margin-right:6px"></i>좌석 삭제</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body"><p style="margin-bottom:10px"><strong style="color:var(--danger)">${sl.length}개</strong> 좌석을 삭제하시겠습니까?</p>
+      <div class="del-preview">${sl.map(s=>`<span class="del-chip">${s.pcNumber}</span>`).join('')}</div>
+      <p style="font-size:11px;color:var(--text-muted)"><i class="ri-error-warning-line"></i> 되돌릴 수 없습니다.</p></div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-danger" onclick="confirmDel([${sl.map(s=>s.id)}])"><i class="ri-delete-bin-line"></i> ${sl.length}개 삭제</button></div>`);
+}
+function showDelSelModal(){const sl=seats.filter(s=>multiSel.has(s.id));if(sl.length)showDelModal(sl);}
+function confirmDel(ids){
+  const set=new Set(ids);seats=seats.filter(s=>!set.has(s.id));
+  if(selectedSeat&&set.has(selectedSeat.id))closeDetailOnly();
+  multiSel.clear();updateMultiUI();renderCurView();renderZoneList();hideModal();showToast(`${set.size}개 삭제됨`);
+}
+
+function toggleMultiSel(id){if(multiSel.has(id))multiSel.delete(id);else multiSel.add(id);updateMultiUI();renderFloor();}
+function clearMultiSel(){multiSel.clear();updateMultiUI();}
+function updateMultiUI(){
+  const c=multiSel.size;document.getElementById('multiCnt').textContent=c;
+  document.getElementById('multiBadge').classList.toggle('visible',c>0);
+  document.getElementById('delSelBtn').style.display=c>0?'':'none';
+}
+
+// ═══════════════════════════════════════════════════════════
+// EDIT MODE - works in ALL views
+// ═══════════════════════════════════════════════════════════
+function toggleEditMode(){
+  editMode=!editMode;addMode=false;clearMultiSel();
+  document.getElementById('editToolbar').classList.toggle('visible',editMode);
+  // Do NOT force switch to floor view - edit works in all views
+  renderCurView();renderZoneList();
+  if(editMode)showToast('편집 모드 활성화');
+  else showToast('편집 모드 종료');
+}
+
+function addSeatToZone(){
+  const zoneOpts=ZONES.map(z=>`<div class="zone-item" style="cursor:pointer" onclick="createNewSeat('${z.id}')"><div class="zone-dot" style="background:${z.color}"></div><span>${z.name}</span></div>`).join('');
+  showModal(`<div class="modal-hdr"><h3>좌석 추가 - 구역 선택</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body"><p style="font-size:12px;color:var(--text-muted);margin-bottom:10px">좌석을 추가할 구역을 선택하세요.</p>
+      <div class="zone-list">${zoneOpts}</div>
+    </div>`);
+}
+function createNewSeat(zoneId){
+  hideModal();
+  const maxId=Math.max(...seats.map(s=>s.id),0)+1;
+  const ns={id:maxId,pcNumber:`PC${String(maxId).padStart(3,'0')}`,zone:zoneId,
+    status:'off',isOn:false,ip:`125.130.6.${140+maxId}`,cpuModel:CPU[0],gpuModel:GPU[0],ram:16,
+    cpuTemp:0,gpuTemp:0,cpuMax:0,gpuMax:0,cpuWarn:0,gpuWarn:0,
+    devices:DEVS.slice(0,5),deviceCount:5,version:'1.2.0.2',
+    utilization:Array.from({length:24},()=>0),lastUpdate:'2026-03-17 00:00:00'};
+  seats.push(ns);
+  renderCurView();renderZoneList();
+  ctxSeat=ns;
+  const zoneOpts2=[...ZONES,UNASSIGNED].map(z=>`<option value="${z.id}"${z.id===ns.zone?' selected':''}>${z.name}</option>`).join('');
+  showModal(`<div class="modal-hdr"><h3>새 좌석 추가됨 - ${ns.pcNumber}</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">좌석명 (PC번호)</label><input class="form-input" id="editSeatName" value="${ns.pcNumber}"></div>
+      <div class="form-group"><label class="form-label">좌석 번호</label><input class="form-input" id="editSeatNum" type="number" value="${ns.id}" min="1"></div>
+      <div class="form-group"><label class="form-label">구역</label><select class="form-input" id="editSeatZone">${zoneOpts2}</select></div>
+      <div class="form-group"><label class="form-label">IP</label><input class="form-input" id="editSeatIp" value="${ns.ip}"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="confirmDel([${ns.id}])"><i class="ri-delete-bin-line"></i> 삭제</button>
+      <div style="flex:1"></div>
+      <button class="btn" onclick="hideModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveEditSeat(${ns.id})">저장</button>
+    </div>`);
+  showToast(`${ns.pcNumber} 추가됨`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// RESIZE HANDLES (floor view)
+// ═══════════════════════════════════════════════════════════
+let resizeZone=null,resizeDir=null,resizeStart={x:0,y:0,w:0,h:0};
+
+document.addEventListener('mousedown',e=>{
+  if(!editMode)return;
+  const handle=e.target.closest('.zone-resize-handle');
+  if(handle){
+    e.preventDefault();resizeZone=handle.dataset.zone;resizeDir=handle.dataset.dir;
+    const zl=zoneLayout[resizeZone];
+    resizeStart={x:e.clientX,y:e.clientY,w:zl?.w||200,h:zl?.h||100};
+  }
+});
+document.addEventListener('mousemove',e=>{
+  if(resizeZone&&resizeDir){
+    const zl=zoneLayout[resizeZone];if(!zl)return;
+    const dx=e.clientX-resizeStart.x,dy=e.clientY-resizeStart.y;
+    const seatCount=seats.filter(s=>s.zone===resizeZone).length;
+    const minW=(SEAT_W+SEAT_GAP)*Math.min(seatCount,2)+ZONE_PAD*2;
+    const minH=SEAT_H+ZONE_PAD*2+28;
+    if(resizeDir==='right'||resizeDir==='corner')zl.w=Math.max(minW,resizeStart.w+dx);
+    if(resizeDir==='bottom'||resizeDir==='corner')zl.h=Math.max(minH,resizeStart.h+dy);
+    zl.cols=Math.max(1,Math.floor((zl.w-ZONE_PAD*2+SEAT_GAP)/(SEAT_W+SEAT_GAP)));
+    renderFloor();
+  }
+});
+document.addEventListener('mouseup',()=>{resizeZone=null;resizeDir=null;});
+
+// ═══════════════════════════════════════════════════════════
+// UPLOAD MODAL - improved design with preview + one-time flow
+// ═══════════════════════════════════════════════════════════
+let uploadData=null;
+let uploadFileName='';
+
+function showUploadModal(){
+  if(STORES_IMAGE_REGISTERED.has(curStoreId)){showToast('이미 도면이 등록된 매장입니다');return;}
+  uploadData=null;uploadFileName='';
+  showModal(`<div class="modal-hdr"><h3><i class="ri-image-add-line" style="color:var(--accent-light);margin-right:6px"></i>도면 이미지 등록</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <div id="uploadAreaWrap">
+        <div class="upload-area" id="uploadDrop" onclick="document.getElementById('fInput').click()"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="event.preventDefault();this.classList.remove('drag-over');handleUploadDrop(event)">
+          <i class="ri-image-add-line"></i>
+          <p>클릭하거나 이미지를 드래그하여 업로드</p>
+          <small>PNG, JPG, SVG (최대 10MB)</small>
+          <input type="file" id="fInput" accept="image/*" style="display:none" onchange="handleUpload(this)">
+        </div>
+      </div>
+      <div id="upPreview" style="display:none;margin-top:14px">
+        <div class="upload-preview-wrap">
+          <img id="upPreviewImg" src="" alt="preview" style="width:100%;max-height:220px;object-fit:contain;display:block;padding:10px;background:var(--bg-tertiary)">
+          <div class="upload-preview-bar">
+            <i class="ri-checkbox-circle-line" style="color:var(--success)"></i>
+            <span id="upPreviewName">이미지 업로드 완료</span>
+            <button class="btn" onclick="resetUpload()"><i class="ri-refresh-line"></i> 재업로드</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:14px;padding:12px;background:var(--bg-tertiary);border-radius:var(--radius-md);font-size:12px;color:var(--text-muted);line-height:1.6">
+        <i class="ri-information-line" style="color:var(--accent-light);margin-right:4px"></i>
+        도면 이미지를 업로드하면 AI가 좌석 배치를 자동으로 분석합니다.<br>
+        분석 완료 후 좌석 배치를 확인하고 적용할 수 있습니다.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="hideModal()">취소</button>
+      <button class="btn btn-primary" id="uploadConfirmBtn" onclick="processUpload()" disabled style="opacity:.5;cursor:not-allowed">
+        <i class="ri-scan-line"></i> 분석 및 등록
+      </button>
+    </div>`);
+}
+
+function handleUploadDrop(e){
+  const f=e.dataTransfer?.files?.[0];
+  if(f&&f.type.startsWith('image/')){processFileUpload(f);}
+}
+function handleUpload(input){
+  if(input.files[0])processFileUpload(input.files[0]);
+}
+function processFileUpload(file){
+  const r=new FileReader();
+  r.onload=ev=>{
+    uploadData=ev.target.result;
+    uploadFileName=file.name;
+    document.getElementById('upPreview').style.display='block';
+    document.getElementById('uploadAreaWrap').style.display='none';
+    document.getElementById('upPreviewImg').src=uploadData;
+    document.getElementById('upPreviewName').textContent=file.name+' 업로드 완료';
+    const btn=document.getElementById('uploadConfirmBtn');
+    if(btn){btn.disabled=false;btn.style.opacity='';btn.style.cursor='';}
+    showToast('이미지 업로드 완료 - 등록 버튼을 클릭하세요');
+  };
+  r.readAsDataURL(file);
+}
+function resetUpload(){
+  uploadData=null;uploadFileName='';
+  document.getElementById('upPreview').style.display='none';
+  document.getElementById('uploadAreaWrap').style.display='block';
+  const btn=document.getElementById('uploadConfirmBtn');
+  if(btn){btn.disabled=true;btn.style.opacity='.5';btn.style.cursor='not-allowed';}
+  document.getElementById('fInput').value='';
+}
+
+function processUpload(){
+  if(!uploadData){showToast('이미지를 먼저 업로드하세요');return;}
+  hideModal();
+  showToast('도면 분석중...');
+  setTimeout(()=>{
+    // Simulate seat detection - show preview modal
+    const detectedZones=[
+      {name:'FPS존',color:'#6c5ce7',count:15},
+      {name:'멀티존',color:'#636e72',count:22},
+      {name:'VIP존',color:'#fdcb6e',count:12},
+      {name:'팀룸',color:'#ff6348',count:9},
+      {name:'LOL존',color:'#e17055',count:12},
+      {name:'FC ONLINE존',color:'#00b894',count:12},
+      {name:'커플존',color:'#fd79a8',count:6},
+      {name:'프렌즈존',color:'#00cec9',count:6},
+      {name:'퍼스트클래스존',color:'#f9ca24',count:6},
+      {name:'덴탈존',color:'#74b9ff',count:9},
+    ];
+    const totalSeats=detectedZones.reduce((a,z)=>a+z.count,0);
+    showAnalysisPreviewModal(detectedZones,totalSeats);
+  },1200);
+}
+
+function showAnalysisPreviewModal(detectedZones,totalSeats){
+  const zoneChips=detectedZones.map(z=>`
+    <div class="preview-zone-chip">
+      <div style="width:10px;height:10px;border-radius:3px;background:${z.color};flex-shrink:0"></div>
+      <span style="font-weight:600">${z.name}</span>
+      <span style="color:var(--text-muted);margin-left:auto">${z.count}석</span>
+    </div>`).join('');
+
+  showModal(`<div class="modal-hdr"><h3><i class="ri-magic-line" style="color:var(--accent-light);margin-right:6px"></i>도면 분석 결과</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--success-bg);border:1px solid rgba(0,206,201,.3);border-radius:var(--radius-md);margin-bottom:16px">
+        <i class="ri-checkbox-circle-line" style="color:var(--success);font-size:22px;flex-shrink:0"></i>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--success)">분석 완료</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-top:2px">총 <strong>${totalSeats}개</strong> 좌석, <strong>${detectedZones.length}개</strong> 구역 감지됨</div>
+        </div>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:8px">감지된 구역 및 좌석 수</div>
+      <div class="preview-zones">${zoneChips}</div>
+      <div style="margin-top:16px;padding:10px 14px;background:var(--warning-bg);border:1px solid rgba(253,203,110,.3);border-radius:var(--radius-md);font-size:12px;color:var(--warning)">
+        <i class="ri-error-warning-line" style="margin-right:4px"></i>
+        적용 후에는 도면 이미지를 다시 등록할 수 없습니다. 신중하게 확인 후 적용하세요.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="hideModal()">취소</button>
+      <button class="btn btn-primary" onclick="applyAnalysisResult()"><i class="ri-check-line"></i> 적용</button>
+    </div>`);
+}
+
+function applyAnalysisResult(){
+  hideModal();
+  // Generate seats and mark store as registered
+  seats=genSeats();storeHasSeats=true;
+  STORES_WITH_SEATS.add(curStoreId);
+  STORES_IMAGE_REGISTERED.add(curStoreId);
+  initZoneLayout();
+  updateUploadNavItem();
+  switchView(curView);
+  showToast(`${seats.length}개 좌석 등록 완료`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PROFILE MENU
+// ═══════════════════════════════════════════════════════════
+function toggleProfileMenu(){
+  const m=document.getElementById('profileMenu');
+  m.classList.toggle('open');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.sidebar-profile')){
+    document.getElementById('profileMenu').classList.remove('open');
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════════════
+function openSettings(){
+  document.getElementById('profileMenu').classList.remove('open');
+  document.getElementById('settingsOv').classList.add('visible');
+}
+function closeSettings(){
+  document.getElementById('settingsOv').classList.remove('visible');
+}
+function focusSettingsField(id){
+  document.getElementById(id).focus();
+}
+function showChangePwModal(){
+  closeSettings();
+  showModal(`<div class="modal-hdr"><h3><i class="ri-lock-line" style="color:var(--accent-light);margin-right:6px"></i>비밀번호 변경</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">현재 비밀번호</label><input class="form-input" type="password" id="curPwInput" placeholder="현재 비밀번호"></div>
+      <div class="form-group"><label class="form-label">새 비밀번호</label><input class="form-input" type="password" id="newPwInput" placeholder="새 비밀번호"></div>
+      <div class="form-group"><label class="form-label">새 비밀번호 확인</label><input class="form-input" type="password" id="newPwConfirm" placeholder="새 비밀번호 확인"></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal();openSettings()">취소</button><button class="btn btn-primary" onclick="changePw()">변경</button></div>`);
+}
+function changePw(){
+  const cur=document.getElementById('curPwInput').value;
+  const np=document.getElementById('newPwInput').value;
+  const nc=document.getElementById('newPwConfirm').value;
+  if(!cur){showToast('현재 비밀번호를 입력해주세요');return;}
+  if(np.length<8){showToast('새 비밀번호를 8자 이상 입력해주세요');return;}
+  if(np!==nc){showToast('새 비밀번호가 일치하지 않습니다');return;}
+  hideModal();openSettings();showToast('비밀번호가 변경되었습니다');
+}
+function saveSettings(){
+  const name=document.getElementById('setName').value.trim();
+  if(name){
+    document.getElementById('profileName').textContent=name;
+    document.getElementById('profileAvatar').textContent=name.charAt(0);
+  }
+  closeSettings();showToast('개인정보가 저장되었습니다');
+}
+
+// ═══════════════════════════════════════════════════════════
+// LOGOUT
+// ═══════════════════════════════════════════════════════════
+function logout(){
+  showModal(`<div class="modal-hdr"><h3><i class="ri-logout-box-r-line" style="color:var(--warning);margin-right:6px"></i>로그아웃</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <p style="font-size:14px;margin-bottom:10px">정말 로그아웃 하시겠습니까?</p>
+      <p style="font-size:12px;color:var(--text-muted)">현재 세션이 종료되며 로그인 페이지로 이동합니다.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="hideModal()">취소</button>
+      <button class="btn btn-primary" onclick="confirmLogout()"><i class="ri-logout-box-r-line"></i> 로그아웃</button>
+    </div>`);
+}
+function confirmLogout(){
+  sessionStorage.removeItem('isens_logged_in');
+  sessionStorage.removeItem('isens_user');
+  window.location.href='login.html';
+}
+
+// ═══════════════════════════════════════════════════════════
+// ZOOM
+// ═══════════════════════════════════════════════════════════
+function zoomIn(){zoom=Math.min(zoom+.1,2);applyZoom();}
+function zoomOut(){zoom=Math.max(zoom-.1,.5);applyZoom();}
+function zoomReset(){zoom=1;applyZoom();}
+function applyZoom(){const fp=document.getElementById('floorPlan');fp.style.transform=`scale(${zoom})`;fp.style.transformOrigin='top left';document.getElementById('zoomLv').textContent=Math.round(zoom*100)+'%';}
+
+function toggleZonePanel(){zonePanelOpen=!zonePanelOpen;document.getElementById('zonePanel').classList.toggle('visible',zonePanelOpen);renderZoneList();}
+
+// ═══════════════════════════════════════════════════════════
+// MODAL / TOAST
+// ═══════════════════════════════════════════════════════════
+function showModal(h){document.getElementById('modal').innerHTML=h;document.getElementById('modalOv').classList.add('visible');}
+function hideModal(){document.getElementById('modalOv').classList.remove('visible');}
+function showToast(t){const el=document.getElementById('toast');document.getElementById('toastTxt').textContent=t;el.classList.add('visible');setTimeout(()=>el.classList.remove('visible'),2500);}
+
+// ═══════════════════════════════════════════════════════════
+// PAGE NAVIGATION (switchToPage)
+// ═══════════════════════════════════════════════════════════
+let currentPage='monitor';
+
+function switchToPage(page){
+  currentPage=page;
+  const topStats=document.getElementById('topStats');
+  const topRight=document.querySelector('.topbar-right');
+  const topTabs=document.getElementById('topbarTabs');
+  const editToolbar=document.getElementById('editToolbar');
+  const workspace=document.getElementById('workspace');
+  const storeMgmt=document.getElementById('storeMgmtView');
+  const pcMgmt=document.getElementById('pcMgmtView');
+
+  // Update sidebar active states
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+
+  if(page==='store-mgmt'){
+    topStats.style.display='none';
+    topRight.style.display='none';
+    topTabs.style.display='none';
+    editToolbar.classList.remove('visible');editMode=false;
+    workspace.style.display='none';
+    storeMgmt.classList.add('active');
+    pcMgmt.classList.remove('active');
+    document.getElementById('ceremonyView').classList.remove('active');
+    // highlight sidebar
+    document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('매장 관리'))i.classList.add('active');});
+    renderStoreMgmt();
+  } else if(page==='pc-mgmt'){
+    topStats.style.display='none';
+    topRight.style.display='none';
+    topTabs.style.display='none';
+    editToolbar.classList.remove('visible');editMode=false;
+    workspace.style.display='none';
+    storeMgmt.classList.remove('active');
+    pcMgmt.classList.add('active');
+    document.getElementById('ceremonyView').classList.remove('active');
+    document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('PC 등록/수정'))i.classList.add('active');});
+    renderPcMgmt();
+  } else if(page==='ceremony'){
+    topStats.style.display='none';
+    topRight.style.display='none';
+    topTabs.style.display='none';
+    editToolbar.classList.remove('visible');editMode=false;
+    workspace.style.display='none';
+    storeMgmt.classList.remove('active');
+    pcMgmt.classList.remove('active');
+    document.getElementById('ceremonyView').classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('세리머니 관리'))i.classList.add('active');});
+    renderCeremony();
+  } else {
+    // monitor
+    topStats.style.display='';
+    topRight.style.display='';
+    topTabs.style.display='';
+    workspace.style.display='';
+    storeMgmt.classList.remove('active');
+    pcMgmt.classList.remove('active');
+    document.getElementById('ceremonyView').classList.remove('active');
+    document.querySelectorAll('.nav-item[data-view]').forEach(i=>i.classList.toggle('active',i.dataset.view===curView));
+    switchView(curView);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// STORE MANAGEMENT VIEW
+// ═══════════════════════════════════════════════════════════
+let storeMgmtSearch='';
+let storeMgmtTab='list';
+function switchStoreMgmtTab(tab){storeMgmtTab=tab;renderStoreMgmt();}
+
+function renderStoreMgmt(){
+  const el=document.getElementById('storeMgmtView');
+  const isList=storeMgmtTab==='list';
+
+  let html=`<div class="mgmt-header" style="margin-bottom:16px">
+    <h2>매장 관리</h2>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="store-tab${isList?' active':''}" onclick="switchStoreMgmtTab('list')"><i class="ri-store-2-line"></i> 매장 목록</button>
+      <button class="store-tab${!isList?' active':''}" onclick="switchStoreMgmtTab('agent')"><i class="ri-robot-line"></i> 에이전트 관리</button>
+    </div>
+  </div>`;
+
+  if(isList){
+    html+=renderStoreListTab();
+  } else {
+    html+=renderAgentMgmt();
+  }
+  el.innerHTML=html;
+}
+
+function renderStoreListTab(){
+  const q=storeMgmtSearch.toLowerCase();
+  const filtered=STORES.filter(s=>s.name.toLowerCase().includes(q));
+  const svNames=['김철수','이영희','박지훈','최민수','정수진'];
+  const ownerNames=['홍길동','김민재','이서연','박준형','최은지'];
+  const orgs=['서울본부','경기남부','경기북부','부산본부','대전본부','인천본부','대구본부','광주본부'];
+
+  let rows=filtered.map((s,i)=>{
+    const code='S'+String(s.id+1001).padStart(4,'0');
+    const owner=ownerNames[s.id%ownerNames.length];
+    const sv=svNames[s.id%svNames.length];
+    const org=orgs[s.id%orgs.length];
+    const pcCnt=STORES_WITH_SEATS.has(s.id)?109:0;
+    const bizNo=`${100+s.id%900}-${10+s.id%90}-${10000+s.id%90000}`;
+    const mail=owner.charAt(0)+'@isens.camp';
+    return `<tr style="cursor:pointer" onclick="showStoreEditModal(${s.id},'${code}','${s.name.replace(/'/g,"\\'")}','${owner}','${sv}','${org}',${pcCnt},'${bizNo}',85,85,'${mail}')">
+      <td style="position:sticky;left:0;z-index:2;background:var(--bg-secondary);color:var(--accent-light);font-weight:600;min-width:80px">${code}</td>
+      <td style="position:sticky;left:80px;z-index:2;background:var(--bg-secondary);min-width:110px;border-right:2px solid var(--border)"><strong>${s.name}</strong></td>
+      <td>${owner}</td><td>${owner}</td><td>${sv}</td><td>${org}</td>
+      <td style="text-align:center">${pcCnt}</td>
+      <td style="color:var(--text-muted)">${bizNo}</td>
+      <td style="text-align:center">85°C</td><td style="text-align:center">85°C</td>
+      <td style="color:var(--text-muted);font-size:11px">${mail}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="mgmt-header">
+      <h2>관리 매장 목록</h2>
+      <div class="mgmt-header-right">
+        <div class="search-box"><i class="ri-search-line"></i><input placeholder="매장 검색..." value="${storeMgmtSearch}" oninput="storeMgmtSearch=this.value;renderStoreMgmt()"></div>
+        <button class="btn btn-primary" onclick="showStoreRegModal()"><i class="ri-add-line"></i> 매장 등록</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;flex:1">
+      <table class="mgmt-table">
+        <thead><tr>
+          <th style="position:sticky;left:0;z-index:6;background:var(--bg-tertiary);min-width:80px">매장코드</th><th style="position:sticky;left:80px;z-index:6;background:var(--bg-tertiary);min-width:110px;border-right:2px solid var(--border)">매장명</th><th>대표자명</th><th>가맹점주</th><th>본사 SV</th><th>소속</th><th>등록PC</th><th>사업자등록번호</th><th>CPU 알람기준온도</th><th>GPU 알람기준온도</th><th>추가 알람수신메일</th>
+        </tr></thead>
+        <tbody>${rows||'<tr><td colspan="11" style="text-align:center;padding:40px;color:var(--text-muted)">검색 결과가 없습니다</td></tr>'}</tbody>
+      </table>
+    </div>`;
+}
+
+function renderAgentMgmt(){
+  const storeOpts=STORES.slice(0,20).map(s=>`<option value="${s.id}">${s.name} (S${String(s.id+1001).padStart(4,'0')})</option>`).join('');
+
+  // Simulated agent stats
+  const totalPc=STORES.slice(0,20).reduce((sum,s)=>sum+(STORES_WITH_SEATS.has(s.id)?109:Math.floor(40+s.id%70)),0);
+  const installed=Math.round(totalPc*0.92);
+  const online=Math.round(installed*0.85);
+  const offline=installed-online;
+
+  // Per-store stats
+  let storeRows=STORES.slice(0,20).map(s=>{
+    const pc=STORES_WITH_SEATS.has(s.id)?109:Math.floor(40+s.id%70);
+    const inst=Math.round(pc*(0.88+Math.random()*0.1));
+    const on=Math.round(inst*(0.78+Math.random()*0.15));
+    const off=inst-on;
+    const lastSeen=`2026-04-09 ${String(8+s.id%14).padStart(2,'0')}:${String(s.id%60).padStart(2,'0')}`;
+    return `<tr>
+      <td style="text-align:left;font-weight:600">${s.name}</td>
+      <td>${pc}</td><td>${inst}</td>
+      <td style="color:var(--success);font-weight:600">${on}</td>
+      <td style="color:var(--text-muted)">${off}</td>
+      <td style="font-size:11px;color:var(--text-muted)">${lastSeen}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <!-- A. 에이전트 다운로드 -->
+  <div class="agent-section">
+    <div class="agent-section-title"><i class="ri-download-cloud-line" style="color:var(--accent-light);font-size:18px"></i> 매장 전용 설치파일 다운로드</div>
+    <div class="agent-section-desc">로그인된 매장 정보가 자동으로 포함된 설치파일입니다. 각 PC에서 설치 시 좌석 번호만 입력하면 됩니다.</div>
+    <div class="agent-download-box">
+      <select id="agentStoreSelect">${storeOpts}</select>
+      <button class="btn btn-primary" onclick="(function(){var sel=document.getElementById('agentStoreSelect');var s=STORES.find(x=>x.id==sel.value);var code='S'+String((s?s.id:0)+1001).toString().padStart(4,'0');showToast('iSensAgent_'+code+'.exe 다운로드를 시작합니다','success')})()"><i class="ri-download-line"></i> 설치파일 다운로드 (.exe)</button>
+    </div>
+    <div class="agent-download-info"><i class="ri-information-line"></i> 매장코드 / 서버주소 / 인증키 자동 포함 | 좌석번호만 입력</div>
+  </div>
+
+  <!-- B. 설치 가이드 -->
+  <div class="agent-section">
+    <div class="agent-section-title"><i class="ri-guide-line" style="color:var(--accent-light);font-size:18px"></i> 설치 가이드</div>
+    <div class="agent-steps">
+      <div class="agent-step">
+        <div class="agent-step-num">1</div>
+        <div class="agent-step-title">다운로드</div>
+        <div class="agent-step-desc">위에서 매장 전용<br>설치파일 다운로드</div>
+      </div>
+      <div class="agent-step">
+        <div class="agent-step-num">2</div>
+        <div class="agent-step-title">USB 복사</div>
+        <div class="agent-step-desc">다운로드한 파일을<br>USB에 복사</div>
+      </div>
+      <div class="agent-step">
+        <div class="agent-step-num">3</div>
+        <div class="agent-step-title">각 PC에서 실행</div>
+        <div class="agent-step-desc">더블클릭 → 좌석번호<br>입력 → 완료</div>
+      </div>
+      <div class="agent-step">
+        <div class="agent-step-num">4</div>
+        <div class="agent-step-title">자동 등록</div>
+        <div class="agent-step-desc">대시보드 새로고침 시<br>PC 자동 표시</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C. 복원 솔루션 호환성 안내 -->
+  <div class="agent-warn">
+    <div class="agent-warn-title"><i class="ri-alert-line"></i> PC Keeper / Smart Keeper 사용 매장 필독</div>
+    <div class="agent-warn-method">
+      <strong>1. 복원 제외 폴더에 설치 (권장)</strong>
+      <p>D:\\iSensAgent\\ 경로를 복원 제외 설정에 추가하면 재부팅 후에도 에이전트가 유지됩니다.</p>
+    </div>
+    <div class="agent-warn-method">
+      <strong>2. 마스터 이미지에 포함 (가장 안정적)</strong>
+      <p>마스터 PC에 에이전트를 설치한 뒤, 전 좌석에 이미지를 복제합니다.</p>
+    </div>
+    <div class="agent-warn-method">
+      <strong>3. 부팅 시 자동 재설치</strong>
+      <p>네트워크 공유 폴더에 설치파일을 두고 부팅 스크립트로 자동 재설치합니다.</p>
+    </div>
+    <p style="font-size:12px;color:var(--text-secondary);margin-top:12px;margin-bottom:0"><i class="ri-magic-line" style="margin-right:4px"></i> 설치 마법사가 복원 솔루션을 자동 감지하여 안내합니다</p>
+  </div>
+
+  <!-- D. 에이전트 상태 현황 -->
+  <div class="agent-section" style="margin-top:20px">
+    <div class="agent-section-title"><i class="ri-pulse-line" style="color:var(--accent-light);font-size:18px"></i> 에이전트 상태 현황</div>
+    <div class="agent-stats">
+      <div class="agent-stat-card">
+        <div class="agent-stat-val" style="color:var(--text-primary)">${totalPc}</div>
+        <div class="agent-stat-label">전체 PC</div>
+      </div>
+      <div class="agent-stat-card">
+        <div class="agent-stat-val" style="color:var(--accent-light)">${installed}</div>
+        <div class="agent-stat-label">에이전트 설치</div>
+      </div>
+      <div class="agent-stat-card">
+        <div class="agent-stat-val" style="color:var(--success)">${online}</div>
+        <div class="agent-stat-label">연결됨 (온라인)</div>
+      </div>
+      <div class="agent-stat-card">
+        <div class="agent-stat-val" style="color:var(--text-muted)">${offline}</div>
+        <div class="agent-stat-label">미연결 (오프라인)</div>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="agent-store-table">
+        <thead><tr><th style="text-align:left">매장명</th><th>전체PC</th><th>설치</th><th>연결</th><th>미연결</th><th>최종연결</th></tr></thead>
+        <tbody>${storeRows}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- E. 수집 정보 안내 -->
+  <div class="agent-section">
+    <div class="agent-section-title"><i class="ri-database-2-line" style="color:var(--accent-light);font-size:18px"></i> 에이전트 수집 정보</div>
+    <table class="agent-data-table">
+      <tr><td><i class="ri-temp-hot-line" style="margin-right:6px;color:var(--danger)"></i>CPU / GPU 온도</td><td>Windows WMI + LibreHardwareMonitor</td></tr>
+      <tr><td><i class="ri-speed-line" style="margin-right:6px;color:var(--accent-light)"></i>CPU / GPU / RAM 사용률</td><td>Windows 성능 카운터</td></tr>
+      <tr><td><i class="ri-computer-line" style="margin-right:6px;color:var(--text-secondary)"></i>PC 기본정보 (모델, CPU, RAM, 그래픽카드)</td><td>시스템 정보 API</td></tr>
+      <tr><td><i class="ri-global-line" style="margin-right:6px;color:var(--info)"></i>IP / MAC 주소</td><td>네트워크 어댑터</td></tr>
+      <tr><td><i class="ri-usb-line" style="margin-right:6px;color:var(--warning)"></i>연결 장치 (모니터, 키보드, 마우스, 헤드셋)</td><td>USB / 디스플레이 장치</td></tr>
+      <tr><td><i class="ri-shut-down-line" style="margin-right:6px;color:var(--success)"></i>전원 상태 / 로그인 유저</td><td>세션 상태</td></tr>
+    </table>
+  </div>
+
+  <!-- F. 추가 안내 사항 -->
+  <div class="agent-section">
+    <div class="agent-section-title"><i class="ri-question-answer-line" style="color:var(--accent-light);font-size:18px"></i> 추가 안내 사항</div>
+    <div class="agent-info-grid">
+      <div class="agent-info-item">
+        <strong><i class="ri-shield-user-line" style="margin-right:4px;color:var(--success)"></i> 개인정보 보호</strong>
+        <p>손님의 게임 기록, 채팅, 화면은 일절 수집하지 않습니다</p>
+      </div>
+      <div class="agent-info-item">
+        <strong><i class="ri-speed-mini-line" style="margin-right:4px;color:var(--accent-light)"></i> 성능 영향</strong>
+        <p>백그라운드 CPU 점유율 1% 미만, 게임 프레임 영향 없음</p>
+      </div>
+      <div class="agent-info-item">
+        <strong><i class="ri-calendar-check-line" style="margin-right:4px;color:var(--info)"></i> 데이터 보관</strong>
+        <p>상세 데이터 30일, 요약 데이터 1년 보관</p>
+      </div>
+      <div class="agent-info-item">
+        <strong><i class="ri-user-settings-line" style="margin-right:4px;color:var(--accent-light)"></i> 데이터 소유권</strong>
+        <p>모든 수집 데이터는 점주님 소유. CSV 다운로드 가능, 해지 시 즉시 파기</p>
+      </div>
+      <div class="agent-info-item">
+        <strong><i class="ri-shield-check-line" style="margin-right:4px;color:var(--success)"></i> 백신 호환</strong>
+        <p>안랩 V3, 알약 등 주요 백신 화이트리스트 등록 완료</p>
+      </div>
+      <div class="agent-info-item">
+        <strong><i class="ri-wifi-line" style="margin-right:4px;color:var(--text-secondary)"></i> 트래픽</strong>
+        <p>PC당 월 약 50MB (5초 간격 전송)</p>
+      </div>
+      <div class="agent-info-item">
+        <strong><i class="ri-refresh-line" style="margin-right:4px;color:var(--accent-light)"></i> 자동 업데이트</strong>
+        <p>새 버전 자동 갱신, 재부팅 불필요</p>
+      </div>
+      <div class="agent-info-item">
+        <strong><i class="ri-customer-service-2-line" style="margin-right:4px;color:var(--warning)"></i> 장애 대응</strong>
+        <p>24시간 카카오톡 채널 / 1544-0000</p>
+      </div>
+      <div class="agent-info-item">
+        <strong><i class="ri-delete-bin-line" style="margin-right:4px;color:var(--danger)"></i> 삭제 방법</strong>
+        <p>제어판에서 1분 이내 삭제 가능, 잔여 데이터 없음</p>
+      </div>
+    </div>
+  </div>`;
+}
+
+function showStoreRegModal(){
+  const ownerOpts=['홍길동','김민재','이서연','박준형','최은지'].map(n=>`<option value="${n}">${n}</option>`).join('');
+  const svOpts=['김철수','이영희','박지훈','최민수','정수진'].map(n=>`<option value="${n}">${n}</option>`).join('');
+  showModal(`<div class="modal-hdr"><h3><i class="ri-store-2-line" style="color:var(--accent-light);margin-right:6px"></i>매장 등록</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">매장명 *</label><input class="form-input" id="regStoreName" placeholder="매장명을 입력하세요"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">대표자명</label><input class="form-input" id="regStoreOwner" placeholder="대표자명"></div>
+        <div class="form-group"><label class="form-label">소속</label><input class="form-input" id="regStoreOrg" placeholder="소속"></div>
+      </div>
+      <div class="form-group"><label class="form-label">사업자등록번호 *</label><input class="form-input" id="regStoreBiz" placeholder="000-00-00000"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">가맹점주</label><select class="form-input" id="regStoreFran"><option value="">선택</option>${ownerOpts}</select></div>
+        <div class="form-group"><label class="form-label">본사 SV</label><select class="form-input" id="regStoreSv"><option value="">선택</option>${svOpts}</select></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">CPU 알람기준온도</label><input class="form-input" id="regCpuAlarm" type="number" value="85"></div>
+        <div class="form-group"><label class="form-label">GPU 알람기준온도</label><input class="form-input" id="regGpuAlarm" type="number" value="85"></div>
+      </div>
+      <div class="form-group"><label class="form-label">알람메일주소</label><input class="form-input" id="regAlarmMail" type="email" placeholder="alarm@example.com"></div>
+      <div class="form-group">
+        <label class="form-label">도면 이미지 등록</label>
+        <div class="upload-area" id="storeUploadDrop" onclick="document.getElementById('storeFileInput').click()"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="event.preventDefault();this.classList.remove('drag-over');handleStoreUpload(event.dataTransfer.files[0])">
+          <i class="ri-image-add-line"></i>
+          <p>클릭하거나 이미지를 드래그하여 업로드</p>
+          <small>PNG, JPG, SVG (최대 10MB)</small>
+          <input type="file" id="storeFileInput" accept="image/*" style="display:none" onchange="handleStoreUpload(this.files[0])">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="resetStoreRegForm()"><i class="ri-refresh-line"></i> 내용 초기화</button>
+      <div style="flex:1"></div>
+      <button class="btn" onclick="hideModal()">취소</button>
+      <button class="btn btn-primary" onclick="registerStore()"><i class="ri-check-line"></i> 등록</button>
+    </div>`);
+}
+
+function handleStoreUpload(file){
+  if(!file||!file.type.startsWith('image/'))return;
+  const area=document.getElementById('storeUploadDrop');
+  area.innerHTML=`<i class="ri-checkbox-circle-line" style="color:var(--success)"></i><p style="color:var(--success)">${file.name} 업로드 완료</p>`;
+}
+
+function resetStoreRegForm(){
+  const ids=['regStoreName','regStoreOwner','regStoreOrg','regStoreBiz','regAlarmMail'];
+  ids.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('regCpuAlarm').value='85';
+  document.getElementById('regGpuAlarm').value='85';
+  document.getElementById('regStoreFran').value='';
+  document.getElementById('regStoreSv').value='';
+}
+
+function registerStore(){
+  const name=document.getElementById('regStoreName').value.trim();
+  const biz=document.getElementById('regStoreBiz').value.trim();
+  if(!name){showToast('매장명을 입력하세요');return;}
+  if(!biz){showToast('사업자등록번호를 입력하세요');return;}
+  const newId=STORES.length;
+  STORES.push({id:newId,name});
+  hideModal();renderStoreMgmt();showToast(`${name} 매장이 등록되었습니다`);
+}
+
+function showStoreEditModal(storeId,code,name,owner,sv,org,pcCnt,bizNo,cpuAlarm,gpuAlarm,mail){
+  const ownerOpts=['홍길동','김민재','이서연','박준형','최은지'].map(n=>`<option value="${n}"${n===owner?' selected':''}>${n}</option>`).join('');
+  const svOpts=['김철수','이영희','박지훈','최민수','정수진'].map(n=>`<option value="${n}"${n===sv?' selected':''}>${n}</option>`).join('');
+  showModal(`<div class="modal-hdr"><h3><i class="ri-store-2-line" style="color:var(--accent-light);margin-right:6px"></i>매장 정보 수정 - ${name}</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body" style="max-height:60vh;overflow-y:auto">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="form-group"><label class="form-label">매장코드</label><input class="form-input" value="${code}" disabled></div>
+        <div class="form-group"><label class="form-label">등록PC</label><input class="form-input" value="${pcCnt}대" disabled></div>
+      </div>
+      <div class="form-group"><label class="form-label">매장명 *</label><input class="form-input" id="editStoreName" value="${name}"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">대표자명</label><input class="form-input" id="editStoreOwner" value="${owner}"></div>
+        <div class="form-group"><label class="form-label">소속</label><input class="form-input" id="editStoreOrg" value="${org}"></div>
+      </div>
+      <div class="form-group"><label class="form-label">사업자등록번호 *</label><input class="form-input" id="editStoreBiz" value="${bizNo}"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">가맹점주</label><select class="form-input" id="editStoreFran"><option value="">선택</option>${ownerOpts}</select></div>
+        <div class="form-group"><label class="form-label">본사 SV</label><select class="form-input" id="editStoreSv"><option value="">선택</option>${svOpts}</select></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label class="form-label">CPU 알람기준온도</label><input class="form-input" id="editCpuAlarm" type="number" value="${cpuAlarm}"></div>
+        <div class="form-group"><label class="form-label">GPU 알람기준온도</label><input class="form-input" id="editGpuAlarm" type="number" value="${gpuAlarm}"></div>
+      </div>
+      <div class="form-group"><label class="form-label">추가 알람수신메일</label><input class="form-input" id="editAlarmMail" value="${mail}"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="if(confirm('${name} 매장을 삭제하시겠습니까?')){hideModal();showToast('매장이 삭제되었습니다')}"><i class="ri-delete-bin-line"></i> 삭제</button>
+      <div style="flex:1"></div>
+      <button class="btn" onclick="hideModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveStoreEdit(${storeId})"><i class="ri-save-line"></i> 저장</button>
+    </div>`);
+}
+
+function saveStoreEdit(storeId){
+  const name=document.getElementById('editStoreName').value.trim();
+  if(!name){showToast('매장명을 입력하세요');return;}
+  const store=STORES.find(s=>s.id===storeId);
+  if(store)store.name=name;
+  hideModal();renderStoreMgmt();renderStoreList();showToast(`${name} 매장 정보가 저장되었습니다`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// PC MANAGEMENT VIEW
+// ═══════════════════════════════════════════════════════════
+let pcMgmtFilter='all';
+let pcMgmtSelected=new Set();
+
+function renderPcMgmt(){
+  const el=document.getElementById('pcMgmtView');
+  const storeName=STORES.find(s=>s.id===curStoreId)?.name||'';
+  let filtered=seats;
+  if(pcMgmtFilter==='on')filtered=seats.filter(s=>s.isOn);
+  else if(pcMgmtFilter==='off')filtered=seats.filter(s=>!s.isOn);
+
+  let rows=filtered.map(s=>{
+    const cpuHigh=s.cpuTemp>85;
+    const gpuHigh=s.gpuTemp>80;
+    return `<tr>
+      <td class="cb-cell" style="position:sticky;left:0;z-index:2;background:var(--bg-secondary);min-width:36px"><input type="checkbox" ${pcMgmtSelected.has(s.id)?'checked':''} onchange="togglePcSel(${s.id},this.checked)"></td>
+      <td style="position:sticky;left:36px;z-index:2;background:var(--bg-secondary);min-width:56px"><span class="status-badge ${s.isOn?'on':'off'}">${s.isOn?'ON':'OFF'}</span></td>
+      <td style="position:sticky;left:92px;z-index:2;background:var(--bg-secondary);min-width:80px"><strong>${s.pcNumber}</strong></td>
+      <td style="position:sticky;left:172px;z-index:2;background:var(--bg-secondary);min-width:120px;border-right:2px solid var(--border);font-size:11px">${s.ip}</td>
+      <td>${s.deviceCount}</td>
+      <td>${s.ram}GB</td>
+      <td style="font-size:11px">${s.cpuModel}</td>
+      <td style="font-size:11px">${s.gpuModel}</td>
+      <td>${s.version}</td>
+      <td style="color:var(--text-muted);font-size:11px">${s.lastUpdate}</td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML=`
+    <div class="mgmt-header">
+      <h2>관리 PC 목록 (${filtered.length})</h2>
+      <div class="mgmt-header-right">
+        <div class="mgmt-filters">
+          <select onchange="pcMgmtFilter=this.value;renderPcMgmt()">
+            <option value="all"${pcMgmtFilter==='all'?' selected':''}>전체 PC</option>
+            <option value="on"${pcMgmtFilter==='on'?' selected':''}>가동 PC</option>
+            <option value="off"${pcMgmtFilter==='off'?' selected':''}>미사용 PC</option>
+          </select>
+        </div>
+        <button class="btn" onclick="pcCheckSelected()"><i class="ri-checkbox-circle-line"></i> 선택PC 체크</button>
+        <button class="btn btn-danger" onclick="pcDeleteSelected()"><i class="ri-delete-bin-line"></i> 선택PC 삭제</button>
+        <button class="btn btn-primary" onclick="showPcRegModal()"><i class="ri-add-line"></i> PC등록</button>
+        <button class="btn" onclick="showIpEditModal()"><i class="ri-edit-line"></i> IP수정</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;flex:1">
+      <table class="mgmt-table">
+        <thead><tr>
+          <th class="cb-cell" style="position:sticky;left:0;z-index:6;background:var(--bg-tertiary);min-width:36px"><input type="checkbox" ${pcMgmtSelected.size>0&&pcMgmtSelected.size>=filtered.length?'checked':''} onchange="toggleAllPcSel(this.checked)"></th>
+          <th style="position:sticky;left:36px;z-index:6;background:var(--bg-tertiary);min-width:56px">PC상태</th><th style="position:sticky;left:92px;z-index:6;background:var(--bg-tertiary);min-width:80px">PC번호</th><th style="position:sticky;left:172px;z-index:6;background:var(--bg-tertiary);min-width:120px;border-right:2px solid var(--border)">IP</th><th>장치</th><th>RAM</th><th>CPU 모델</th><th>GPU 모델</th><th>iSensManager Ver.</th><th>업데이트 시간</th>
+        </tr></thead>
+        <tbody>${rows||'<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-muted)">등록된 PC가 없습니다</td></tr>'}</tbody>
+      </table>
+    </div>`;
+}
+
+function togglePcSel(id,checked){
+  if(checked)pcMgmtSelected.add(id);else pcMgmtSelected.delete(id);
+  renderPcMgmt();
+}
+function toggleAllPcSel(checked){
+  const filtered=pcMgmtFilter==='on'?seats.filter(s=>s.isOn):pcMgmtFilter==='off'?seats.filter(s=>!s.isOn):seats;
+  if(checked){filtered.forEach(s=>pcMgmtSelected.add(s.id));}else{pcMgmtSelected.clear();}
+  renderPcMgmt();
+}
+function pcCheckSelected(){
+  if(!pcMgmtSelected.size){showToast('PC를 선택하세요');return;}
+  showToast(`${pcMgmtSelected.size}개 PC 체크 요청 완료`);pcMgmtSelected.clear();renderPcMgmt();
+}
+function pcDeleteSelected(){
+  if(!pcMgmtSelected.size){showToast('PC를 선택하세요');return;}
+  const cnt=pcMgmtSelected.size;
+  showModal(`<div class="modal-hdr"><h3><i class="ri-delete-bin-line" style="color:var(--danger);margin-right:6px"></i>PC 삭제</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body"><p><strong style="color:var(--danger)">${cnt}개</strong> PC를 삭제하시겠습니까?</p><p style="font-size:11px;color:var(--text-muted);margin-top:8px">이 작업은 되돌릴 수 없습니다.</p></div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-danger" onclick="confirmPcDelete()"><i class="ri-delete-bin-line"></i> 삭제</button></div>`);
+}
+function confirmPcDelete(){
+  seats=seats.filter(s=>!pcMgmtSelected.has(s.id));
+  const cnt=pcMgmtSelected.size;pcMgmtSelected.clear();hideModal();renderPcMgmt();showToast(`${cnt}개 PC 삭제됨`);
+}
+
+function showPcRegModal(){
+  const storeName=STORES.find(s=>s.id===curStoreId)?.name||'';
+  const existingPcs=seats.map(s=>`<div class="pc-list-item"><span class="pc-name">${s.pcNumber}</span><span class="pc-ip">${s.ip}</span></div>`).join('');
+  showModal(`<div class="modal-hdr"><h3><i class="ri-computer-line" style="color:var(--accent-light);margin-right:6px"></i>PC 등록</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body"><div class="modal-two-col">
+      <div class="col-left">
+        <div class="form-group"><label class="form-label">매장명</label><input class="form-input" value="${storeName}" disabled></div>
+        <div style="display:flex;gap:12px;margin-bottom:14px">
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox" id="pcRegBatch" style="accent-color:var(--accent)"> 일괄등록</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox" id="pcRegIp" style="accent-color:var(--accent)"> IP포함여부</label>
+        </div>
+        <div class="form-group"><label class="form-label">번호이름 (Prefix)</label><input class="form-input" id="pcRegPrefix" value="PC" placeholder="PC"></div>
+        <div class="form-group"><label class="form-label">PC번호 *</label><input class="form-input" id="pcRegNum" type="number" placeholder="번호 입력" min="1"></div>
+      </div>
+      <div class="col-right">
+        <div class="col-right-title">등록된 PC 목록 (${seats.length})</div>
+        ${existingPcs||'<div style="padding:10px;text-align:center;color:var(--text-muted);font-size:12px">등록된 PC 없음</div>'}
+      </div>
+    </div></div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-primary" onclick="registerPc()"><i class="ri-check-line"></i> 등록</button></div>`,true);
+}
+
+function registerPc(){
+  const prefix=document.getElementById('pcRegPrefix').value.trim()||'PC';
+  const num=parseInt(document.getElementById('pcRegNum').value);
+  if(!num||num<1){showToast('PC번호를 입력하세요');return;}
+  const maxId=Math.max(...seats.map(s=>s.id),0)+1;
+  const pcNumber=prefix+String(num).padStart(3,'0');
+  seats.push({id:maxId,pcNumber,zone:ZONES[0]?.id||'_unassigned',status:'off',isOn:false,
+    ip:`125.130.6.${140+maxId}`,cpuModel:CPU[0],gpuModel:GPU[0],ram:16,
+    cpuTemp:0,gpuTemp:0,cpuMax:0,gpuMax:0,cpuWarn:0,gpuWarn:0,
+    devices:DEVS.slice(0,5),deviceCount:5,version:'1.2.0.2',
+    utilization:Array.from({length:24},()=>0),lastUpdate:'2026-03-19 00:00:00'});
+  hideModal();renderPcMgmt();showToast(`${pcNumber} 등록 완료`);
+}
+
+function showIpEditModal(){
+  const storeName=STORES.find(s=>s.id===curStoreId)?.name||'';
+  const pcList=seats.map(s=>`<div class="pc-list-item"><span class="pc-name">${s.pcNumber}</span><span class="pc-ip">${s.ip}</span><button class="btn btn-danger" style="padding:2px 6px;font-size:10px" onclick="event.stopPropagation();showToast('IP 삭제: ${s.pcNumber}')"><i class="ri-delete-bin-line"></i></button></div>`).join('');
+  showModal(`<div class="modal-hdr"><h3><i class="ri-edit-line" style="color:var(--accent-light);margin-right:6px"></i>IP 수정</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body"><div class="modal-two-col">
+      <div class="col-left">
+        <div class="form-group"><label class="form-label">매장명</label><input class="form-input" value="${storeName}" disabled></div>
+        <div style="margin-bottom:14px"><label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary);cursor:pointer"><input type="checkbox" id="ipBatch" style="accent-color:var(--accent)"> 일괄등록</label></div>
+        <div class="form-group"><label class="form-label">IP변경대상 PC</label><select class="form-input" id="ipTargetPc">${seats.map(s=>`<option value="${s.id}">${s.pcNumber}</option>`).join('')}</select></div>
+        <div class="form-group"><label class="form-label">IP *</label><input class="form-input" id="ipNewValue" placeholder="125.130.6.xxx"></div>
+      </div>
+      <div class="col-right">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="col-right-title" style="margin-bottom:0">PC 목록 (${seats.length})</div><button class="btn btn-danger" style="padding:2px 8px;font-size:10px" onclick="showToast('IP 전체삭제')">IP전체삭제</button></div>
+        ${pcList||'<div style="padding:10px;text-align:center;color:var(--text-muted);font-size:12px">등록된 PC 없음</div>'}
+      </div>
+    </div></div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-primary" onclick="applyIpEdit()"><i class="ri-check-line"></i> 적용</button></div>`,true);
+}
+
+function applyIpEdit(){
+  const targetId=parseInt(document.getElementById('ipTargetPc')?.value);
+  const newIp=document.getElementById('ipNewValue')?.value.trim();
+  if(!newIp){showToast('IP를 입력하세요');return;}
+  const s=seats.find(x=>x.id===targetId);
+  if(s){s.ip=newIp;hideModal();renderPcMgmt();showToast(`${s.pcNumber} IP 변경: ${newIp}`);}
+}
+
+// Override showModal to support wide modals
+const _origShowModal=showModal;
+showModal=function(h,wide){
+  document.getElementById('modal').className='modal'+(wide?' wide':'');
+  document.getElementById('modal').innerHTML=h;
+  document.getElementById('modalOv').classList.add('visible');
+};
+
+// ═══════════════════════════════════════════════════════════
+// TAB SWITCHING & UTILIZATION HELPERS
+// ═══════════════════════════════════════════════════════════
+function switchTab(tab){
+  curTab=tab;
+  document.querySelectorAll('.topbar-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+  renderCurView();
+}
+
+function getUtilColor(pct){
+  if(pct<=0)return{bg:'rgba(107,113,133,0.06)',border:'var(--border)',text:'var(--text-muted)'};
+  if(pct<=20)return{bg:'rgba(108,92,231,0.08)',border:'rgba(108,92,231,0.25)',text:'rgba(162,155,254,0.6)'};
+  if(pct<=40)return{bg:'rgba(108,92,231,0.14)',border:'rgba(108,92,231,0.4)',text:'rgba(162,155,254,0.75)'};
+  if(pct<=60)return{bg:'rgba(108,92,231,0.22)',border:'rgba(108,92,231,0.55)',text:'var(--accent-light)'};
+  if(pct<=80)return{bg:'rgba(108,92,231,0.32)',border:'rgba(108,92,231,0.7)',text:'var(--accent-light)'};
+  return{bg:'rgba(108,92,231,0.45)',border:'var(--accent)',text:'#fff'};
+}
+
+function navigateSeat(dir){
+  if(!selectedSeat)return;
+  const idx=seats.findIndex(s=>s.id===selectedSeat.id);
+  const newIdx=idx+dir;
+  if(newIdx>=0&&newIdx<seats.length){
+    selectSeat(seats[newIdx]);
+  }
+}
+
+function showPcEditModal(){
+  if(!selectedSeat)return;
+  const s=selectedSeat;
+  const zoneOpts=[...ZONES,UNASSIGNED].map(z=>`<option value="${z.id}"${z.id===s.zone?' selected':''}>${z.name}</option>`).join('');
+  showModal(`<div class="modal-hdr"><h3><i class="ri-computer-line" style="color:var(--accent-light);margin-right:6px"></i>PC 세부내용</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body" style="max-height:60vh;overflow-y:auto">
+      <div class="form-group"><label class="form-label">PC번호</label><input class="form-input" id="peNum" value="${s.pcNumber}"></div>
+      <div class="form-group"><label class="form-label">구역</label><select class="form-input" id="peZone">${zoneOpts}</select></div>
+      <div class="form-group"><label class="form-label">IP</label><input class="form-input" id="peIp" value="${s.ip}"></div>
+      <div class="form-group"><label class="form-label">iSensManager Ver.</label><input class="form-input" id="peVer" value="${s.version}"></div>
+      <div class="form-group"><label class="form-label">RAM 용량</label><input class="form-input" id="peRam" type="number" value="${s.ram}"></div>
+      <div class="form-group"><label class="form-label">연결 장치</label><input class="form-input" id="peDevices" value="${s.devices.join(', ')}"></div>
+      <div class="form-group"><label class="form-label">디바이스 개수</label><input class="form-input" id="peDevCnt" type="number" value="${s.deviceCount}"></div>
+      <div class="form-group"><label class="form-label">CPU 사양</label><input class="form-input" id="peCpu" value="${s.cpuModel}"></div>
+      <div class="form-group"><label class="form-label">GPU 사양</label><input class="form-input" id="peGpu" value="${s.gpuModel}"></div>
+      <div style="border-top:1px solid var(--border);margin:16px 0;padding-top:12px">
+        <div class="form-label" style="color:var(--text-muted);margin-bottom:10px">온도 정보 (읽기 전용)</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="form-group"><label class="form-label">CPU 현재 온도</label><input class="form-input" value="${s.cpuTemp}°" disabled></div>
+          <div class="form-group"><label class="form-label">CPU 최고 온도</label><input class="form-input" value="${s.cpuMax}°" disabled></div>
+          <div class="form-group"><label class="form-label">CPU 알람 횟수</label><input class="form-input" value="${s.cpuWarn}" disabled></div>
+          <div class="form-group"><label class="form-label">GPU 현재 온도</label><input class="form-input" value="${s.gpuTemp}°" disabled></div>
+          <div class="form-group"><label class="form-label">GPU 최고 온도</label><input class="form-input" value="${s.gpuMax}°" disabled></div>
+          <div class="form-group"><label class="form-label">GPU 알람 횟수</label><input class="form-input" value="${s.gpuWarn}" disabled></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="resetPcEditModal()">내용 초기화</button>
+      <div style="flex:1"></div>
+      <button class="btn" onclick="hideModal()">취소</button>
+      <button class="btn btn-primary" onclick="savePcEdit()"><i class="ri-save-line"></i> 저장</button>
+    </div>`);
+}
+
+function savePcEdit(){
+  if(!selectedSeat)return;
+  const s=selectedSeat;
+  s.pcNumber=document.getElementById('peNum').value.trim()||s.pcNumber;
+  s.zone=document.getElementById('peZone').value;
+  s.ip=document.getElementById('peIp').value.trim()||s.ip;
+  s.version=document.getElementById('peVer').value.trim()||s.version;
+  s.ram=parseInt(document.getElementById('peRam').value)||s.ram;
+  s.devices=document.getElementById('peDevices').value.split(',').map(d=>d.trim()).filter(d=>d);
+  s.deviceCount=parseInt(document.getElementById('peDevCnt').value)||s.deviceCount;
+  s.cpuModel=document.getElementById('peCpu').value.trim()||s.cpuModel;
+  s.gpuModel=document.getElementById('peGpu').value.trim()||s.gpuModel;
+  renderCurView();renderZoneList();hideModal();openDetail(s);showToast('PC 정보가 수정되었습니다');
+}
+
+function resetPcEditModal(){
+  if(selectedSeat)showPcEditModal();
+}
+
+function navigatePcEdit(dir){
+  if(!selectedSeat)return;
+  const idx=seats.findIndex(s=>s.id===selectedSeat.id);
+  const newIdx=idx+dir;
+  if(newIdx>=0&&newIdx<seats.length){
+    selectedSeat=seats[newIdx];
+    openDetail(selectedSeat);
+    showPcEditModal();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// CEREMONY MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+let ceremonyTab='stats';
+let ceremonyTimeFilter='hour';
+
+const CEREMONY_NAMES=['승리 세리머니','킬 세리머니','MVP 세리머니','팀킬 세리머니','에이스 세리머니'];
+const SOUND_NAMES=['Victory Fanfare','Kill Sound','MVP Theme','Team Kill Alert','Ace Sound','Champion Select','Pentakill','Baron Steal'];
+
+let ceremonyTeamRooms=[
+  {id:1,name:'팀룸 A',shellyIp:'192.168.0.101',deviceId:'SH001',connected:true,
+   ceremonies:[
+     {name:'승리 세리머니',sound:'Victory Fanfare',active:true},
+     {name:'킬 세리머니',sound:'Kill Sound',active:false},
+     {name:'MVP 세리머니',sound:'MVP Theme',active:false},
+     {name:'팀킬 세리머니',sound:'Team Kill Alert',active:false},
+     {name:'에이스 세리머니',sound:'Ace Sound',active:false},
+     {name:'세리머니 6',sound:'Champion Select',active:false}
+   ],
+   volumeForce:true,volume:75
+  },
+  {id:2,name:'팀룸 B',shellyIp:'192.168.0.102',deviceId:'SH002',connected:false,
+   ceremonies:[
+     {name:'승리 세리머니',sound:'Victory Fanfare',active:true},
+     {name:'킬 세리머니',sound:'Kill Sound',active:true},
+     {name:'MVP 세리머니',sound:'MVP Theme',active:false},
+     {name:'팀킬 세리머니',sound:'Team Kill Alert',active:false},
+     {name:'에이스 세리머니',sound:'Ace Sound',active:false},
+     {name:'세리머니 6',sound:'Champion Select',active:false}
+   ],
+   volumeForce:true,volume:60
+  }
+];
+
+let ceremonySounds=[
+  {id:1,name:'Victory Fanfare',file:'victory.mp3'},
+  {id:2,name:'Kill Sound',file:'kill.mp3'},
+  {id:3,name:'MVP Theme',file:'mvp.mp3'},
+  {id:4,name:'Team Kill Alert',file:'teamkill.mp3'},
+  {id:5,name:'Ace Sound',file:'ace.mp3'},
+  {id:6,name:'Champion Select',file:'champion.mp3'},
+  {id:7,name:'Pentakill',file:'pentakill.mp3'},
+  {id:8,name:'Baron Steal',file:'baron.mp3'}
+];
+
+let selectedTeamRoom=0;
+
+function ceremonyRandInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+
+function renderCeremony(){
+  const el=document.getElementById('ceremonyView');
+  const storeName=STORES.find(s=>s.id===curStoreId)?.name||'매장';
+  const isStats=ceremonyTab==='stats';
+  let html=`<div class="mgmt-header" style="margin-bottom:16px">
+    <h2>세리머니 관리</h2>
+    <div class="ceremony-tabs">
+      <button class="ceremony-tab${isStats?' active':''}" onclick="switchCeremonyTab('stats')">통계</button>
+      <button class="ceremony-tab${!isStats?' active':''}" onclick="switchCeremonyTab('settings')">설정</button>
+    </div>
+  </div>`;
+
+  if(isStats){
+    html+=renderCeremonyStats();
+  } else {
+    html+=renderCeremonySettings(storeName);
+  }
+  el.innerHTML=html;
+
+  if(isStats){
+    setTimeout(()=>drawCeremonyChart(),50);
+  }
+}
+
+function renderCeremonyStats(){
+  const tfLabels={hour:'시간',day:'일',week:'주',month:'월'};
+  let html=`<div class="ceremony-filter-bar">
+    <div class="time-filter">
+      ${['hour','day','week','month'].map(f=>`<button class="time-filter-btn${ceremonyTimeFilter===f?' active':''}" onclick="switchCeremonyTimeFilter('${f}')">${tfLabels[f]}</button>`).join('')}
+    </div>
+    <div class="ceremony-date-range">
+      <span style="font-size:11px;color:var(--text-muted)">조회 기간</span>
+      <input type="date" value="2026-03-01">
+      <span style="color:var(--text-muted)">~</span>
+      <input type="date" value="2026-03-19">
+    </div>
+  </div>`;
+
+  const totalExec=ceremonyRandInt(3200,4200);
+  const totalStop=ceremonyRandInt(350,650);
+  html+=`<div class="summary-cards">
+    <div class="summary-card">
+      <div class="summary-card-title">기간 내 세리머니 실행수</div>
+      <div class="summary-card-value" style="color:var(--accent-light)">${totalExec.toLocaleString()}</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-card-title">기간 내 세리머니 중단수</div>
+      <div class="summary-card-value" style="color:var(--danger)">${totalStop.toLocaleString()}</div>
+    </div>
+  </div>`;
+
+  // Ranking tables
+  let ceremonyRows='';
+  for(let i=0;i<5;i++){
+    const exec=ceremonyRandInt(500,3000);
+    const stop=ceremonyRandInt(50,500);
+    ceremonyRows+=`<tr><td style="text-align:center">${i+1}</td><td>${CEREMONY_NAMES[i]}</td><td style="color:var(--accent-light);font-weight:600">${exec.toLocaleString()}</td><td style="color:var(--danger);font-weight:600">${stop.toLocaleString()}</td></tr>`;
+  }
+  let soundRows='';
+  for(let i=0;i<5;i++){
+    const exec=ceremonyRandInt(400,2500);
+    const stop=ceremonyRandInt(30,400);
+    soundRows+=`<tr><td style="text-align:center">${i+1}</td><td>${SOUND_NAMES[i]}</td><td style="color:var(--accent-light);font-weight:600">${exec.toLocaleString()}</td><td style="color:var(--danger);font-weight:600">${stop.toLocaleString()}</td></tr>`;
+  }
+
+  html+=`<div class="ceremony-ranking-grid">
+    <div class="ceremony-ranking">
+      <div class="ceremony-ranking-title">가장 많이 실행/중단한 세리머니</div>
+      <table class="mgmt-table" style="border:none;border-radius:0">
+        <thead><tr><th style="width:50px">순위</th><th>세리머니</th><th style="width:80px">실행수</th><th style="width:80px">중단수</th></tr></thead>
+        <tbody>${ceremonyRows}</tbody>
+      </table>
+    </div>
+    <div class="ceremony-ranking">
+      <div class="ceremony-ranking-title">가장 많이 실행/중단한 음원</div>
+      <table class="mgmt-table" style="border:none;border-radius:0">
+        <thead><tr><th style="width:50px">순위</th><th>음원명</th><th style="width:80px">실행수</th><th style="width:80px">중단수</th></tr></thead>
+        <tbody>${soundRows}</tbody>
+      </table>
+    </div>
+  </div>`;
+
+  // Chart
+  html+=`<div class="ceremony-chart-area">
+    <div class="ceremony-chart-title">
+      세리머니 실행/중단 통계(시간)
+      <div class="ceremony-chart-legend">
+        <span><span class="ldot" style="background:var(--accent-light)"></span> 실행수</span>
+        <span><span class="ldot" style="background:var(--danger)"></span> 중단수</span>
+        <span><span class="ldash" style="border-color:var(--accent-light)"></span> 평균 실행수</span>
+        <span><span class="ldash" style="border-color:var(--danger)"></span> 평균 중단수</span>
+      </div>
+    </div>
+    <canvas id="ceremonyChart" width="900" height="260" style="width:100%;height:260px"></canvas>
+  </div>`;
+
+  return html;
+}
+
+function renderCeremonySettings(storeName){
+  const room=ceremonyTeamRooms[selectedTeamRoom];
+  const soundOpts=ceremonySounds.map(s=>`<option value="${s.name}">${s.name}</option>`).join('');
+
+  // Sidebar: team rooms
+  let sidebarRooms='';
+  ceremonyTeamRooms.forEach((r,idx)=>{
+    sidebarRooms+=`<div class="ceremony-sidebar-item${idx===selectedTeamRoom?' active':''}" onclick="selectTeamRoom(${idx})">
+      <i class="ri-door-line" style="font-size:14px"></i>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis">${r.name}</span>
+      <span style="font-size:9px;color:${r.connected?'var(--success)':'var(--text-muted)'}">${r.connected?'●':'●'}</span>
+      <span class="delete-btn" onclick="event.stopPropagation();deleteTeamRoom(${idx})"><i class="ri-close-line"></i></span>
+    </div>`;
+  });
+
+  // Sidebar: sounds
+  let sidebarSounds='';
+  ceremonySounds.forEach((s,idx)=>{
+    sidebarSounds+=`<div class="ceremony-sidebar-item" onclick="editSound(${idx})" style="font-size:11px">
+      <i class="ri-music-line" style="font-size:13px;color:var(--warning)"></i>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis">${s.name}</span>
+      <span class="delete-btn" onclick="event.stopPropagation();deleteSound(${idx})"><i class="ri-close-line"></i></span>
+    </div>`;
+  });
+
+  // Content: selected room settings
+  let contentHtml='';
+  if(room){
+    // Basic settings
+    contentHtml+=`<div class="ceremony-settings-section" style="border:none;padding:0;margin-bottom:20px;background:none">
+      <h3>${room.name} 설정</h3>
+    </div>`;
+
+    contentHtml+=`<div class="ceremony-settings-section">
+      <h3>기본 설정</h3>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">${storeName} | ${room.name}</div>
+      <div class="ceremony-settings-row col4">
+        <div class="ceremony-field"><label>매장명 *</label><input type="text" maxlength="30" value="${storeName}" id="crStoreName"></div>
+        <div class="ceremony-field"><label>팀룸명 *</label><input type="text" maxlength="14" value="${room.name}" id="crRoomName"></div>
+        <div class="ceremony-field"><label>ShellyIP</label><input type="text" maxlength="15" value="${room.shellyIp}" id="crShellyIp"></div>
+        <div class="ceremony-field"><label>DeviceId</label><input type="text" value="${room.deviceId}" id="crDeviceId" readonly></div>
+      </div>
+      <div style="margin-top:12px">
+        <div class="ceremony-connection">
+          <div class="conn-status ${room.connected?'connected':'disconnected'}">${room.connected?'연결됨':'연결 안됨'}</div>
+          <div style="flex:1"></div>
+          <button class="btn btn-primary" style="padding:6px 16px;font-size:12px" onclick="ceremonyTeamRooms[${selectedTeamRoom}].connected=!ceremonyTeamRooms[${selectedTeamRoom}].connected;renderCeremony()">${room.connected?'연결 해제':'연결'}</button>
+        </div>
+      </div>
+    </div>`;
+
+    // Ceremony slots
+    let slotsHtml='';
+    room.ceremonies.forEach((cer,ci)=>{
+      slotsHtml+=`<div class="ceremony-slot">
+        <div class="ceremony-slot-header">
+          <span class="slot-title">세리머니 ${ci+1}</span>
+          <span class="slot-sound">음원명: ${cer.sound}</span>
+          <span class="slot-toggle-label">물리 버튼 적용</span>
+          <div class="toggle-switch${cer.active?' on':''}" onclick="ceremonyTeamRooms[${selectedTeamRoom}].ceremonies[${ci}].active=!ceremonyTeamRooms[${selectedTeamRoom}].ceremonies[${ci}].active;renderCeremony()"></div>
+        </div>
+        <div class="ceremony-slot-fields">
+          <div class="ceremony-field">
+            <label>세리머니명 *</label>
+            <input type="text" maxlength="10" value="${cer.name}" onchange="ceremonyTeamRooms[${selectedTeamRoom}].ceremonies[${ci}].name=this.value">
+          </div>
+          <div class="ceremony-field">
+            <label>음원 선택</label>
+            <select onchange="ceremonyTeamRooms[${selectedTeamRoom}].ceremonies[${ci}].sound=this.value">${ceremonySounds.map(s=>`<option value="${s.name}"${s.name===cer.sound?' selected':''}>${s.name}</option>`).join('')}</select>
+          </div>
+        </div>
+      </div>`;
+    });
+
+    contentHtml+=`<div class="ceremony-settings-section">
+      <h3>세레모니 설정</h3>
+      ${slotsHtml}
+    </div>`;
+
+    // Sound settings
+    contentHtml+=`<div class="ceremony-settings-section">
+      <h3>사운드 설정</h3>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <span style="font-size:12px;color:var(--text-secondary)">볼륨 강제 조정</span>
+        <div class="toggle-switch${room.volumeForce?' on':''}" onclick="ceremonyTeamRooms[${selectedTeamRoom}].volumeForce=!ceremonyTeamRooms[${selectedTeamRoom}].volumeForce;renderCeremony()"></div>
+      </div>
+      <div class="ceremony-volume-section">
+        <span class="vol-label">볼륨</span>
+        <input type="range" min="0" max="100" value="${room.volume}" oninput="this.nextElementSibling.textContent=this.value;ceremonyTeamRooms[${selectedTeamRoom}].volume=parseInt(this.value)" style="background:linear-gradient(to right,var(--warning) ${room.volume}%,var(--border) ${room.volume}%)">
+        <span class="vol-val">${room.volume}</span>
+      </div>
+    </div>`;
+
+    contentHtml+=`<div class="ceremony-footer">
+      <button class="btn" onclick="switchToPage('monitor')"><i class="ri-arrow-left-s-line"></i> 뒤로 이동</button>
+      <button class="btn btn-primary" onclick="saveTeamRoomSettings()"><i class="ri-save-line"></i> 저장하기</button>
+    </div>`;
+  } else {
+    contentHtml=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--text-muted)">
+      <i class="ri-door-line" style="font-size:48px;opacity:.3"></i>
+      <p>팀룸을 선택하거나 추가하세요</p>
+    </div>`;
+  }
+
+  return `<div class="ceremony-settings-layout">
+    <div class="ceremony-sidebar">
+      <div class="ceremony-sidebar-title">팀룸 목록</div>
+      <div class="ceremony-sidebar-section" style="flex:1;overflow-y:auto">
+        ${sidebarRooms}
+        <div class="ceremony-sidebar-add" onclick="addTeamRoom()"><i class="ri-add-line"></i> 팀룸 추가</div>
+      </div>
+      <div class="ceremony-sidebar-divider"></div>
+      <div class="ceremony-sidebar-title">음원 관리</div>
+      <div class="ceremony-sidebar-section" style="max-height:200px;overflow-y:auto">
+        ${sidebarSounds}
+        <div class="ceremony-sidebar-add" onclick="addSound()"><i class="ri-add-line"></i> 음원 추가</div>
+      </div>
+    </div>
+    <div class="ceremony-settings-content">
+      ${contentHtml}
+    </div>
+  </div>`;
+}
+
+function selectTeamRoom(idx){
+  selectedTeamRoom=idx;
+  renderCeremony();
+}
+
+function addTeamRoom(){
+  showModal(`<div class="modal-hdr"><h3>팀룸 추가</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">팀룸명</label><input class="form-input" id="newRoomName" placeholder="예: 팀룸 C"></div>
+      <div class="form-group"><label class="form-label">Shelly IP</label><input class="form-input" id="newRoomIp" placeholder="192.168.0.103"></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-primary" onclick="confirmAddTeamRoom()">추가</button></div>`);
+}
+
+function confirmAddTeamRoom(){
+  const name=document.getElementById('newRoomName').value.trim();
+  const ip=document.getElementById('newRoomIp').value.trim();
+  if(!name){showToast('팀룸명을 입력하세요');return;}
+  const newId=ceremonyTeamRooms.length?Math.max(...ceremonyTeamRooms.map(r=>r.id))+1:1;
+  ceremonyTeamRooms.push({
+    id:newId,name,shellyIp:ip||'0.0.0.0',deviceId:'SH'+String(newId).padStart(3,'0'),connected:false,
+    ceremonies:[
+      {name:'승리 세리머니',sound:ceremonySounds[0]?.name||'',active:false},
+      {name:'킬 세리머니',sound:ceremonySounds[1]?.name||'',active:false},
+      {name:'MVP 세리머니',sound:ceremonySounds[2]?.name||'',active:false},
+      {name:'팀킬 세리머니',sound:ceremonySounds[3]?.name||'',active:false},
+      {name:'에이스 세리머니',sound:ceremonySounds[4]?.name||'',active:false},
+      {name:'세리머니 6',sound:ceremonySounds[5]?.name||'',active:false}
+    ],
+    volumeForce:true,volume:50
+  });
+  selectedTeamRoom=ceremonyTeamRooms.length-1;
+  hideModal();renderCeremony();showToast(`${name} 팀룸이 추가되었습니다`);
+}
+
+function deleteTeamRoom(idx){
+  if(!confirm('팀룸을 삭제하시겠습니까?'))return;
+  const name=ceremonyTeamRooms[idx].name;
+  ceremonyTeamRooms.splice(idx,1);
+  if(selectedTeamRoom>=ceremonyTeamRooms.length)selectedTeamRoom=Math.max(0,ceremonyTeamRooms.length-1);
+  renderCeremony();showToast(`${name} 팀룸이 삭제되었습니다`);
+}
+
+function addSound(){
+  showModal(`<div class="modal-hdr"><h3>음원 추가</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">음원명</label><input class="form-input" id="newSoundName" placeholder="예: Dragon Steal"></div>
+      <div class="form-group"><label class="form-label">파일</label><input type="file" class="form-input" id="newSoundFile" accept="audio/*" style="padding:6px"></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-primary" onclick="confirmAddSound()">추가</button></div>`);
+}
+
+function confirmAddSound(){
+  const name=document.getElementById('newSoundName').value.trim();
+  if(!name){showToast('음원명을 입력하세요');return;}
+  const newId=ceremonySounds.length?Math.max(...ceremonySounds.map(s=>s.id))+1:1;
+  ceremonySounds.push({id:newId,name,file:name.toLowerCase().replace(/\s+/g,'_')+'.mp3'});
+  hideModal();renderCeremony();showToast(`${name} 음원이 추가되었습니다`);
+}
+
+function editSound(idx){
+  const s=ceremonySounds[idx];
+  showModal(`<div class="modal-hdr"><h3>음원 수정</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">음원명</label><input class="form-input" id="editSoundName" value="${s.name}"></div>
+      <div class="form-group"><label class="form-label">파일</label><input type="file" class="form-input" accept="audio/*" style="padding:6px"></div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:4px">현재 파일: ${s.file}</div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-primary" onclick="confirmEditSound(${idx})">저장</button></div>`);
+}
+
+function confirmEditSound(idx){
+  const name=document.getElementById('editSoundName').value.trim();
+  if(!name){showToast('음원명을 입력하세요');return;}
+  const oldName=ceremonySounds[idx].name;
+  ceremonySounds[idx].name=name;
+  // Update references in team rooms
+  ceremonyTeamRooms.forEach(r=>{r.ceremonies.forEach(c=>{if(c.sound===oldName)c.sound=name;});});
+  hideModal();renderCeremony();showToast(`음원이 수정되었습니다`);
+}
+
+function deleteSound(idx){
+  if(!confirm('음원을 삭제하시겠습니까?'))return;
+  const name=ceremonySounds[idx].name;
+  ceremonySounds.splice(idx,1);
+  renderCeremony();showToast(`${name} 음원이 삭제되었습니다`);
+}
+
+function saveTeamRoomSettings(){
+  const room=ceremonyTeamRooms[selectedTeamRoom];
+  if(!room)return;
+  const nameEl=document.getElementById('crRoomName');
+  const ipEl=document.getElementById('crShellyIp');
+  if(nameEl)room.name=nameEl.value.trim()||room.name;
+  if(ipEl)room.shellyIp=ipEl.value.trim()||room.shellyIp;
+  renderCeremony();
+  showToast('설정이 저장되었습니다');
+}
+
+function switchCeremonyTab(tab){
+  ceremonyTab=tab;
+  renderCeremony();
+}
+
+function switchCeremonyTimeFilter(f){
+  ceremonyTimeFilter=f;
+  renderCeremony();
+}
+
+function drawCeremonyChart(){
+  const canvas=document.getElementById('ceremonyChart');
+  if(!canvas)return;
+  const dpr=window.devicePixelRatio||1;
+  const rect=canvas.getBoundingClientRect();
+  canvas.width=rect.width*dpr;
+  canvas.height=rect.height*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  const W=rect.width,H=rect.height;
+  const pad={top:20,right:20,bottom:40,left:50};
+  const cw=W-pad.left-pad.right,ch=H-pad.top-pad.bottom;
+
+  const n=30;
+  const execData=Array.from({length:n},()=>ceremonyRandInt(80,300));
+  const stopData=Array.from({length:n},()=>ceremonyRandInt(10,80));
+  const maxVal=Math.max(...execData,...stopData)*1.15;
+  const avgExec=execData.reduce((a,b)=>a+b,0)/n;
+  const avgStop=stopData.reduce((a,b)=>a+b,0)/n;
+
+  // Grid
+  ctx.strokeStyle='#2e3144';
+  ctx.lineWidth=0.5;
+  for(let i=0;i<=5;i++){
+    const y=pad.top+ch-ch*(i/5);
+    ctx.beginPath();ctx.moveTo(pad.left,y);ctx.lineTo(pad.left+cw,y);ctx.stroke();
+    ctx.fillStyle='#6b7185';ctx.font='10px Pretendard';ctx.textAlign='right';
+    ctx.fillText(Math.round(maxVal*(i/5)),pad.left-8,y+3);
+  }
+
+  // X labels
+  ctx.fillStyle='#6b7185';ctx.font='10px Pretendard';ctx.textAlign='center';
+  for(let i=0;i<n;i+=5){
+    const x=pad.left+cw*(i/(n-1));
+    const d=new Date(2026,2,19);d.setDate(d.getDate()-n+i+1);
+    ctx.fillText(`${d.getMonth()+1}/${d.getDate()}`,x,H-pad.bottom+18);
+  }
+
+  function drawLine(data,color,dashed){
+    ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=dashed?1.5:2;
+    if(dashed)ctx.setLineDash([6,4]);else ctx.setLineDash([]);
+    data.forEach((v,i)=>{
+      const x=pad.left+cw*(i/(n-1));
+      const y=pad.top+ch-ch*(v/maxVal);
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    });
+    ctx.stroke();ctx.setLineDash([]);
+  }
+
+  // Lines
+  drawLine(execData,'#a29bfe',false);
+  drawLine(stopData,'#ff6b6b',false);
+
+  // Averages
+  const avgExecArr=Array(n).fill(avgExec);
+  const avgStopArr=Array(n).fill(avgStop);
+  drawLine(avgExecArr,'#a29bfe',true);
+  drawLine(avgStopArr,'#ff6b6b',true);
+
+  // Dots
+  execData.forEach((v,i)=>{
+    const x=pad.left+cw*(i/(n-1));
+    const y=pad.top+ch-ch*(v/maxVal);
+    ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle='#a29bfe';ctx.fill();
+  });
+  stopData.forEach((v,i)=>{
+    const x=pad.left+cw*(i/(n-1));
+    const y=pad.top+ch-ch*(v/maxVal);
+    ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle='#ff6b6b';ctx.fill();
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+renderFloor();renderZoneList();updateStats();
+
+setInterval(()=>{
+  seats.forEach(s=>{if(s.isOn){
+    s.cpuTemp=Math.max(30,Math.min(95,s.cpuTemp+Math.floor(Math.random()*5)-2));
+    s.gpuTemp=Math.max(30,Math.min(90,s.gpuTemp+Math.floor(Math.random()*5)-2));
+    if(s.cpuTemp>s.cpuMax)s.cpuMax=s.cpuTemp;if(s.gpuTemp>s.gpuMax)s.gpuMax=s.gpuTemp;
+    if(s.cpuTemp>85||s.gpuTemp>80)s.status='error';else if(s.cpuTemp>70||s.gpuTemp>65)s.status='warning';else s.status='on';
+    if(s.cpuTemp>85)s.cpuWarn++;
+  }});
+  if(currentPage==='monitor'){renderCurView();if(selectedSeat)openDetail(selectedSeat);}
+  else if(currentPage==='pc-mgmt'){renderPcMgmt();}
+},8000);
+</script>
+</body>
+</html>
