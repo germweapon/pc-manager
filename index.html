@@ -839,13 +839,47 @@ const ZONES=[
 ];
 const UNASSIGNED={id:'_unassigned',name:'미지정 좌석',color:'#95a5a6',fixed:true};
 
-const STORES=[];
-const STORE_NAMES=['수원경희대점','강남역점','홍대입구점','부산서면점','대전둔산점','인천구월점','대구동성로점','광주충장로점','울산삼산점','제주시청점','수원역점','분당정자점','일산라페스타점','천안두정점','전주객사점','청주성안점','포항시청점','창원상남점','김해장유점','양산물금점'];
-for(let i=0;i<120;i++){const b=STORE_NAMES[i%STORE_NAMES.length];const s=i>=STORE_NAMES.length?` ${Math.floor(i/STORE_NAMES.length)+1}호점`:'';STORES.push({id:i,name:i<STORE_NAMES.length?b:b.replace('점',s)});}
-const STORES_WITH_SEATS=new Set([0,1,2,3,4]);
-// Track which stores have had image registered (disables upload menu)
+let STORES=[];
+const STORES_WITH_SEATS=new Set();
 const STORES_IMAGE_REGISTERED=new Set();
-let curStoreId=0;
+let curStoreId=null;
+
+// Load stores from Supabase
+async function loadStoresFromDB(){
+  const {data,error}=await supabase.from('pc_stores').select('*').order('created_at');
+  if(error){console.error('Store load error:',error);return;}
+  STORES=data.map(s=>({id:s.id,name:s.name,dbData:s}));
+  if(STORES.length>0){
+    curStoreId=STORES[0].id;
+    document.getElementById('curStoreName').textContent=STORES[0].name;
+    await loadSeatsFromDB(curStoreId);
+  } else {
+    curStoreId=null;
+    seats=[];storeHasSeats=false;
+    document.getElementById('curStoreName').textContent='매장 없음';
+  }
+  renderStores();
+  switchView(curView);
+}
+
+// Load seats from Supabase for a store
+async function loadSeatsFromDB(storeId){
+  const {data:zones}=await supabase.from('pc_zones').select('*').eq('store_id',storeId);
+  const {data:seatData}=await supabase.from('pc_seats').select('*').eq('store_id',storeId);
+  if(seatData&&seatData.length>0){
+    STORES_WITH_SEATS.add(storeId);
+    seats=seatData.map((s,i)=>{
+      const z=zones?.find(z=>z.id===s.zone_id);
+      return {id:s.id,pcNumber:s.seat_label||`PC${String(i+1).padStart(3,'0')}`,zone:z?.zone_type||'_unassigned',status:'off',isOn:false,
+        ip:s.ip_address||'',cpuModel:'',gpuModel:'',ram:16,cpuTemp:0,gpuTemp:0,cpuMax:0,gpuMax:0,cpuWarn:0,gpuWarn:0,
+        devices:[],deviceCount:0,version:'-',utilization:Array.from({length:24},()=>0),lastUpdate:'-'};
+    });
+    storeHasSeats=true;
+  } else {
+    seats=[];storeHasSeats=false;
+  }
+  initZoneLayout();
+}
 
 const CPU=['Intel Core i9-9900K','Intel Core i5-13400F','Intel Core i7-10700'];
 const GPU=['NVIDIA GeForce RTX 3060','NVIDIA GeForce RTX 4060','NVIDIA GeForce RTX 3070'];
@@ -881,7 +915,7 @@ function genSeats(){
   return s;
 }
 
-let seats=genSeats();
+let seats=[];
 let curView='floor',editMode=false,addMode=false;
 let listPage=1;
 let listPerPage=100;
@@ -919,7 +953,7 @@ function renderStores(f=''){
   const q=f.toLowerCase();const fl=STORES.filter(s=>s.name.toLowerCase().includes(q));
   const el=document.getElementById('storeList');
   if(!fl.length){el.innerHTML='<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px">검색 결과 없음</div>';return;}
-  el.innerHTML=fl.map(s=>`<div class="store-list-item${s.id===curStoreId?' active':''}" onclick="selectStore(${s.id})">
+  el.innerHTML=fl.map(s=>`<div class="store-list-item${s.id===curStoreId?' active':''}" onclick="selectStore('${s.id}')">
     <i class="ri-store-2-line" style="color:var(--accent-light);font-size:14px"></i><span>${s.name}</span>
     ${s.id===curStoreId?'<span class="cur">현재</span>':''}
   </div>`).join('');
@@ -940,15 +974,15 @@ function toggleStoreDd(){
   if(o){document.getElementById('storeSearch').value='';renderStores();setTimeout(()=>document.getElementById('storeSearch').focus(),50);}
 }
 function filterStores(v){renderStores(v);}
-function selectStore(id){
+async function selectStore(id){
   curStoreId=id;
-  document.getElementById('curStoreName').textContent=STORES.find(s=>s.id===id).name;
+  const store=STORES.find(s=>s.id===id);
+  document.getElementById('curStoreName').textContent=store?store.name:'매장 없음';
   document.getElementById('storePanel').classList.remove('open');document.getElementById('storeTrigger').classList.remove('open');
-  if(STORES_WITH_SEATS.has(id)){seats=genSeats();storeHasSeats=true;initZoneLayout();}
-  else{seats=[];storeHasSeats=false;}
+  await loadSeatsFromDB(id);
   updateUploadNavItem();
   closeDetailOnly();switchView(curView);
-  showToast(STORES.find(s=>s.id===id).name+'(으)로 전환');
+  if(store)showToast(store.name+'(으)로 전환');
 }
 
 function updateUploadNavItem(){
@@ -2084,25 +2118,39 @@ function renderStoreMgmt(){
 function renderStoreListTab(){
   const q=storeMgmtSearch.toLowerCase();
   const filtered=STORES.filter(s=>s.name.toLowerCase().includes(q));
-  const svNames=['김철수','이영희','박지훈','최민수','정수진'];
-  const ownerNames=['홍길동','김민재','이서연','박준형','최은지'];
-  const orgs=['서울본부','경기남부','경기북부','부산본부','대전본부','인천본부','대구본부','광주본부'];
+
+  if(!filtered.length){
+    return `
+      <div class="mgmt-header">
+        <h2>관리 매장 목록</h2>
+        <div class="mgmt-header-right">
+          <div class="search-box"><i class="ri-search-line"></i><input placeholder="매장 검색..." value="${storeMgmtSearch}" oninput="storeMgmtSearch=this.value;renderStoreMgmt()"></div>
+          <button class="btn btn-primary" onclick="showStoreRegModal()"><i class="ri-add-line"></i> 매장 등록</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px;color:var(--text-muted)">
+        <i class="ri-store-2-line" style="font-size:48px;opacity:.4;margin-bottom:16px"></i>
+        <p style="font-size:15px;margin-bottom:8px">등록된 매장이 없습니다</p>
+        <p style="font-size:13px">위의 '매장 등록' 버튼을 눌러 첫 매장을 등록하세요.</p>
+      </div>`;
+  }
 
   let rows=filtered.map((s,i)=>{
-    const code='S'+String(s.id+1001).padStart(4,'0');
-    const owner=ownerNames[s.id%ownerNames.length];
-    const sv=svNames[s.id%svNames.length];
-    const org=orgs[s.id%orgs.length];
-    const pcCnt=STORES_WITH_SEATS.has(s.id)?109:0;
-    const bizNo=`${100+s.id%900}-${10+s.id%90}-${10000+s.id%90000}`;
-    const mail=owner.charAt(0)+'@isens.camp';
-    return `<tr style="cursor:pointer" onclick="showStoreEditModal(${s.id},'${code}','${s.name.replace(/'/g,"\\'")}','${owner}','','',${pcCnt},'${bizNo}',85,85,'${mail}')">
+    const db=s.dbData||{};
+    const code=db.store_code||s.id.toString().slice(0,8).toUpperCase();
+    const owner=db.owner_name||'-';
+    const pcCnt=STORES_WITH_SEATS.has(s.id)?seats.length:0;
+    const bizNo=db.biz_number||'-';
+    const mail=db.alarm_email||'-';
+    const cpuAlarm=db.cpu_alarm||85;
+    const gpuAlarm=db.gpu_alarm||85;
+    return `<tr style="cursor:pointer" onclick="showStoreEditModal('${s.id}','${code}','${s.name.replace(/'/g,"\\'")}','${owner}','','',${pcCnt},'${bizNo}',${cpuAlarm},${gpuAlarm},'${mail}')">
       <td style="position:sticky;left:0;z-index:2;background:var(--bg-secondary);color:var(--accent-light);font-weight:600;min-width:80px">${code}</td>
       <td style="position:sticky;left:80px;z-index:2;background:var(--bg-secondary);min-width:110px;border-right:2px solid var(--border)"><strong>${s.name}</strong></td>
       <td>${owner}</td>
       <td style="text-align:center">${pcCnt}</td>
       <td style="color:var(--text-muted)">${bizNo}</td>
-      <td style="text-align:center">85°C</td><td style="text-align:center">85°C</td>
+      <td style="text-align:center">${cpuAlarm}°C</td><td style="text-align:center">${gpuAlarm}°C</td>
       <td style="color:var(--text-muted);font-size:11px">${mail}</td>
     </tr>`;
   }).join('');
@@ -2126,20 +2174,20 @@ function renderStoreListTab(){
 }
 
 function renderAgentMgmt(){
-  const storeOpts=STORES.slice(0,20).map(s=>`<option value="${s.id}">${s.name} (S${String(s.id+1001).padStart(4,'0')})</option>`).join('');
+  const storeOpts=STORES.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
 
-  // Simulated agent stats
-  const totalPc=STORES.slice(0,20).reduce((sum,s)=>sum+(STORES_WITH_SEATS.has(s.id)?109:Math.floor(40+s.id%70)),0);
-  const installed=Math.round(totalPc*0.92);
-  const online=Math.round(installed*0.85);
-  const offline=installed-online;
+  // Real stats from loaded data
+  const totalPc=seats.length;
+  const installed=0;
+  const online=0;
+  const offline=0;
 
   // Per-store stats
-  let storeRows=STORES.slice(0,20).map(s=>{
-    const pc=STORES_WITH_SEATS.has(s.id)?109:Math.floor(40+s.id%70);
-    const inst=Math.round(pc*(0.88+Math.random()*0.1));
-    const on=Math.round(inst*(0.78+Math.random()*0.15));
-    const off=inst-on;
+  let storeRows=STORES.map(s=>{
+    const pc=STORES_WITH_SEATS.has(s.id)?seats.length:0;
+    const inst=0;
+    const on=0;
+    const off=0;
     const lastSeen=`2026-04-09 ${String(8+s.id%14).padStart(2,'0')}:${String(s.id%60).padStart(2,'0')}`;
     return `<tr>
       <td style="text-align:left;font-weight:600">${s.name}</td>
@@ -2562,14 +2610,16 @@ function resetStoreRegForm(){
   document.getElementById('regStoreSv').value='';
 }
 
-function registerStore(){
+async function registerStore(){
   const name=document.getElementById('regStoreName').value.trim();
   const biz=document.getElementById('regStoreBiz').value.trim();
   if(!name){showToast('매장명을 입력하세요');return;}
   if(!biz){showToast('사업자등록번호를 입력하세요');return;}
-  const newId=STORES.length;
-  STORES.push({id:newId,name});
-  hideModal();renderStoreMgmt();showToast(`${name} 매장이 등록되었습니다`);
+  const {data,error}=await supabase.from('pc_stores').insert({name,biz_number:biz}).select().single();
+  if(error){showToast('매장 등록 실패: '+error.message);return;}
+  STORES.push({id:data.id,name:data.name,dbData:data});
+  if(!curStoreId){curStoreId=data.id;document.getElementById('curStoreName').textContent=data.name;}
+  hideModal();renderStoreMgmt();renderStores();showToast(`${name} 매장이 등록되었습니다`);
 }
 
 function showStoreEditModal(storeId,code,name,owner,sv,org,pcCnt,bizNo,cpuAlarm,gpuAlarm,mail){
@@ -2594,16 +2644,18 @@ function showStoreEditModal(storeId,code,name,owner,sv,org,pcCnt,bizNo,cpuAlarm,
       <button class="btn btn-danger" onclick="if(confirm('${name} 매장을 삭제하시겠습니까?')){hideModal();showToast('매장이 삭제되었습니다')}"><i class="ri-delete-bin-line"></i> 삭제</button>
       <div style="flex:1"></div>
       <button class="btn" onclick="hideModal()">취소</button>
-      <button class="btn btn-primary" onclick="saveStoreEdit(${storeId})"><i class="ri-save-line"></i> 저장</button>
+      <button class="btn btn-primary" onclick="saveStoreEdit('${storeId}')"><i class="ri-save-line"></i> 저장</button>
     </div>`);
 }
 
-function saveStoreEdit(storeId){
+async function saveStoreEdit(storeId){
   const name=document.getElementById('editStoreName').value.trim();
   if(!name){showToast('매장명을 입력하세요');return;}
+  const {error}=await supabase.from('pc_stores').update({name}).eq('id',storeId);
+  if(error){showToast('저장 실패: '+error.message);return;}
   const store=STORES.find(s=>s.id===storeId);
   if(store)store.name=name;
-  hideModal();renderStoreMgmt();renderStoreList();showToast(`${name} 매장 정보가 저장되었습니다`);
+  hideModal();renderStoreMgmt();renderStores();showToast(`${name} 매장 정보가 저장되었습니다`);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -3430,7 +3482,7 @@ async function confirmSuspendMember(id) {
 // ═══════════════════════════════════════════════════════════
 // SESSION CHECK & ADMIN SETUP
 // ═══════════════════════════════════════════════════════════
-(function initSession() {
+(async function initSession() {
   const userData = sessionStorage.getItem('pc_user');
   if (!userData) { window.location.href = 'login.html'; return; }
   try {
@@ -3447,6 +3499,9 @@ async function confirmSuspendMember(id) {
       document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
     }
   } catch(e) { /* non-JSON fallback for dev */ }
+
+  // Load stores and seats from Supabase
+  await loadStoresFromDB();
 })();
 </script>
 </body>
