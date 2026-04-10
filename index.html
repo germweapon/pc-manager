@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>iSens Manager - PC 좌석 매니저</title>
+<title>PC방 통합 관리 시스템</title>
 <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
 <style>
@@ -388,8 +388,11 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
 .mgmt-table .cb-cell{width:36px;text-align:center}
 .mgmt-table input[type="checkbox"]{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
 .status-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
-.status-badge.on{background:var(--success-bg);color:var(--success)}
+.status-badge.on,.status-badge.success{background:var(--success-bg);color:var(--success)}
 .status-badge.off{background:rgba(107,113,133,.1);color:var(--text-muted)}
+.status-badge.warning{background:var(--warning-bg);color:var(--warning)}
+.status-badge.danger{background:var(--danger-bg);color:var(--danger)}
+@keyframes spin{to{transform:rotate(360deg)}}
 .check-btn{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;cursor:pointer;border:1px solid var(--warning);background:var(--warning-bg);color:var(--warning)}
 .check-btn:hover{background:rgba(253,203,110,.25)}
 .mgmt-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -533,24 +536,96 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
   .agent-steps{flex-direction:column;gap:12px}
   .agent-step::after{display:none}
 }
+
+/* Mobile hamburger button */
+.mobile-menu-btn{display:none;background:none;border:none;color:var(--text-primary);font-size:22px;cursor:pointer;padding:4px 8px;border-radius:var(--radius-sm);transition:var(--transition)}
+.mobile-menu-btn:hover{background:var(--bg-hover)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+
+@media(max-width:768px){
+  /* Sidebar: off-canvas drawer */
+  .sidebar{position:fixed;left:-260px;top:0;bottom:0;width:250px;z-index:200;transition:left .3s cubic-bezier(.4,0,.2,1);box-shadow:none}
+  .sidebar.open{left:0;box-shadow:4px 0 24px rgba(0,0,0,.5)}
+  .sidebar-overlay.open{display:block;z-index:150}
+
+  /* Show hamburger */
+  .mobile-menu-btn{display:flex;align-items:center}
+
+  /* Topbar: stack */
+  .topbar{flex-wrap:wrap;gap:6px;padding:8px 12px;min-height:auto}
+  .store-dd-trigger{min-width:auto;font-size:12px;padding:6px 10px}
+  .topbar-tabs{order:10;width:100%;display:flex;gap:4px}
+  .topbar-tab{font-size:11px;padding:5px 10px;flex:1;justify-content:center}
+  .topbar-stats{order:11;width:100%;justify-content:center;flex-wrap:wrap}
+  .topbar-right{order:12;width:100%;justify-content:center}
+  .stat-chip{font-size:10px;padding:3px 6px}
+
+  /* View controls */
+  .floor-controls{flex-wrap:wrap;gap:6px;padding:8px 10px}
+  .view-toggle{gap:2px}
+  .view-btn{padding:5px 8px;font-size:11px}
+
+  /* Floor plan: horizontal scroll */
+  .floor-wrap{padding:8px}
+
+  /* Settings panel */
+  .settings-panel{width:95vw!important;max-width:none!important;margin:10px}
+  .settings-row{grid-template-columns:1fr!important}
+  .settings-row.full{grid-template-columns:1fr!important}
+
+  /* Modal */
+  .modal{width:95vw!important;max-width:none!important;margin:10px}
+
+  /* Management views */
+  .mgmt-header{flex-direction:column;gap:10px;align-items:flex-start!important}
+  .mgmt-header-right{width:100%;flex-direction:column;gap:8px}
+  .mgmt-header-right .search-box{width:100%}
+  .mgmt-header-right .search-box input{width:100%}
+
+  /* Store tabs in store-mgmt */
+  .store-tab{font-size:11px;padding:6px 12px}
+
+  /* Agent download box */
+  .agent-download-box{flex-direction:column;gap:10px}
+  .agent-download-box .store-dd{width:100%}
+  .agent-download-box .store-dd .store-dd-trigger{width:100%}
+  .agent-download-box .btn{width:100%;justify-content:center}
+
+  /* Agent stats */
+  .agent-stats{grid-template-columns:repeat(2,1fr)!important;gap:8px!important}
+  .agent-stat-card{padding:12px!important}
+
+  /* Zoom controls */
+  .zoom-controls{bottom:8px;right:8px}
+
+  /* Profile */
+  .profile-trigger .profile-info{display:none}
+  .profile-trigger{justify-content:center}
+  .profile-menu{left:-4px;right:auto;width:180px}
+
+  /* Detail panel */
+  .detail-panel{width:100%!important;max-width:none}
+}
 </style>
 </head>
 <body>
 
 <div class="app">
-  <aside class="sidebar">
-    <div class="sidebar-header"><div class="sidebar-logo"><i class="ri-computer-line"></i><span>iSens Manager</span></div></div>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header"><div class="sidebar-logo"><i class="ri-computer-line"></i><span>PC Manager</span></div></div>
     <nav class="sidebar-nav">
       <div class="nav-section">
         <div class="nav-section-title">관리</div>
-        <div class="nav-item active" data-view="floor"><i class="ri-layout-masonry-line"></i>PC 관리</div>
+        <div class="nav-item active" data-view="floor" onclick="closeMobileSidebar()"><i class="ri-layout-masonry-line"></i>PC 관리</div>
         <div class="nav-item" onclick="switchToPage('pc-mgmt')"><i class="ri-computer-line"></i>PC 등록/수정</div>
-        <div class="nav-item" onclick="switchToPage('ceremony')"><i class="ri-music-2-line"></i>세리머니 관리</div>
+
       </div>
       <div style="height:1px;background:var(--border);margin:6px 12px"></div>
       <div class="nav-section">
         <div class="nav-section-title">운영</div>
         <div class="nav-item" onclick="switchToPage('store-mgmt')"><i class="ri-store-2-line"></i>매장 관리</div>
+        <div class="nav-item admin-only" onclick="switchToPage('member-approval')" style="display:none"><i class="ri-user-settings-line"></i>가입 승인</div>
       </div>
     </nav>
     <div class="sidebar-profile" id="sidebarProfile">
@@ -572,6 +647,7 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
 
   <div class="main">
     <div class="topbar">
+      <button class="mobile-menu-btn" onclick="toggleMobileSidebar()"><i class="ri-menu-line"></i></button>
       <div class="store-dd" id="storeDd">
         <button class="store-dd-trigger" id="storeTrigger" onclick="toggleStoreDd()">
           <i class="ri-store-2-line"></i><span id="curStoreName">수원경희대점</span><i class="ri-arrow-down-s-line arrow"></i>
@@ -663,6 +739,8 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
     <div class="mgmt-view" id="pcMgmtView"></div>
     <!-- Ceremony Management View -->
     <div class="mgmt-view" id="ceremonyView"></div>
+    <!-- Member Approval View (admin only) -->
+    <div class="mgmt-view" id="memberApprovalView"></div>
   </div>
 </div>
 
@@ -679,17 +757,13 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
     </div>
     <div class="settings-body">
       <div class="settings-section">
-        <div class="settings-section-title">계정 정보</div>
-        <div class="settings-row">
+        <div class="settings-section-title">Google 연동 계정</div>
+        <div class="settings-row full">
           <div class="settings-field">
-            <div class="settings-field-label">아이디</div>
-            <div class="settings-field-value readonly" id="setUserId">skyoo</div>
-          </div>
-          <div class="settings-field">
-            <div class="settings-field-label">비밀번호</div>
-            <div class="settings-field-value">
-              <span style="letter-spacing:3px">********</span>
-              <button class="settings-edit-btn" onclick="showChangePwModal()"><i class="ri-edit-line"></i></button>
+            <div class="settings-field-value readonly" style="display:flex;align-items:center;gap:12px;padding:12px 14px">
+              <svg viewBox="0 0 24 24" width="18" height="18" style="flex-shrink:0"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+              <span id="setGoogleEmail" style="font-size:13px">germweapon@gmail.com</span>
+              <span style="font-size:10px;padding:3px 8px;background:var(--success-bg);color:var(--success);border-radius:20px;font-weight:600;margin-left:auto">인증됨</span>
             </div>
           </div>
         </div>
@@ -707,55 +781,35 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
           <div class="settings-field">
             <div class="settings-field-label">휴대폰 번호</div>
             <div class="settings-field-value">
-              <input type="tel" id="setPhone" value="01096367152">
+              <input type="tel" id="setPhone" value="010-9636-7152">
               <button class="settings-edit-btn" onclick="focusSettingsField('setPhone')"><i class="ri-edit-line"></i></button>
-            </div>
-          </div>
-        </div>
-        <div class="settings-row full">
-          <div class="settings-field">
-            <div class="settings-field-label">E-mail</div>
-            <div class="settings-field-value">
-              <input type="email" id="setEmail" value="skyoo@isens.camp">
-              <button class="settings-edit-btn" onclick="focusSettingsField('setEmail')"><i class="ri-edit-line"></i></button>
             </div>
           </div>
         </div>
       </div>
       <div class="settings-section">
-        <div class="settings-section-title">소속 정보</div>
+        <div class="settings-section-title">매장 정보</div>
         <div class="settings-row">
           <div class="settings-field">
-            <div class="settings-field-label">소속</div>
+            <div class="settings-field-label">매장명</div>
             <div class="settings-field-value">
-              <input type="text" id="setOrg" value="IT사업부">
-              <button class="settings-edit-btn" onclick="focusSettingsField('setOrg')"><i class="ri-edit-line"></i></button>
+              <input type="text" id="setStoreName" value="수원경희대점">
+              <button class="settings-edit-btn" onclick="focusSettingsField('setStoreName')"><i class="ri-edit-line"></i></button>
             </div>
           </div>
-          <div class="settings-field">
-            <div class="settings-field-label">직급</div>
-            <div class="settings-field-value">
-              <input type="text" id="setPosition" value="차장">
-              <button class="settings-edit-btn" onclick="focusSettingsField('setPosition')"><i class="ri-edit-line"></i></button>
-            </div>
-          </div>
-        </div>
-        <div class="settings-row">
           <div class="settings-field">
             <div class="settings-field-label">회원 구분</div>
-            <div class="settings-field-value readonly">총괄관리자</div>
-          </div>
-          <div class="settings-field">
-            <div class="settings-field-label">상태</div>
-            <div class="settings-field-value readonly"><span class="settings-badge normal"><i class="ri-checkbox-circle-line"></i>정상</span></div>
+            <div class="settings-field-value readonly">점주</div>
           </div>
         </div>
-        <div class="settings-row full">
+        <div class="settings-row">
           <div class="settings-field">
-            <div class="settings-field-label">메모</div>
-            <div class="settings-field-value">
-              <input type="text" id="setMemo" value="안이쁘다고 뭐라하는 기획자" placeholder="메모를 입력하세요">
-            </div>
+            <div class="settings-field-label">계정 상태</div>
+            <div class="settings-field-value readonly"><span class="settings-badge normal"><i class="ri-checkbox-circle-line"></i>정상</span></div>
+          </div>
+          <div class="settings-field">
+            <div class="settings-field-label">가입일</div>
+            <div class="settings-field-value readonly">2026-04-10</div>
           </div>
         </div>
       </div>
@@ -768,6 +822,8 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
 </div>
 <div class="toast" id="toast"><i class="ri-check-line" style="color:var(--success)"></i><span id="toastTxt"></span></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════
 // DATA
@@ -868,6 +924,16 @@ function renderStores(f=''){
     ${s.id===curStoreId?'<span class="cur">현재</span>':''}
   </div>`).join('');
 }
+// Mobile sidebar
+function toggleMobileSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+function closeMobileSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
 function toggleStoreDd(){
   const p=document.getElementById('storePanel'),t=document.getElementById('storeTrigger');
   const o=p.classList.toggle('open');t.classList.toggle('open',o);
@@ -1883,9 +1949,10 @@ function logout(){
       <button class="btn btn-primary" onclick="confirmLogout()"><i class="ri-logout-box-r-line"></i> 로그아웃</button>
     </div>`);
 }
-function confirmLogout(){
-  sessionStorage.removeItem('isens_logged_in');
-  sessionStorage.removeItem('isens_user');
+async function confirmLogout(){
+  await supabase.auth.signOut();
+  sessionStorage.removeItem('pc_logged_in');
+  sessionStorage.removeItem('pc_user');
   window.location.href='login.html';
 }
 
@@ -1912,6 +1979,7 @@ function showToast(t){const el=document.getElementById('toast');document.getElem
 let currentPage='monitor';
 
 function switchToPage(page){
+  closeMobileSidebar();
   currentPage=page;
   const topStats=document.getElementById('topStats');
   const topRight=document.querySelector('.topbar-right');
@@ -1933,7 +2001,7 @@ function switchToPage(page){
     storeMgmt.classList.add('active');
     pcMgmt.classList.remove('active');
     document.getElementById('ceremonyView').classList.remove('active');
-    // highlight sidebar
+    document.getElementById('memberApprovalView').classList.remove('active');
     document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('매장 관리'))i.classList.add('active');});
     renderStoreMgmt();
   } else if(page==='pc-mgmt'){
@@ -1945,6 +2013,7 @@ function switchToPage(page){
     storeMgmt.classList.remove('active');
     pcMgmt.classList.add('active');
     document.getElementById('ceremonyView').classList.remove('active');
+    document.getElementById('memberApprovalView').classList.remove('active');
     document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('PC 등록/수정'))i.classList.add('active');});
     renderPcMgmt();
   } else if(page==='ceremony'){
@@ -1958,6 +2027,18 @@ function switchToPage(page){
     document.getElementById('ceremonyView').classList.add('active');
     document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('세리머니 관리'))i.classList.add('active');});
     renderCeremony();
+  } else if(page==='member-approval'){
+    topStats.style.display='none';
+    topRight.style.display='none';
+    topTabs.style.display='none';
+    editToolbar.classList.remove('visible');editMode=false;
+    workspace.style.display='none';
+    storeMgmt.classList.remove('active');
+    pcMgmt.classList.remove('active');
+    document.getElementById('ceremonyView').classList.remove('active');
+    document.getElementById('memberApprovalView').classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('가입 승인'))i.classList.add('active');});
+    renderMemberApproval();
   } else {
     // monitor
     topStats.style.display='';
@@ -1967,6 +2048,7 @@ function switchToPage(page){
     storeMgmt.classList.remove('active');
     pcMgmt.classList.remove('active');
     document.getElementById('ceremonyView').classList.remove('active');
+    document.getElementById('memberApprovalView').classList.remove('active');
     document.querySelectorAll('.nav-item[data-view]').forEach(i=>i.classList.toggle('active',i.dataset.view===curView));
     switchView(curView);
   }
@@ -2014,10 +2096,10 @@ function renderStoreListTab(){
     const pcCnt=STORES_WITH_SEATS.has(s.id)?109:0;
     const bizNo=`${100+s.id%900}-${10+s.id%90}-${10000+s.id%90000}`;
     const mail=owner.charAt(0)+'@isens.camp';
-    return `<tr style="cursor:pointer" onclick="showStoreEditModal(${s.id},'${code}','${s.name.replace(/'/g,"\\'")}','${owner}','${sv}','${org}',${pcCnt},'${bizNo}',85,85,'${mail}')">
+    return `<tr style="cursor:pointer" onclick="showStoreEditModal(${s.id},'${code}','${s.name.replace(/'/g,"\\'")}','${owner}','','',${pcCnt},'${bizNo}',85,85,'${mail}')">
       <td style="position:sticky;left:0;z-index:2;background:var(--bg-secondary);color:var(--accent-light);font-weight:600;min-width:80px">${code}</td>
       <td style="position:sticky;left:80px;z-index:2;background:var(--bg-secondary);min-width:110px;border-right:2px solid var(--border)"><strong>${s.name}</strong></td>
-      <td>${owner}</td><td>${owner}</td><td>${sv}</td><td>${org}</td>
+      <td>${owner}</td>
       <td style="text-align:center">${pcCnt}</td>
       <td style="color:var(--text-muted)">${bizNo}</td>
       <td style="text-align:center">85°C</td><td style="text-align:center">85°C</td>
@@ -2036,9 +2118,9 @@ function renderStoreListTab(){
     <div style="overflow-x:auto;flex:1">
       <table class="mgmt-table">
         <thead><tr>
-          <th style="position:sticky;left:0;z-index:6;background:var(--bg-tertiary);min-width:80px">매장코드</th><th style="position:sticky;left:80px;z-index:6;background:var(--bg-tertiary);min-width:110px;border-right:2px solid var(--border)">매장명</th><th>대표자명</th><th>가맹점주</th><th>본사 SV</th><th>소속</th><th>등록PC</th><th>사업자등록번호</th><th>CPU 알람기준온도</th><th>GPU 알람기준온도</th><th>추가 알람수신메일</th>
+          <th style="position:sticky;left:0;z-index:6;background:var(--bg-tertiary);min-width:80px">매장코드</th><th style="position:sticky;left:80px;z-index:6;background:var(--bg-tertiary);min-width:110px;border-right:2px solid var(--border)">매장명</th><th>대표자명</th><th>등록PC</th><th>사업자등록번호</th><th>CPU 알람기준온도</th><th>GPU 알람기준온도</th><th>추가 알람수신메일</th>
         </tr></thead>
-        <tbody>${rows||'<tr><td colspan="11" style="text-align:center;padding:40px;color:var(--text-muted)">검색 결과가 없습니다</td></tr>'}</tbody>
+        <tbody>${rows||'<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">검색 결과가 없습니다</td></tr>'}</tbody>
       </table>
     </div>`;
 }
@@ -2074,8 +2156,16 @@ function renderAgentMgmt(){
     <div class="agent-section-title"><i class="ri-download-cloud-line" style="color:var(--accent-light);font-size:18px"></i> 매장 전용 설치파일 다운로드</div>
     <div class="agent-section-desc">로그인된 매장 정보가 자동으로 포함된 설치파일입니다. 각 PC에서 설치 시 좌석 번호만 입력하면 됩니다.</div>
     <div class="agent-download-box">
-      <select id="agentStoreSelect">${storeOpts}</select>
-      <button class="btn btn-primary" onclick="(function(){var sel=document.getElementById('agentStoreSelect');var s=STORES.find(x=>x.id==sel.value);var code='S'+String((s?s.id:0)+1001).toString().padStart(4,'0');showToast('iSensAgent_'+code+'.exe 다운로드를 시작합니다','success')})()"><i class="ri-download-line"></i> 설치파일 다운로드 (.exe)</button>
+      <div class="store-dd" id="agentStoreDd" style="flex-shrink:0">
+        <button class="store-dd-trigger" onclick="toggleAgentStoreDd()">
+          <i class="ri-store-2-line"></i><span id="agentStoreName">${STORES[0]?.name||'매장 선택'}</span><i class="ri-arrow-down-s-line arrow"></i>
+        </button>
+        <div class="store-dd-panel" id="agentStorePanel" style="width:280px">
+          <div class="store-search"><i class="ri-search-line"></i><input id="agentStoreSearch" placeholder="매장 검색..." oninput="filterAgentStores(this.value)"></div>
+          <div class="store-list" id="agentStoreList"></div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="downloadAgentInstaller()"><i class="ri-download-line"></i> 설치파일 다운로드</button>
     </div>
     <div class="agent-download-info"><i class="ri-information-line"></i> 매장코드 / 서버주소 / 인증키 자동 포함 | 좌석번호만 입력</div>
   </div>
@@ -2112,7 +2202,7 @@ function renderAgentMgmt(){
     <div class="agent-warn-title"><i class="ri-alert-line"></i> PC Keeper / Smart Keeper 사용 매장 필독</div>
     <div class="agent-warn-method">
       <strong>1. 복원 제외 폴더에 설치 (권장)</strong>
-      <p>D:\\iSensAgent\\ 경로를 복원 제외 설정에 추가하면 재부팅 후에도 에이전트가 유지됩니다.</p>
+      <p>D:\\PCAgent\\ 경로를 복원 제외 설정에 추가하면 재부팅 후에도 에이전트가 유지됩니다.</p>
     </div>
     <div class="agent-warn-method">
       <strong>2. 마스터 이미지에 포함 (가장 안정적)</strong>
@@ -2211,41 +2301,246 @@ function renderAgentMgmt(){
   </div>`;
 }
 
+// Agent store dropdown
+let agentSelectedStoreId=0;
+
+function toggleAgentStoreDd(){
+  const trigger=document.querySelector('#agentStoreDd .store-dd-trigger');
+  const panel=document.getElementById('agentStorePanel');
+  const isOpen=panel.classList.contains('open');
+  if(isOpen){trigger.classList.remove('open');panel.classList.remove('open');}
+  else{trigger.classList.add('open');panel.classList.add('open');renderAgentStoreList('');document.getElementById('agentStoreSearch').value='';document.getElementById('agentStoreSearch').focus();}
+}
+
+function renderAgentStoreList(q){
+  const fl=STORES.slice(0,20).filter(s=>s.name.toLowerCase().includes(q.toLowerCase()));
+  const el=document.getElementById('agentStoreList');
+  el.innerHTML=fl.map(s=>`<div class="store-list-item${s.id===agentSelectedStoreId?' active':''}" onclick="selectAgentStore(${s.id})">
+    <span>${s.name} <small style="color:var(--text-muted)">(S${String(s.id+1001).padStart(4,'0')})</small></span>
+    ${s.id===agentSelectedStoreId?'<span class="cur">선택</span>':''}
+  </div>`).join('');
+}
+
+function filterAgentStores(q){renderAgentStoreList(q);}
+
+function selectAgentStore(id){
+  agentSelectedStoreId=id;
+  document.getElementById('agentStoreName').textContent=STORES.find(s=>s.id===id).name;
+  document.querySelector('#agentStoreDd .store-dd-trigger').classList.remove('open');
+  document.getElementById('agentStorePanel').classList.remove('open');
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('#agentStoreDd')){
+    const t=document.querySelector('#agentStoreDd .store-dd-trigger');
+    const p=document.getElementById('agentStorePanel');
+    if(t)t.classList.remove('open');
+    if(p)p.classList.remove('open');
+  }
+});
+
+function downloadAgentInstaller(){
+  const store=STORES.find(s=>s.id===agentSelectedStoreId);
+  if(!store){showToast('매장을 선택해주세요');return;}
+  const code='S'+String(store.id+1001).padStart(4,'0');
+  const serverUrl='https://pcmanager-api.example.com';
+  const authKey=btoa(code+':'+Date.now());
+
+  // Generate a Windows batch installer script
+  const script=`@echo off
+chcp 65001 >nul
+title PC Manager Agent Installer - ${store.name} (${code})
+color 0A
+
+echo ═══════════════════════════════════════════════════
+echo   PC Manager Agent - 설치 마법사
+echo   매장: ${store.name} (${code})
+echo ═══════════════════════════════════════════════════
+echo.
+
+:: Check admin privileges
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo [오류] 관리자 권한으로 실행해주세요.
+    echo         이 파일을 우클릭 → "관리자 권한으로 실행"
+    pause
+    exit /b 1
+)
+
+:: Detect restore solution
+echo [1/5] 복원 솔루션 감지 중...
+set RESTORE_FOUND=0
+if exist "C:\\Program Files\\DeepFreeze" (
+    echo       → Deep Freeze 감지됨
+    set RESTORE_FOUND=1
+)
+if exist "C:\\Program Files (x86)\\SmartKeeper" (
+    echo       → Smart Keeper 감지됨
+    set RESTORE_FOUND=1
+)
+if exist "C:\\Program Files\\PCKeeper" (
+    echo       → PC Keeper 감지됨
+    set RESTORE_FOUND=1
+)
+if %RESTORE_FOUND%==0 (
+    echo       → 복원 솔루션 미감지 (일반 설치 진행)
+)
+echo.
+
+:: Get seat number
+set /p SEAT_NUM="[2/5] 좌석 번호를 입력하세요: "
+if "%SEAT_NUM%"=="" (
+    echo [오류] 좌석 번호를 입력해주세요.
+    pause
+    exit /b 1
+)
+echo.
+
+:: Create install directory
+echo [3/5] 설치 폴더 생성 중...
+set INSTALL_DIR=D:\\PCAgent
+if not exist "%INSTALL_DIR%" mkdir "%INSTALL_DIR%"
+echo       → %INSTALL_DIR% 생성 완료
+echo.
+
+:: Write config file
+echo [4/5] 설정 파일 생성 중...
+(
+    echo {
+    echo   "store_code": "${code}",
+    echo   "store_name": "${store.name}",
+    echo   "seat_number": "%SEAT_NUM%",
+    echo   "server_url": "${serverUrl}",
+    echo   "auth_key": "${authKey}",
+    echo   "report_interval": 5,
+    echo   "installed_at": "%date% %time%"
+    echo }
+) > "%INSTALL_DIR%\\config.json"
+echo       → config.json 생성 완료
+echo.
+
+:: Create agent monitoring script (PowerShell)
+echo [5/5] 에이전트 모니터링 스크립트 생성 중...
+(
+    echo # PC Manager Agent - ${store.name} (${code}) Seat %SEAT_NUM%
+    echo $config = Get-Content "$PSScriptRoot\\config.json" ^| ConvertFrom-Json
+    echo.
+    echo function Get-SystemInfo {
+    echo     $cpu = Get-CimInstance Win32_Processor
+    echo     $gpu = Get-CimInstance Win32_VideoController
+    echo     $mem = Get-CimInstance Win32_OperatingSystem
+    echo     $os  = Get-CimInstance Win32_ComputerSystem
+    echo     $net = Get-CimInstance Win32_NetworkAdapterConfiguration ^| Where-Object { $_.IPEnabled }
+    echo.
+    echo     # CPU temperature via WMI (if available)
+    echo     $cpuTemp = 0
+    echo     try {
+    echo         $thermal = Get-CimInstance MSAcpi_ThermalZoneTemperature -Namespace "root/wmi" -ErrorAction Stop
+    echo         $cpuTemp = [math]::Round(($thermal.CurrentTemperature - 2732) / 10, 1)
+    echo     } catch { $cpuTemp = -1 }
+    echo.
+    echo     # CPU usage
+    echo     $cpuUsage = (Get-Counter '\\Processor(_Total)\\%% Processor Time').CounterSamples[0].CookedValue
+    echo.
+    echo     # Memory
+    echo     $totalMem = [math]::Round($mem.TotalVisibleMemorySize / 1MB, 1)
+    echo     $freeMem  = [math]::Round($mem.FreePhysicalMemory / 1MB, 1)
+    echo     $usedMem  = $totalMem - $freeMem
+    echo.
+    echo     return @{
+    echo         store_code   = $config.store_code
+    echo         seat_number  = $config.seat_number
+    echo         hostname     = $env:COMPUTERNAME
+    echo         ip_address   = ($net[0].IPAddress ^| Where-Object { $_ -match '\\d+\\.\\d+\\.\\d+\\.\\d+' })[0]
+    echo         mac_address  = $net[0].MACAddress
+    echo         cpu_model    = $cpu.Name
+    echo         cpu_usage    = [math]::Round($cpuUsage, 1)
+    echo         cpu_temp     = $cpuTemp
+    echo         gpu_model    = $gpu[0].Name
+    echo         ram_total_gb = $totalMem
+    echo         ram_used_gb  = $usedMem
+    echo         os_name      = $os.Caption
+    echo         user_logged  = $env:USERNAME
+    echo         timestamp    = (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+    echo     }
+    echo }
+    echo.
+    echo Write-Host "PC Manager Agent started - $($config.store_name) Seat $($config.seat_number)"
+    echo Write-Host "Reporting to: $($config.server_url)"
+    echo Write-Host "Press Ctrl+C to stop"
+    echo Write-Host ""
+    echo.
+    echo while ($true) {
+    echo     try {
+    echo         $info = Get-SystemInfo
+    echo         $json = $info ^| ConvertTo-Json -Depth 3
+    echo         # Send to server
+    echo         try {
+    echo             Invoke-RestMethod -Uri "$($config.server_url)/api/agent/report" -Method POST -Body $json -ContentType "application/json" -Headers @{ "Authorization" = "Bearer $($config.auth_key)" } -TimeoutSec 10
+    echo             Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Report sent - CPU: $($info.cpu_usage)%% Temp: $($info.cpu_temp)C RAM: $($info.ram_used_gb)/$($info.ram_total_gb)GB"
+    echo         } catch {
+    echo             Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Server unreachable - data cached locally"
+    echo             $json ^| Out-File -Append "$PSScriptRoot\\cache.jsonl"
+    echo         }
+    echo     } catch {
+    echo         Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Error: $_"
+    echo     }
+    echo     Start-Sleep -Seconds $config.report_interval
+    echo }
+) > "%INSTALL_DIR%\\agent.ps1"
+echo       → agent.ps1 생성 완료
+
+:: Create startup shortcut
+echo.
+echo [완료] 시작 프로그램 등록 중...
+set STARTUP=%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup
+(
+    echo @echo off
+    echo powershell -ExecutionPolicy Bypass -WindowStyle Hidden -File "D:\\PCAgent\\agent.ps1"
+) > "%STARTUP%\\PCAgent.bat"
+echo       → 시작 프로그램 등록 완료
+
+echo.
+echo ═══════════════════════════════════════════════════
+echo   설치가 완료되었습니다!
+echo.
+echo   매장: ${store.name} (${code})
+echo   좌석: %SEAT_NUM%
+echo   설치 경로: %INSTALL_DIR%
+echo   에이전트가 PC 시작 시 자동으로 실행됩니다.
+echo ═══════════════════════════════════════════════════
+echo.
+pause
+`;
+
+  // Download as .bat file
+  const blob=new Blob([script],{type:'application/bat'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='PCAgent_Install_'+code+'.bat';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('PCAgent_Install_'+code+'.bat 다운로드 완료','success');
+}
+
 function showStoreRegModal(){
   const ownerOpts=['홍길동','김민재','이서연','박준형','최은지'].map(n=>`<option value="${n}">${n}</option>`).join('');
   const svOpts=['김철수','이영희','박지훈','최민수','정수진'].map(n=>`<option value="${n}">${n}</option>`).join('');
   showModal(`<div class="modal-hdr"><h3><i class="ri-store-2-line" style="color:var(--accent-light);margin-right:6px"></i>매장 등록</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
     <div class="modal-body">
       <div class="form-group"><label class="form-label">매장명 *</label><input class="form-input" id="regStoreName" placeholder="매장명을 입력하세요"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="form-group"><label class="form-label">대표자명</label><input class="form-input" id="regStoreOwner" placeholder="대표자명"></div>
-        <div class="form-group"><label class="form-label">소속</label><input class="form-input" id="regStoreOrg" placeholder="소속"></div>
-      </div>
+      <div class="form-group"><label class="form-label">대표자명</label><input class="form-input" id="regStoreOwner" placeholder="대표자명"></div>
       <div class="form-group"><label class="form-label">사업자등록번호 *</label><input class="form-input" id="regStoreBiz" placeholder="000-00-00000"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="form-group"><label class="form-label">가맹점주</label><select class="form-input" id="regStoreFran"><option value="">선택</option>${ownerOpts}</select></div>
-        <div class="form-group"><label class="form-label">본사 SV</label><select class="form-input" id="regStoreSv"><option value="">선택</option>${svOpts}</select></div>
-      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="form-group"><label class="form-label">CPU 알람기준온도</label><input class="form-input" id="regCpuAlarm" type="number" value="85"></div>
         <div class="form-group"><label class="form-label">GPU 알람기준온도</label><input class="form-input" id="regGpuAlarm" type="number" value="85"></div>
       </div>
       <div class="form-group"><label class="form-label">알람메일주소</label><input class="form-input" id="regAlarmMail" type="email" placeholder="alarm@example.com"></div>
-      <div class="form-group">
-        <label class="form-label">도면 이미지 등록</label>
-        <div class="upload-area" id="storeUploadDrop" onclick="document.getElementById('storeFileInput').click()"
-          ondragover="event.preventDefault();this.classList.add('drag-over')"
-          ondragleave="this.classList.remove('drag-over')"
-          ondrop="event.preventDefault();this.classList.remove('drag-over');handleStoreUpload(event.dataTransfer.files[0])">
-          <i class="ri-image-add-line"></i>
-          <p>클릭하거나 이미지를 드래그하여 업로드</p>
-          <small>PNG, JPG, SVG (최대 10MB)</small>
-          <input type="file" id="storeFileInput" accept="image/*" style="display:none" onchange="handleStoreUpload(this.files[0])">
-        </div>
-      </div>
     </div>
     <div class="modal-footer">
-      <button class="btn" onclick="resetStoreRegForm()"><i class="ri-refresh-line"></i> 내용 초기화</button>
       <div style="flex:1"></div>
       <button class="btn" onclick="hideModal()">취소</button>
       <button class="btn btn-primary" onclick="registerStore()"><i class="ri-check-line"></i> 등록</button>
@@ -2287,15 +2582,8 @@ function showStoreEditModal(storeId,code,name,owner,sv,org,pcCnt,bizNo,cpuAlarm,
         <div class="form-group"><label class="form-label">등록PC</label><input class="form-input" value="${pcCnt}대" disabled></div>
       </div>
       <div class="form-group"><label class="form-label">매장명 *</label><input class="form-input" id="editStoreName" value="${name}"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="form-group"><label class="form-label">대표자명</label><input class="form-input" id="editStoreOwner" value="${owner}"></div>
-        <div class="form-group"><label class="form-label">소속</label><input class="form-input" id="editStoreOrg" value="${org}"></div>
-      </div>
+      <div class="form-group"><label class="form-label">대표자명</label><input class="form-input" id="editStoreOwner" value="${owner}"></div>
       <div class="form-group"><label class="form-label">사업자등록번호 *</label><input class="form-input" id="editStoreBiz" value="${bizNo}"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="form-group"><label class="form-label">가맹점주</label><select class="form-input" id="editStoreFran"><option value="">선택</option>${ownerOpts}</select></div>
-        <div class="form-group"><label class="form-label">본사 SV</label><select class="form-input" id="editStoreSv"><option value="">선택</option>${svOpts}</select></div>
-      </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="form-group"><label class="form-label">CPU 알람기준온도</label><input class="form-input" id="editCpuAlarm" type="number" value="${cpuAlarm}"></div>
         <div class="form-group"><label class="form-label">GPU 알람기준온도</label><input class="form-input" id="editGpuAlarm" type="number" value="${gpuAlarm}"></div>
@@ -2369,7 +2657,7 @@ function renderPcMgmt(){
       <table class="mgmt-table">
         <thead><tr>
           <th class="cb-cell" style="position:sticky;left:0;z-index:6;background:var(--bg-tertiary);min-width:36px"><input type="checkbox" ${pcMgmtSelected.size>0&&pcMgmtSelected.size>=filtered.length?'checked':''} onchange="toggleAllPcSel(this.checked)"></th>
-          <th style="position:sticky;left:36px;z-index:6;background:var(--bg-tertiary);min-width:56px">PC상태</th><th style="position:sticky;left:92px;z-index:6;background:var(--bg-tertiary);min-width:80px">PC번호</th><th style="position:sticky;left:172px;z-index:6;background:var(--bg-tertiary);min-width:120px;border-right:2px solid var(--border)">IP</th><th>장치</th><th>RAM</th><th>CPU 모델</th><th>GPU 모델</th><th>iSensManager Ver.</th><th>업데이트 시간</th>
+          <th style="position:sticky;left:36px;z-index:6;background:var(--bg-tertiary);min-width:56px">PC상태</th><th style="position:sticky;left:92px;z-index:6;background:var(--bg-tertiary);min-width:80px">PC번호</th><th style="position:sticky;left:172px;z-index:6;background:var(--bg-tertiary);min-width:120px;border-right:2px solid var(--border)">IP</th><th>장치</th><th>RAM</th><th>CPU 모델</th><th>GPU 모델</th><th>Agent Ver.</th><th>업데이트 시간</th>
         </tr></thead>
         <tbody>${rows||'<tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-muted)">등록된 PC가 없습니다</td></tr>'}</tbody>
       </table>
@@ -2508,7 +2796,7 @@ function showPcEditModal(){
       <div class="form-group"><label class="form-label">PC번호</label><input class="form-input" id="peNum" value="${s.pcNumber}"></div>
       <div class="form-group"><label class="form-label">구역</label><select class="form-input" id="peZone">${zoneOpts}</select></div>
       <div class="form-group"><label class="form-label">IP</label><input class="form-input" id="peIp" value="${s.ip}"></div>
-      <div class="form-group"><label class="form-label">iSensManager Ver.</label><input class="form-input" id="peVer" value="${s.version}"></div>
+      <div class="form-group"><label class="form-label">Agent Ver.</label><input class="form-input" id="peVer" value="${s.version}"></div>
       <div class="form-group"><label class="form-label">RAM 용량</label><input class="form-input" id="peRam" type="number" value="${s.ram}"></div>
       <div class="form-group"><label class="form-label">연결 장치</label><input class="form-input" id="peDevices" value="${s.devices.join(', ')}"></div>
       <div class="form-group"><label class="form-label">디바이스 개수</label><input class="form-input" id="peDevCnt" type="number" value="${s.deviceCount}"></div>
@@ -3033,6 +3321,133 @@ setInterval(()=>{
   if(currentPage==='monitor'){renderCurView();if(selectedSeat)openDetail(selectedSeat);}
   else if(currentPage==='pc-mgmt'){renderPcMgmt();}
 },8000);
+
+// ═══════════════════════════════════════════════════════════
+// MEMBER APPROVAL (Admin only)
+// ═══════════════════════════════════════════════════════════
+let approvalFilter = 'pending';
+
+async function renderMemberApproval() {
+  const el = document.getElementById('memberApprovalView');
+  el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-muted)"><i class="ri-loader-4-line" style="font-size:24px;animation:spin 1s linear infinite"></i><p style="margin-top:8px">회원 목록 로드 중...</p></div>';
+
+  let query = supabase.from('pc_members').select('*').order('created_at', { ascending: false });
+  if (approvalFilter !== 'all') query = query.eq('status', approvalFilter);
+
+  const { data: members, error } = await query;
+  if (error) { el.innerHTML = '<p style="color:var(--danger);padding:20px">데이터 로드 실패: ' + error.message + '</p>'; return; }
+
+  const statusLabel = { pending: '대기', approved: '승인', rejected: '거절', suspended: '정지' };
+  const statusClass = { pending: 'warning', approved: 'success', rejected: 'danger', suspended: 'danger' };
+  const typeLabel = { owner: '점주', manager: '매니저', staff: '알바' };
+  const pendingCount = members.filter(m => m.status === 'pending').length;
+
+  let rows = members.map(m => {
+    const st = m.status;
+    const actions = st === 'pending'
+      ? `<button class="btn btn-success" onclick="approveMember('${m.id}')"><i class="ri-check-line"></i> 승인</button>
+         <button class="btn btn-danger" onclick="rejectMember('${m.id}')"><i class="ri-close-line"></i> 거절</button>`
+      : st === 'approved'
+      ? `<button class="btn btn-danger" onclick="suspendMember('${m.id}')"><i class="ri-forbid-line"></i> 정지</button>`
+      : st === 'suspended' || st === 'rejected'
+      ? `<button class="btn btn-success" onclick="approveMember('${m.id}')"><i class="ri-check-line"></i> 승인</button>`
+      : '';
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#5b4bd5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0">${(m.name||'?').charAt(0)}</div>
+        <div><div style="font-weight:600;font-size:13px">${m.name||'-'}</div><div style="font-size:11px;color:var(--text-muted)">${m.email}</div></div>
+      </div></td>
+      <td>${typeLabel[m.member_type]||m.member_type}</td>
+      <td>${m.phone||'-'}</td>
+      <td>${m.store_name||'-'}</td>
+      <td><span class="status-badge ${statusClass[st]||''}" style="background:var(--${statusClass[st]}-bg);color:var(--${statusClass[st]})">${statusLabel[st]||st}</span></td>
+      <td style="font-size:11px;color:var(--text-muted)">${new Date(m.created_at).toLocaleDateString('ko-KR')}</td>
+      <td>${m.is_admin ? '<span style="font-size:10px;padding:2px 6px;background:var(--accent-bg);color:var(--accent-light);border-radius:4px;font-weight:600">관리자</span>' : actions}</td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="mgmt-header">
+      <h2>가입 승인 관리 ${pendingCount > 0 ? '<span style="font-size:13px;color:var(--warning);margin-left:8px">(' + pendingCount + '건 대기)</span>' : ''}</h2>
+      <div class="mgmt-header-right">
+        <div class="mgmt-filters">
+          <select onchange="approvalFilter=this.value;renderMemberApproval()">
+            <option value="pending"${approvalFilter==='pending'?' selected':''}>대기중</option>
+            <option value="approved"${approvalFilter==='approved'?' selected':''}>승인됨</option>
+            <option value="rejected"${approvalFilter==='rejected'?' selected':''}>거절됨</option>
+            <option value="suspended"${approvalFilter==='suspended'?' selected':''}>정지</option>
+            <option value="all"${approvalFilter==='all'?' selected':''}>전체</option>
+          </select>
+        </div>
+        <button class="btn" onclick="renderMemberApproval()"><i class="ri-refresh-line"></i> 새로고침</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;flex:1">
+      <table class="mgmt-table">
+        <thead><tr>
+          <th>회원</th><th>구분</th><th>연락처</th><th>매장명</th><th>상태</th><th>가입일</th><th>관리</th>
+        </tr></thead>
+        <tbody>${rows || '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">회원이 없습니다</td></tr>'}</tbody>
+      </table>
+    </div>`;
+}
+
+async function approveMember(id) {
+  const { error } = await supabase.from('pc_members').update({ status: 'approved', updated_at: new Date().toISOString() }).eq('id', id);
+  if (error) { showToast('승인 실패: ' + error.message); return; }
+  showToast('회원이 승인되었습니다');
+  renderMemberApproval();
+}
+
+async function rejectMember(id) {
+  showModal(`<div class="modal-hdr"><h3><i class="ri-close-circle-line" style="color:var(--danger);margin-right:6px"></i>가입 거절</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body"><p>이 회원의 가입을 거절하시겠습니까?</p></div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-danger" onclick="confirmRejectMember('${id}')"><i class="ri-close-line"></i> 거절</button></div>`);
+}
+
+async function confirmRejectMember(id) {
+  const { error } = await supabase.from('pc_members').update({ status: 'rejected', updated_at: new Date().toISOString() }).eq('id', id);
+  hideModal();
+  if (error) { showToast('처리 실패: ' + error.message); return; }
+  showToast('가입이 거절되었습니다');
+  renderMemberApproval();
+}
+
+async function suspendMember(id) {
+  showModal(`<div class="modal-hdr"><h3><i class="ri-forbid-line" style="color:var(--danger);margin-right:6px"></i>계정 정지</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body"><p>이 회원의 계정을 정지하시겠습니까?</p></div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-danger" onclick="confirmSuspendMember('${id}')"><i class="ri-forbid-line"></i> 정지</button></div>`);
+}
+
+async function confirmSuspendMember(id) {
+  const { error } = await supabase.from('pc_members').update({ status: 'suspended', updated_at: new Date().toISOString() }).eq('id', id);
+  hideModal();
+  if (error) { showToast('처리 실패: ' + error.message); return; }
+  showToast('계정이 정지되었습니다');
+  renderMemberApproval();
+}
+
+// ═══════════════════════════════════════════════════════════
+// SESSION CHECK & ADMIN SETUP
+// ═══════════════════════════════════════════════════════════
+(function initSession() {
+  const userData = sessionStorage.getItem('pc_user');
+  if (!userData) { window.location.href = 'login.html'; return; }
+  try {
+    const user = JSON.parse(userData);
+    // Update profile UI
+    document.getElementById('profileName').textContent = user.name || '';
+    document.getElementById('profileAvatar').textContent = (user.name || '?').charAt(0);
+    document.getElementById('setGoogleEmail').textContent = user.email || '';
+    document.getElementById('setName').value = user.name || '';
+    document.querySelector('.profile-role').textContent = user.is_admin ? '총괄관리자' : (user.member_type === 'owner' ? '점주' : user.member_type === 'manager' ? '매니저' : '알바');
+
+    // Show admin-only menus
+    if (user.is_admin) {
+      document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+    }
+  } catch(e) { /* non-JSON fallback for dev */ }
+})();
 </script>
 </body>
 </html>

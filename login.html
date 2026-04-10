@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>iSens Manager - 로그인</title>
+<title>PC방 통합 관리 시스템</title>
 <link href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
 <style>
@@ -21,7 +21,7 @@
   --transition:all .2s cubic-bezier(.4,0,.2,1);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Pretendard',-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+body{font-family:'Pretendard',-apple-system,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;display:flex;align-items:center;justify-content:center;overflow-y:auto;padding:40px 0}
 
 .bg-decor{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
 .bg-decor .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.12;animation:float 12s ease-in-out infinite}
@@ -34,48 +34,94 @@ body{font-family:'Pretendard',-apple-system,sans-serif;background:var(--bg-prima
   background-image:radial-gradient(circle at 1px 1px, rgba(108,92,231,0.06) 1px, transparent 0);
   background-size:32px 32px}
 
-.login-wrapper{position:relative;z-index:1;width:100%;max-width:440px;padding:20px}
+.login-wrapper{position:relative;z-index:1;width:100%;max-width:480px;padding:20px}
 
 /* Logo */
 .login-logo{text-align:center;margin-bottom:36px}
-.login-logo img{height:120px;margin-bottom:8px;filter:drop-shadow(0 4px 20px rgba(0,0,0,.4))}
-.login-logo p{font-size:13px;color:var(--text-muted);letter-spacing:.3px}
+.login-logo h1{font-size:28px;font-weight:800;color:var(--text-primary);letter-spacing:-0.5px;line-height:1.3}
+.login-logo h1 span{background:linear-gradient(135deg,var(--accent-light),var(--success));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.login-logo p{font-size:13px;color:var(--text-muted);letter-spacing:.3px;margin-top:8px}
 
 /* Card */
 .login-card{background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-lg);padding:36px 32px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
 .login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--success),var(--accent-light));opacity:.7}
 
-.form-group{margin-bottom:20px}
-.form-label{display:block;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;letter-spacing:.3px}
+/* Steps */
+.step{display:none}
+.step.active{display:block}
+
+/* Google button */
+.google-btn{width:100%;padding:14px;background:#fff;border:1px solid #dadce0;border-radius:var(--radius-md);color:#3c4043;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:12px}
+.google-btn:hover{background:#f8f9fa;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.google-btn svg{width:20px;height:20px;flex-shrink:0}
+
+/* Google user card */
+.google-user-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:24px}
+.google-user-card .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--success));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0}
+.google-user-card .info{flex:1;min-width:0}
+.google-user-card .info .name{font-size:14px;font-weight:600;color:var(--text-primary)}
+.google-user-card .info .email{font-size:12px;color:var(--text-muted);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.google-user-card .badge{font-size:10px;padding:3px 8px;background:var(--success-bg);color:var(--success);border-radius:20px;font-weight:600;flex-shrink:0}
+
+/* Form */
+.form-group{margin-bottom:18px}
+.form-label{display:flex;align-items:center;gap:0;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:7px;letter-spacing:.3px}
+.form-label .req{width:5px;height:5px;border-radius:50%;background:var(--danger);flex-shrink:0;margin-left:4px;position:relative;top:-4px}
 .input-wrap{position:relative}
 .input-wrap i.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--text-muted);transition:color .2s;pointer-events:none}
 .input-wrap input{width:100%;padding:12px 14px 12px 42px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-primary);font-size:14px;font-family:inherit;transition:var(--transition)}
 .input-wrap input:focus{outline:none;border-color:var(--accent);background:var(--bg-card);box-shadow:0 0 0 3px rgba(108,92,231,.15)}
 .input-wrap input:focus ~ i.input-icon{color:var(--accent-light)}
 .input-wrap input::placeholder{color:var(--text-muted);font-size:13px}
-.input-wrap .toggle-pw{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:18px;padding:4px;transition:color .2s}
-.input-wrap .toggle-pw:hover{color:var(--text-primary)}
 
-.login-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),#5b4bd5);border:none;border-radius:var(--radius-md);color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.3px;position:relative;overflow:hidden}
-.login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(108,92,231,0.4)}
-.login-btn:active{transform:translateY(0)}
-.login-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,.1),transparent);opacity:0;transition:opacity .3s}
-.login-btn:hover::after{opacity:1}
+/* Custom select */
+.custom-select{position:relative}
+.custom-select-trigger{display:flex;align-items:center;width:100%;padding:12px 14px 12px 42px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text-primary);font-size:14px;font-family:inherit;cursor:pointer;transition:var(--transition);user-select:none}
+.custom-select-trigger.placeholder{color:var(--text-muted);font-size:13px}
+.custom-select-trigger:hover{border-color:var(--border-light)}
+.custom-select-trigger.open{border-color:var(--accent);background:var(--bg-card);box-shadow:0 0 0 3px rgba(108,92,231,.15);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.custom-select-trigger .cs-arrow{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:16px;transition:transform .2s}
+.custom-select-trigger.open .cs-arrow{transform:translateY(-50%) rotate(180deg);color:var(--accent-light)}
+.custom-select-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--bg-card);border:1px solid var(--accent);border-top:none;border-bottom-left-radius:var(--radius-md);border-bottom-right-radius:var(--radius-md);box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:100;display:none;overflow:hidden}
+.custom-select-dropdown.open{display:block}
+.cs-option{padding:11px 14px 11px 42px;font-size:14px;cursor:pointer;transition:var(--transition);color:var(--text-secondary);position:relative}
+.cs-option:hover{background:var(--bg-hover);color:var(--text-primary)}
+.cs-option.selected{background:var(--accent-bg);color:var(--accent-light)}
+.cs-option.selected::after{content:'\eb7b';font-family:'remixicon';position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--accent-light)}
+.cs-option+.cs-option{border-top:1px solid var(--border)}
 
-.options-row{display:flex;align-items:center;margin-bottom:24px}
-.remember-check{display:flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;color:var(--text-secondary)}
-.remember-check input[type="checkbox"]{appearance:none;width:16px;height:16px;border:1.5px solid var(--border-light);border-radius:4px;background:var(--bg-tertiary);cursor:pointer;position:relative;transition:var(--transition);flex-shrink:0}
-.remember-check input[type="checkbox"]:checked{background:var(--accent);border-color:var(--accent)}
-.remember-check input[type="checkbox"]:checked::after{content:'\eb7b';font-family:'remixicon';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px}
+/* Terms */
+.terms-row{display:flex;align-items:flex-start;gap:10px;margin:20px 0 6px;cursor:pointer}
+.terms-row input[type="checkbox"]{appearance:none;width:16px;height:16px;border:1.5px solid var(--border-light);border-radius:4px;background:var(--bg-tertiary);cursor:pointer;position:relative;transition:var(--transition);flex-shrink:0;margin-top:1px}
+.terms-row input[type="checkbox"]:checked{background:var(--accent);border-color:var(--accent)}
+.terms-row input[type="checkbox"]:checked::after{content:'\eb7b';font-family:'remixicon';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px}
+.terms-text{font-size:12px;color:var(--text-secondary);line-height:1.6}
+.terms-text a{color:var(--accent-light);text-decoration:underline;cursor:pointer}
+.terms-text a:hover{color:#fff}
 
-.divider{display:flex;align-items:center;gap:14px;margin:28px 0}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
-.divider span{font-size:11px;color:var(--text-muted);font-weight:500;letter-spacing:.5px}
+/* Buttons */
+.signup-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--accent),#5b4bd5);border:none;border-radius:var(--radius-md);color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.3px;position:relative;overflow:hidden;margin-top:6px}
+.signup-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(108,92,231,0.4)}
+.signup-btn:active{transform:translateY(0)}
+.signup-btn::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(255,255,255,.1),transparent);opacity:0;transition:opacity .3s}
+.signup-btn:hover::after{opacity:1}
 
-.signup-link{text-align:center;font-size:13px;color:var(--text-secondary)}
-.signup-link a{color:var(--accent-light);font-weight:600;cursor:pointer;text-decoration:none;transition:color .2s}
-.signup-link a:hover{color:#fff;text-decoration:underline}
+/* Pending */
+.pending-view{display:none;text-align:center;padding:30px 0}
+.pending-view.active{display:block}
+.pending-icon{width:80px;height:80px;border-radius:50%;background:var(--warning-bg);border:2px solid var(--warning);display:inline-flex;align-items:center;justify-content:center;font-size:36px;color:var(--warning);margin-bottom:20px;animation:popIn .5s cubic-bezier(.4,0,.2,1)}
+@keyframes popIn{0%{transform:scale(0);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.pending-view h2{font-size:20px;font-weight:700;margin-bottom:8px;color:var(--text-primary)}
+.pending-view p{font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:6px}
+.pending-notice{margin-top:16px;padding:14px 18px;background:var(--warning-bg);border:1px solid rgba(253,203,110,.25);border-radius:var(--radius-md);font-size:12px;color:var(--warning);line-height:1.7;text-align:left}
+.pending-notice i{font-size:15px;margin-right:4px;vertical-align:middle}
 
+/* Subtitle */
+.step-subtitle{text-align:center;margin-bottom:24px}
+.step-subtitle h3{font-size:18px;font-weight:700;margin-bottom:6px}
+.step-subtitle p{font-size:13px;color:var(--text-secondary);line-height:1.6}
+
+/* Toast */
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px 20px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);z-index:1000;opacity:0;transition:all .3s;pointer-events:none}
 .toast.visible{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.error{border-color:rgba(255,107,107,.3)}
@@ -87,7 +133,6 @@ body{font-family:'Pretendard',-apple-system,sans-serif;background:var(--bg-prima
 @media(max-width:480px){
   .login-wrapper{padding:16px}
   .login-card{padding:28px 22px}
-  .login-logo img{height:90px}
 }
 </style>
 </head>
@@ -101,52 +146,104 @@ body{font-family:'Pretendard',-apple-system,sans-serif;background:var(--bg-prima
 <div class="bg-grid"></div>
 
 <div class="login-wrapper">
-  <!-- Logo -->
   <div class="login-logo">
-    <img src="logo.png" alt="아이센스리그 PC방">
-    <p>PC방 통합 관리 시스템</p>
+    <h1><span>PC방 통합 관리</span> 시스템</h1>
+    <p>PC Management System</p>
   </div>
 
-  <!-- Login Card -->
   <div class="login-card">
-    <form id="loginForm" onsubmit="handleLogin(event)">
-      <div class="form-group">
-        <label class="form-label">아이디</label>
-        <div class="input-wrap">
-          <input type="text" id="loginId" placeholder="아이디를 입력하세요" autocomplete="username" required>
-          <i class="ri-user-3-line input-icon"></i>
-        </div>
+
+    <!-- Step 1: Google Login -->
+    <div class="step active" id="stepGoogle">
+      <div class="step-subtitle">
+        <p>Google 계정으로 시작하세요</p>
       </div>
 
-      <div class="form-group">
-        <label class="form-label">비밀번호</label>
-        <div class="input-wrap">
-          <input type="password" id="loginPw" placeholder="비밀번호를 입력하세요" autocomplete="current-password" required>
-          <i class="ri-lock-line input-icon"></i>
-          <button type="button" class="toggle-pw" onclick="togglePassword('loginPw', this)">
-            <i class="ri-eye-off-line"></i>
-          </button>
-        </div>
-      </div>
-
-      <div class="options-row">
-        <label class="remember-check">
-          <input type="checkbox" id="rememberMe">
-          <span>로그인 상태 유지</span>
-        </label>
-      </div>
-
-      <button type="submit" class="login-btn">
-        <i class="ri-login-box-line"></i>
-        로그인
+      <button type="button" class="google-btn" onclick="handleGoogleLogin()">
+        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Google 계정으로 로그인
       </button>
-    </form>
-
-    <div class="divider"><span>또는</span></div>
-
-    <div class="signup-link">
-      계정이 없으신가요? <a href="signup.html">회원가입</a>
     </div>
+
+    <!-- Step 2: Additional Info (new user only) -->
+    <div class="step" id="stepExtraInfo">
+      <div class="step-subtitle">
+        <h3>추가 정보 입력</h3>
+        <p>첫 방문이시네요! 아래 정보를 입력해주세요.</p>
+      </div>
+
+      <div class="google-user-card" id="googleUserCard">
+        <div class="avatar" id="googleAvatar">G</div>
+        <div class="info">
+          <div class="name" id="googleName">사용자</div>
+          <div class="email" id="googleEmail">user@gmail.com</div>
+        </div>
+        <div class="badge">Google 인증</div>
+      </div>
+
+      <form id="extraInfoForm" onsubmit="return false">
+        <div class="form-group">
+          <label class="form-label">회원 구분<span class="req"></span></label>
+          <div class="custom-select" id="memberTypeSelect">
+            <i class="ri-shield-user-line input-icon" style="position:absolute;left:14px;top:14px;font-size:17px;color:var(--text-muted);pointer-events:none;z-index:2"></i>
+            <div class="custom-select-trigger placeholder" onclick="toggleCustomSelect('memberTypeSelect')">
+              회원 구분을 선택하세요
+              <i class="ri-arrow-down-s-line cs-arrow"></i>
+            </div>
+            <div class="custom-select-dropdown">
+              <div class="cs-option" data-value="owner" onclick="selectOption('memberTypeSelect','owner','점주')">점주</div>
+              <div class="cs-option" data-value="manager" onclick="selectOption('memberTypeSelect','manager','매니저')">매니저</div>
+              <div class="cs-option" data-value="staff" onclick="selectOption('memberTypeSelect','staff','알바')">알바</div>
+            </div>
+            <input type="hidden" id="memberType" value="">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">휴대폰 번호<span class="req"></span></label>
+          <div class="input-wrap">
+            <input type="tel" id="userPhone" placeholder="010-0000-0000" oninput="formatPhone(this)">
+            <i class="ri-phone-line input-icon"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">매장명<span class="req"></span></label>
+          <div class="input-wrap">
+            <input type="text" id="storeName" placeholder="소속 매장명을 입력하세요">
+            <i class="ri-store-2-line input-icon"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="terms-row" for="agreeTerms">
+            <input type="checkbox" id="agreeTerms">
+            <span class="terms-text"><a href="#">이용약관</a> 및 <a href="#">개인정보 처리방침</a>에 동의합니다</span>
+          </label>
+        </div>
+
+        <button type="button" class="signup-btn" onclick="handleSignup()">
+          <i class="ri-user-add-line"></i> 회원가입 완료
+        </button>
+      </form>
+    </div>
+
+    <!-- Pending Approval -->
+    <div class="pending-view" id="pendingView">
+      <div class="pending-icon"><i class="ri-time-line"></i></div>
+      <h2>가입 신청이 완료되었습니다</h2>
+      <p>PC방 통합 관리 시스템에 관심을 가져주셔서 고맙습니다.</p>
+      <div class="pending-notice">
+        <i class="ri-shield-check-line"></i>
+        관리자가 회원가입 요청을 검토 중입니다.<br>
+        승인이 완료되면 가입하신 Google 계정의 이메일로 안내 드리겠습니다.<br>
+        승인까지 영업일 기준 1~2일이 소요될 수 있습니다.
+      </div>
+      <button class="signup-btn" onclick="window.location.reload()" style="margin-top:24px">
+        <i class="ri-arrow-left-line"></i> 처음으로 돌아가기
+      </button>
+    </div>
+
   </div>
 </div>
 
@@ -157,13 +254,10 @@ body{font-family:'Pretendard',-apple-system,sans-serif;background:var(--bg-prima
 
 <div class="version-badge">v1.0.0</div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-config.js"></script>
 <script>
-function togglePassword(id, btn) {
-  const input = document.getElementById(id);
-  const icon = btn.querySelector('i');
-  if (input.type === 'password') { input.type = 'text'; icon.className = 'ri-eye-line'; }
-  else { input.type = 'password'; icon.className = 'ri-eye-off-line'; }
-}
+let currentUser = null; // Google auth user info
 
 function showToast(msg, type = 'error') {
   const t = document.getElementById('toast');
@@ -175,22 +269,147 @@ function showToast(msg, type = 'error') {
   setTimeout(() => t.classList.remove('visible'), 2500);
 }
 
-function handleLogin(e) {
-  e.preventDefault();
-  const id = document.getElementById('loginId').value.trim();
-  const pw = document.getElementById('loginPw').value;
-  if (!id) { showToast('아이디를 입력해주세요'); return; }
-  if (!pw) { showToast('비밀번호를 입력해주세요'); return; }
-  // 테스트: 바로 진입
-  sessionStorage.setItem('isens_logged_in', 'true');
-  sessionStorage.setItem('isens_user', id || 'admin');
-  showToast('로그인 성공! 대시보드로 이동합니다', 'success');
-  setTimeout(() => { window.location.href = 'index.html'; }, 800);
+// On page load: check if user is already logged in via Supabase session
+async function checkSession() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return; // no session, show login button
+
+  const user = session.user;
+  const email = user.email;
+  const name = user.user_metadata?.full_name || user.user_metadata?.name || email.split('@')[0];
+  const avatar = user.user_metadata?.avatar_url;
+  currentUser = { email, name, avatar, initial: name.charAt(0) };
+
+  // Check if member exists in pc_members
+  const { data: member } = await supabase.from('pc_members').select('*').eq('email', email).single();
+
+  if (member) {
+    if (member.status === 'approved') {
+      // Approved → go to dashboard
+      sessionStorage.setItem('pc_logged_in', 'true');
+      sessionStorage.setItem('pc_user', JSON.stringify({ name: member.name, email: member.email, is_admin: member.is_admin, member_type: member.member_type, id: member.id }));
+      window.location.href = 'index.html';
+    } else if (member.status === 'pending') {
+      // Pending approval → show pending view
+      document.getElementById('stepGoogle').classList.remove('active');
+      document.getElementById('pendingView').classList.add('active');
+    } else {
+      showToast('계정이 비활성 상태입니다. 관리자에게 문의하세요.');
+    }
+  } else {
+    // New user → show extra info form
+    showGoogleUserCard(currentUser);
+    document.getElementById('stepGoogle').classList.remove('active');
+    document.getElementById('stepExtraInfo').classList.add('active');
+  }
 }
 
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('loginForm').requestSubmit();
+function showGoogleUserCard(u) {
+  document.getElementById('googleAvatar').textContent = u.initial;
+  document.getElementById('googleName').textContent = u.name;
+  document.getElementById('googleEmail').textContent = u.email;
+}
+
+async function handleGoogleLogin() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo: window.location.origin + '/login.html' }
+  });
+  if (error) {
+    showToast('Google 로그인 실패: ' + error.message);
+  }
+}
+
+// Custom select
+function toggleCustomSelect(id) {
+  const wrap = document.getElementById(id);
+  const trigger = wrap.querySelector('.custom-select-trigger');
+  const dd = wrap.querySelector('.custom-select-dropdown');
+  const isOpen = trigger.classList.contains('open');
+  document.querySelectorAll('.custom-select-trigger.open').forEach(t => {
+    t.classList.remove('open');
+    t.closest('.custom-select').querySelector('.custom-select-dropdown').classList.remove('open');
+  });
+  if (!isOpen) { trigger.classList.add('open'); dd.classList.add('open'); }
+}
+
+function selectOption(wrapId, value, label) {
+  const wrap = document.getElementById(wrapId);
+  const trigger = wrap.querySelector('.custom-select-trigger');
+  const dd = wrap.querySelector('.custom-select-dropdown');
+  const hidden = wrap.querySelector('input[type="hidden"]');
+  trigger.textContent = label;
+  trigger.classList.remove('placeholder');
+  const arrow = document.createElement('i');
+  arrow.className = 'ri-arrow-down-s-line cs-arrow';
+  trigger.appendChild(arrow);
+  trigger.classList.remove('open');
+  dd.classList.remove('open');
+  hidden.value = value;
+  dd.querySelectorAll('.cs-option').forEach(o => o.classList.remove('selected'));
+  dd.querySelector(`[data-value="${value}"]`).classList.add('selected');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.custom-select')) {
+    document.querySelectorAll('.custom-select-trigger.open').forEach(t => {
+      t.classList.remove('open');
+      t.closest('.custom-select').querySelector('.custom-select-dropdown').classList.remove('open');
+    });
+  }
 });
+
+function formatPhone(input) {
+  let v = input.value.replace(/\D/g, '');
+  if (v.length > 11) v = v.slice(0, 11);
+  if (v.length > 7) v = v.replace(/(\d{3})(\d{4})(\d{0,4})/, '$1-$2-$3');
+  else if (v.length > 3) v = v.replace(/(\d{3})(\d{0,4})/, '$1-$2');
+  input.value = v;
+}
+
+async function handleSignup() {
+  const memberType = document.getElementById('memberType').value;
+  const phone = document.getElementById('userPhone').value.trim();
+  const storeName = document.getElementById('storeName').value.trim();
+  const agreeTerms = document.getElementById('agreeTerms').checked;
+
+  if (!memberType) { showToast('회원 구분을 선택해주세요'); return; }
+  if (!phone) { showToast('휴대폰 번호를 입력해주세요'); return; }
+  if (!storeName) { showToast('매장명을 입력해주세요'); return; }
+  if (!agreeTerms) { showToast('이용약관에 동의해주세요'); return; }
+
+  if (!currentUser) { showToast('Google 인증 정보가 없습니다. 새로고침 후 다시 시도해주세요.'); return; }
+
+  const { data: session } = await supabase.auth.getSession();
+  const googleUid = session?.session?.user?.id || null;
+
+  const { error } = await supabase.from('pc_members').insert({
+    google_uid: googleUid,
+    email: currentUser.email,
+    name: currentUser.name,
+    phone: phone,
+    member_type: memberType,
+    store_name: storeName,
+    status: 'pending',
+    avatar_url: currentUser.avatar || null
+  });
+
+  if (error) {
+    if (error.code === '23505') {
+      showToast('이미 가입된 이메일입니다.');
+    } else {
+      showToast('가입 실패: ' + error.message);
+    }
+    return;
+  }
+
+  document.getElementById('stepExtraInfo').classList.remove('active');
+  document.getElementById('pendingView').classList.add('active');
+  showToast('가입 신청이 완료되었습니다', 'success');
+}
+
+// Init: check session on page load
+checkSession();
 </script>
 </body>
 </html>
