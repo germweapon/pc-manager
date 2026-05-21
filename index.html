@@ -754,35 +754,26 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
 .ss-person-info .pid{font-weight:700;color:var(--text-primary)}
 .ss-person-info .meta{color:var(--text-muted)}
 
-/* 3D View Tab */
-.ss-3d-container{perspective:800px;display:flex;justify-content:center;padding:20px 0}
-.ss-3d-room{position:relative;transform-style:preserve-3d;transform:rotateX(55deg) rotateZ(-45deg);transition:transform .5s}
-.ss-3d-floor{background:linear-gradient(135deg,rgba(108,92,231,.15),rgba(0,206,201,.1));border:2px solid var(--border-light);border-radius:4px;position:relative}
-.ss-3d-furniture{position:absolute;background:var(--bg-hover);border:1px solid var(--border-light);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--text-muted);transform:translateZ(8px);box-shadow:0 4px 0 var(--bg-tertiary)}
-.ss-3d-person{position:absolute;width:14px;height:14px;border-radius:50%;transform:translateZ(16px);box-shadow:0 0 8px currentColor;animation:ss-pulse 2s infinite}
-@keyframes ss-pulse{0%,100%{box-shadow:0 0 6px currentColor;transform:translateZ(16px) scale(1)}50%{box-shadow:0 0 14px currentColor;transform:translateZ(16px) scale(1.15)}}
-.ss-3d-label{position:absolute;bottom:-30px;left:50%;transform:translateX(-50%) rotateZ(45deg) rotateX(-55deg);font-size:11px;color:var(--text-muted);white-space:nowrap}
-
-.ss-3d-info{margin-top:16px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
-
-/* Movement Tab */
-.ss-movement-controls{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+/* Spatial Analysis Tab */
+.ss-spatial-toolbar{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.ss-layer-toggles{display:flex;gap:4px}
+.ss-layer-btn{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg-tertiary);color:var(--text-muted);transition:var(--transition);font-family:inherit}
+.ss-layer-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.ss-layer-btn:hover:not(.active){background:var(--bg-hover);color:var(--text-primary)}
 .ss-time-range{display:flex;gap:2px;background:var(--bg-tertiary);border-radius:var(--radius-sm);padding:2px}
 .ss-time-range button{padding:5px 12px;border:none;background:none;color:var(--text-muted);font-size:11px;font-weight:600;border-radius:4px;cursor:pointer;font-family:inherit;transition:var(--transition)}
 .ss-time-range button.active{background:var(--accent);color:#fff}
-.ss-movement-canvas-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:16px}
-.ss-movement-canvas-wrap canvas{width:100%;height:350px;display:block;border-radius:var(--radius-sm)}
-
+.ss-datetime-picker{display:flex;align-items:center;gap:6px;margin-left:auto}
+.ss-datetime-picker input[type="date"]{padding:5px 10px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:inherit}
+.ss-datetime-picker input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.7)}
+.ss-datetime-picker select{padding:5px 8px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:inherit}
+.ss-datetime-picker .btn{padding:5px 12px;font-size:11px}
+.ss-history-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;background:var(--warning-bg);color:var(--warning);border-radius:var(--radius-sm);font-size:11px;font-weight:600;margin-bottom:10px}
+.ss-spatial-canvas-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:16px}
+.ss-spatial-canvas-wrap canvas{width:100%;height:500px;display:block;border-radius:var(--radius-sm)}
+.ss-spatial-bottom{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
 .ss-heatmap-legend{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted)}
 .ss-heatmap-gradient{width:120px;height:12px;border-radius:3px;background:linear-gradient(to right,rgba(116,185,255,.1),rgba(116,185,255,.3),rgba(0,206,201,.5),rgba(253,203,110,.7),rgba(255,107,107,.9))}
-
-/* Occupancy Tab */
-.ss-occupancy-top{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}
-.ss-occ-plan-wrap{flex:1.2;min-width:300px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;position:relative}
-.ss-occ-plan{position:relative;border:2px solid var(--border-light);border-radius:4px;overflow:hidden}
-.ss-occ-zone{position:absolute;display:flex;align-items:center;justify-content:center;flex-direction:column;border-radius:4px;font-size:11px;font-weight:600;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)}
-.ss-occ-zone .pct{font-size:18px;font-weight:800}
-
 .ss-occ-bars-wrap{flex:1;min-width:250px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
 .ss-occ-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
 .ss-occ-bar-label{width:70px;font-size:12px;font-weight:600;color:var(--text-secondary);flex-shrink:0}
@@ -4265,6 +4256,13 @@ let ssPeopleHistory={};
 let ssTrailData={};
 let ssHeatmapMode=false;
 let ssMovementTimeRange='10min';
+let ssLayerPeople=true;
+let ssLayerTrail=false;
+let ssLayerHeatmap=false;
+let ssLayerOccupancy=false;
+let ssHistoryMode=false;
+let ssHistoryDate='';
+let ssHistoryHour=new Date().getHours();
 
 // Generate mock sensing data for a room
 function generateSensingData(roomId){
@@ -4374,8 +4372,8 @@ function renderSmartSensing(){
   const room=ROOM_LAYOUTS[ssSelectedRoom];
   if(!room){el.innerHTML='<p>선택된 룸이 없습니다.</p>';return;}
 
-  const tabs=['score','people','3d','movement','occupancy'];
-  const tabLabels=['스코어','인원','3D 뷰','동선','점유율'];
+  const tabs=['score','people','spatial'];
+  const tabLabels=['스코어','인원','공간 분석'];
 
   let html=`<div class="ss-header">
     <h2><i class="ri-sensor-line"></i> 스마트 센싱</h2>
@@ -4392,16 +4390,14 @@ function renderSmartSensing(){
 
   if(ssActiveTab==='score') html+=renderSSScore(room);
   else if(ssActiveTab==='people') html+=renderSSPeople(room);
-  else if(ssActiveTab==='3d') html+=renderSS3D(room);
-  else if(ssActiveTab==='movement') html+=renderSSMovement(room);
-  else if(ssActiveTab==='occupancy') html+=renderSSOccupancy(room);
+  else if(ssActiveTab==='spatial') html+=renderSSSpatial(room);
 
   html+=`</div>`;
   el.innerHTML=html;
 
   // Post-render canvas/svg work
   if(ssActiveTab==='people') setTimeout(()=>drawSSPeopleChart(room),50);
-  if(ssActiveTab==='movement') setTimeout(()=>drawSSMovementCanvas(room),50);
+  if(ssActiveTab==='spatial') setTimeout(()=>drawSSSpatialCanvas(room),50);
 }
 
 // ── Score Tab ──
@@ -4566,89 +4562,129 @@ function drawSSPeopleChart(room){
   ctx.stroke();
 }
 
-// ── 3D View Tab ──
-function renderSS3D(room){
-  const data=ssSensingData[room.roomId]||{people:[]};
-  const scale=60; // pixels per meter
-  const floorW=room.width*scale;
-  const floorD=room.depth*scale;
-
-  let html=`<div class="ss-3d-container">
-    <div class="ss-3d-room">
-      <div class="ss-3d-floor" style="width:${floorW}px;height:${floorD}px">`;
-
-  // Furniture
-  room.furniture.forEach(f=>{
-    html+=`<div class="ss-3d-furniture" style="left:${f.x*scale}px;top:${f.z*scale}px;width:${f.w*scale}px;height:${f.d*scale}px">${f.label}</div>`;
-  });
-
-  // People
-  data.people.forEach(p=>{
-    const t=ssGetTier(p.intensity);
-    const left=Math.min(floorW-14,Math.max(0,p.x*scale-7));
-    const top=Math.min(floorD-14,Math.max(0,p.z*scale-7));
-    html+=`<div class="ss-3d-person" style="left:${left}px;top:${top}px;background:${t.hex};color:${t.hex}" title="${p.id}: 강도 ${p.intensity}"></div>`;
-  });
-
-  html+=`<div class="ss-3d-label">${room.name} (${room.width}m x ${room.depth}m)</div>`;
-  html+=`</div></div></div>`;
-
-  // Legend
-  html+=`<div class="ss-3d-info">
-    <div class="ss-legend">
-      ${SS_TIERS.map(t=>`<div class="ss-legend-item"><div class="ss-legend-dot" style="background:${t.hex};border-radius:50%"></div>${t.label}</div>`).join('')}
-    </div>
-  </div>`;
-
-  return html;
+// ── Spatial Analysis Tab (merged 3D + Movement + Occupancy) ──
+function toggleSSLayer(layer){
+  if(layer==='trail'){ssLayerTrail=!ssLayerTrail;if(ssLayerTrail)ssLayerHeatmap=false;}
+  else if(layer==='heatmap'){ssLayerHeatmap=!ssLayerHeatmap;if(ssLayerHeatmap)ssLayerTrail=false;}
+  else if(layer==='people'){ssLayerPeople=!ssLayerPeople;}
+  else if(layer==='occupancy'){ssLayerOccupancy=!ssLayerOccupancy;}
+  renderSmartSensing();
 }
 
-// ── Movement Tab ──
-function renderSSMovement(room){
+function ssSetHistoryMode(){
+  const dateEl=document.getElementById('ssHistDate');
+  const hourEl=document.getElementById('ssHistHour');
+  if(!dateEl||!dateEl.value) return;
+  ssHistoryMode=true;
+  ssHistoryDate=dateEl.value;
+  ssHistoryHour=parseInt(hourEl.value);
+  stopSmartSensing();
+  // Generate mock historical data for that timestamp
+  ssSensingData[ROOM_LAYOUTS[ssSelectedRoom].roomId]=generateSensingData(ROOM_LAYOUTS[ssSelectedRoom].roomId);
+  renderSmartSensing();
+}
+
+function ssGoLive(){
+  ssHistoryMode=false;
+  ssHistoryDate='';
+  startSmartSensing();
+}
+
+function renderSSSpatial(room){
   const timeRanges=[{key:'10min',label:'최근 10분'},{key:'1hour',label:'1시간'},{key:'today',label:'오늘'}];
-  let html=`<div class="ss-movement-controls">
+  const layers=[
+    {key:'people',label:'인원',active:ssLayerPeople},
+    {key:'trail',label:'동선',active:ssLayerTrail},
+    {key:'heatmap',label:'히트맵',active:ssLayerHeatmap},
+    {key:'occupancy',label:'점유율',active:ssLayerOccupancy}
+  ];
+
+  // Toolbar
+  let html=`<div class="ss-spatial-toolbar">
+    <div class="ss-layer-toggles">
+      ${layers.map(l=>`<button class="ss-layer-btn${l.active?' active':''}" onclick="toggleSSLayer('${l.key}')">${l.label}</button>`).join('')}
+    </div>
     <div class="ss-time-range">
       ${timeRanges.map(tr=>`<button class="${ssMovementTimeRange===tr.key?'active':''}" onclick="ssMovementTimeRange='${tr.key}';renderSmartSensing()">${tr.label}</button>`).join('')}
     </div>
-    <button class="btn" onclick="ssHeatmapMode=!ssHeatmapMode;renderSmartSensing()" style="margin-left:auto">
-      <i class="ri-fire-line"></i> ${ssHeatmapMode?'동선 모드':'히트맵 모드'}
-    </button>
+    <div class="ss-datetime-picker">
+      <input type="date" id="ssHistDate" value="${ssHistoryDate}" />
+      <select id="ssHistHour">
+        ${Array.from({length:24},(_,i)=>`<option value="${i}"${i===ssHistoryHour?' selected':''}>${String(i).padStart(2,'0')}시</option>`).join('')}
+      </select>
+      <button class="btn" onclick="ssSetHistoryMode()"><i class="ri-search-line"></i> 조회</button>
+      <button class="btn${ssHistoryMode?'':' btn-primary'}" onclick="ssGoLive()"><i class="ri-live-line"></i> 현재</button>
+    </div>
   </div>`;
 
-  html+=`<div class="ss-movement-canvas-wrap">
-    <canvas id="ssMovementCanvas" width="800" height="350" style="background:var(--bg-tertiary);border-radius:var(--radius-sm)"></canvas>
+  // History mode badge
+  if(ssHistoryMode){
+    html+=`<div class="ss-history-badge"><i class="ri-calendar-line"></i> ${ssHistoryDate} ${String(ssHistoryHour).padStart(2,'0')}:00 데이터 조회 중</div>`;
+  }
+
+  // Canvas
+  html+=`<div class="ss-spatial-canvas-wrap">
+    <canvas id="ssSpatialCanvas" width="900" height="500"></canvas>
   </div>`;
 
-  html+=`<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">`;
-  if(ssHeatmapMode){
-    html+=`<div class="ss-heatmap-legend"><span>낮음</span><div class="ss-heatmap-gradient"></div><span>높음</span></div>`;
-  } else {
+  // Bottom row
+  html+=`<div class="ss-spatial-bottom">`;
+
+  // Legend (adapts to active layers)
+  html+=`<div style="flex:1;min-width:200px">`;
+  if(ssLayerPeople||ssLayerTrail){
+    html+=`<div class="ss-legend" style="margin-bottom:8px">
+      ${SS_TIERS.slice(1).map(t=>`<div class="ss-legend-item"><div class="ss-legend-dot" style="background:${t.hex};border-radius:50%"></div>${t.label}</div>`).join('')}
+    </div>`;
+  }
+  if(ssLayerHeatmap){
+    html+=`<div class="ss-heatmap-legend" style="margin-bottom:8px"><span>낮음</span><div class="ss-heatmap-gradient"></div><span>높음</span></div>`;
+  }
+  if(ssLayerOccupancy){
     html+=`<div class="ss-legend">
-      ${SS_TIERS.slice(1).map(t=>`<div class="ss-legend-item"><div class="ss-legend-dot" style="background:${t.hex}"></div>${t.label}</div>`).join('')}
+      ${room.zones.map(z=>`<div class="ss-legend-item"><div class="ss-legend-dot" style="background:${z.color}"></div>${z.name}</div>`).join('')}
     </div>`;
   }
   html+=`</div>`;
 
+  // Zone bar chart (only when occupancy layer active)
+  if(ssLayerOccupancy){
+    const data=ssSensingData[room.roomId]||{zoneOccupancy:{}};
+    html+=`<div class="ss-occ-bars-wrap">
+      <div class="ss-hourly-title" style="margin-bottom:16px">구역별 점유율</div>`;
+    room.zones.forEach(zone=>{
+      const occ=data.zoneOccupancy[zone.id]||{count:0,pct:0};
+      html+=`<div class="ss-occ-bar-row">
+        <div class="ss-occ-bar-label">${zone.name}</div>
+        <div class="ss-occ-bar-track">
+          <div class="ss-occ-bar-fill" style="width:${Math.max(8,occ.pct)}%;background:${zone.color}">${occ.pct}%</div>
+        </div>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+
+  html+=`</div>`;
   return html;
 }
 
-function drawSSMovementCanvas(room){
-  const canvas=document.getElementById('ssMovementCanvas');
+function drawSSSpatialCanvas(room){
+  const canvas=document.getElementById('ssSpatialCanvas');
   if(!canvas) return;
   const ctx=canvas.getContext('2d');
   const w=canvas.width, h=canvas.height;
   ctx.clearRect(0,0,w,h);
 
-  const pad=30;
+  const pad=40;
   const scaleX=(w-pad*2)/room.width;
   const scaleY=(h-pad*2)/room.depth;
 
-  // Room outline
+  // BASE: Room outline
   ctx.strokeStyle='#3a3d50';
   ctx.lineWidth=2;
   ctx.strokeRect(pad,pad,room.width*scaleX,room.depth*scaleY);
 
-  // Furniture
+  // BASE: Furniture (always)
   ctx.fillStyle='rgba(42,45,62,.8)';
   ctx.strokeStyle='#3a3d50';
   ctx.lineWidth=1;
@@ -4656,22 +4692,47 @@ function drawSSMovementCanvas(room){
     const fx=pad+f.x*scaleX, fy=pad+f.z*scaleY;
     ctx.fillRect(fx,fy,f.w*scaleX,f.d*scaleY);
     ctx.strokeRect(fx,fy,f.w*scaleX,f.d*scaleY);
-    ctx.fillStyle='#6b7185';ctx.font='9px Pretendard';ctx.textAlign='center';
-    ctx.fillText(f.label,fx+f.w*scaleX/2,fy+f.d*scaleY/2+3);
+    ctx.fillStyle='#6b7185';ctx.font='10px Pretendard';ctx.textAlign='center';
+    ctx.fillText(f.label,fx+f.w*scaleX/2,fy+f.d*scaleY/2+4);
     ctx.fillStyle='rgba(42,45,62,.8)';
   });
 
-  const trail=ssTrailData[room.roomId]||[];
+  // LAYER: Occupancy zones (draw first so other layers appear on top)
+  if(ssLayerOccupancy){
+    const data=ssSensingData[room.roomId]||{zoneOccupancy:{}};
+    room.zones.forEach(zone=>{
+      const occ=data.zoneOccupancy[zone.id]||{count:0,pct:0};
+      const opacity=Math.max(0.1,occ.pct/100*0.5+0.08);
+      const zx=pad+zone.x*scaleX, zy=pad+zone.z*scaleY;
+      const zw=zone.w*scaleX, zh=zone.d*scaleY;
+      ctx.fillStyle=zone.color;
+      ctx.globalAlpha=opacity;
+      ctx.fillRect(zx,zy,zw,zh);
+      ctx.globalAlpha=0.6;
+      ctx.strokeStyle=zone.color;
+      ctx.lineWidth=1.5;
+      ctx.strokeRect(zx,zy,zw,zh);
+      ctx.globalAlpha=1;
+      // Zone label
+      ctx.fillStyle='#fff';ctx.font='bold 12px Pretendard';ctx.textAlign='center';
+      ctx.shadowColor='rgba(0,0,0,.6)';ctx.shadowBlur=3;
+      ctx.fillText(zone.name,zx+zw/2,zy+zh/2-6);
+      ctx.font='bold 16px Pretendard';
+      ctx.fillText(occ.pct+'%',zx+zw/2,zy+zh/2+12);
+      ctx.shadowBlur=0;
+    });
+  }
 
-  // Time filter
+  // Trail data + time filter
+  const trail=ssTrailData[room.roomId]||[];
   const now=Date.now();
-  let cutoff=now-10*60*1000; // 10 min
+  let cutoff=now-10*60*1000;
   if(ssMovementTimeRange==='1hour') cutoff=now-60*60*1000;
   if(ssMovementTimeRange==='today') cutoff=now-24*60*60*1000;
   const filteredTrail=trail.filter(p=>p.t>=cutoff);
 
-  if(ssHeatmapMode){
-    // Heatmap: grid-based
+  // LAYER: Heatmap
+  if(ssLayerHeatmap){
     const gridSize=10;
     const cols=Math.ceil(room.width*scaleX/gridSize);
     const rows=Math.ceil(room.depth*scaleY/gridSize);
@@ -4683,7 +4744,6 @@ function drawSSMovementCanvas(room){
       grid[row][col]++;
       if(grid[row][col]>maxVal) maxVal=grid[row][col];
     });
-
     for(let r=0;r<rows;r++){
       for(let c=0;c<cols;c++){
         if(grid[r][c]===0) continue;
@@ -4697,34 +4757,45 @@ function drawSSMovementCanvas(room){
         ctx.fillRect(pad+c*gridSize,pad+r*gridSize,gridSize,gridSize);
       }
     }
-  } else {
-    // Trail mode: draw fading polylines
-    if(filteredTrail.length>1){
-      for(let i=1;i<filteredTrail.length;i++){
-        const p0=filteredTrail[i-1], p1=filteredTrail[i];
-        const age=(now-p1.t)/(now-cutoff);
-        const alpha=Math.max(0.05,1-age);
-        const t=ssGetTier(p1.intensity);
-        ctx.beginPath();
-        ctx.moveTo(pad+p0.x*scaleX,pad+p0.z*scaleY);
-        ctx.lineTo(pad+p1.x*scaleX,pad+p1.z*scaleY);
-        ctx.strokeStyle=t.hex;
-        ctx.globalAlpha=alpha;
-        ctx.lineWidth=2;
-        ctx.stroke();
-      }
-      ctx.globalAlpha=1;
-    }
+  }
 
-    // Draw current positions
+  // LAYER: Trail polylines
+  if(ssLayerTrail&&filteredTrail.length>1){
+    for(let i=1;i<filteredTrail.length;i++){
+      const p0=filteredTrail[i-1], p1=filteredTrail[i];
+      const age=(now-p1.t)/(now-cutoff);
+      const alpha=Math.max(0.05,1-age);
+      const t=ssGetTier(p1.intensity);
+      ctx.beginPath();
+      ctx.moveTo(pad+p0.x*scaleX,pad+p0.z*scaleY);
+      ctx.lineTo(pad+p1.x*scaleX,pad+p1.z*scaleY);
+      ctx.strokeStyle=t.hex;
+      ctx.globalAlpha=alpha;
+      ctx.lineWidth=2;
+      ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+  }
+
+  // LAYER: People dots + labels
+  if(ssLayerPeople){
     const data=ssSensingData[room.roomId]||{people:[]};
     data.people.forEach(p=>{
       const t=ssGetTier(p.intensity);
       const px=pad+p.x*scaleX, py=pad+p.z*scaleY;
+      // Glow
+      ctx.beginPath();
+      ctx.arc(px,py,10,0,Math.PI*2);
+      ctx.fillStyle=t.hex;
+      ctx.globalAlpha=0.25;
+      ctx.fill();
+      ctx.globalAlpha=1;
+      // Dot
       ctx.beginPath();
       ctx.arc(px,py,6,0,Math.PI*2);
       ctx.fillStyle=t.hex;
       ctx.fill();
+      // Label
       ctx.fillStyle='#fff';ctx.font='bold 8px Pretendard';ctx.textAlign='center';
       ctx.fillText(p.id,px,py+3);
     });
@@ -4732,57 +4803,32 @@ function drawSSMovementCanvas(room){
 
   // Room label
   ctx.fillStyle='#6b7185';ctx.font='11px Pretendard';ctx.textAlign='left';
-  ctx.fillText(`${room.name} (${room.width}m x ${room.depth}m)`,pad,pad-10);
-}
+  ctx.fillText(`${room.name} (${room.width}m x ${room.depth}m)`,pad,pad-14);
 
-// ── Occupancy Tab ──
-function renderSSOccupancy(room){
-  const data=ssSensingData[room.roomId]||{zoneOccupancy:{}};
-  const scale=60;
-  const planW=room.width*scale;
-  const planH=room.depth*scale;
-
-  let html=`<div class="ss-occupancy-top">`;
-
-  // Left: 2D plan with zones
-  html+=`<div class="ss-occ-plan-wrap">
-    <div class="ss-hourly-title" style="margin-bottom:10px">구역별 점유율</div>
-    <div class="ss-occ-plan" style="width:${planW}px;height:${planH}px;background:var(--bg-tertiary)">`;
-
-  room.zones.forEach(zone=>{
-    const occ=data.zoneOccupancy[zone.id]||{count:0,pct:0};
-    const opacity=Math.max(0.2,occ.pct/100*0.7+0.15);
-    html+=`<div class="ss-occ-zone" style="left:${zone.x*scale}px;top:${zone.z*scale}px;width:${zone.w*scale}px;height:${zone.d*scale}px;background:${zone.color};opacity:${opacity}">
-      <span>${zone.name}</span>
-      <span class="pct">${occ.pct}%</span>
-    </div>`;
-  });
-
-  html+=`</div></div>`;
-
-  // Right: Bar chart
-  html+=`<div class="ss-occ-bars-wrap">
-    <div class="ss-hourly-title" style="margin-bottom:16px">구역별 점유율 비교</div>`;
-  room.zones.forEach(zone=>{
-    const occ=data.zoneOccupancy[zone.id]||{count:0,pct:0};
-    html+=`<div class="ss-occ-bar-row">
-      <div class="ss-occ-bar-label">${zone.name}</div>
-      <div class="ss-occ-bar-track">
-        <div class="ss-occ-bar-fill" style="width:${Math.max(8,occ.pct)}%;background:${zone.color}">${occ.pct}%</div>
-      </div>
-    </div>`;
-  });
-  html+=`</div></div>`;
-
-  return html;
+  // Active layers indicator
+  const activeLayers=[];
+  if(ssLayerPeople) activeLayers.push('인원');
+  if(ssLayerTrail) activeLayers.push('동선');
+  if(ssLayerHeatmap) activeLayers.push('히트맵');
+  if(ssLayerOccupancy) activeLayers.push('점유율');
+  ctx.fillStyle='#555a6e';ctx.font='10px Pretendard';ctx.textAlign='right';
+  ctx.fillText('레이어: '+activeLayers.join(' + '),w-pad,pad-14);
 }
 
 // ═══════════════════════════════════════════════════════════
 // SESSION CHECK & ADMIN SETUP
 // ═══════════════════════════════════════════════════════════
 (async function initSession() {
-  const userData = sessionStorage.getItem('pc_user');
-  if (!userData) { window.location.href = 'login.html'; return; }
+  let userData = sessionStorage.getItem('pc_user');
+
+  // DEV MODE: 세션 없으면 자동으로 개발용 관리자 계정으로 진입
+  if (!userData) {
+    const devUser = { name: '개발자', email: 'dev@isens.camp', is_admin: true, member_type: 'owner', id: 'dev-001' };
+    sessionStorage.setItem('pc_logged_in', 'true');
+    sessionStorage.setItem('pc_user', JSON.stringify(devUser));
+    userData = sessionStorage.getItem('pc_user');
+  }
+
   try {
     const user = JSON.parse(userData);
     // Update profile UI
