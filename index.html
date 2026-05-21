@@ -689,6 +689,105 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
   .util-bar-wrap{width:100%}
   .trace-controls{flex-direction:column;align-items:flex-start}
 }
+
+/* ═══════════════════════════════════════════════════════════
+   SMART SENSING
+   ═══════════════════════════════════════════════════════════ */
+.ss-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.ss-header h2{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:700}
+.ss-header h2 i{color:var(--accent-light);font-size:22px}
+.ss-room-select{padding:7px 14px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;font-family:inherit;cursor:pointer}
+.ss-room-select:focus{outline:none;border-color:var(--accent)}
+.ss-room-select option{background:var(--bg-card);color:var(--text-primary)}
+
+.ss-tabs{display:flex;gap:2px;background:var(--bg-tertiary);border-radius:var(--radius-md);padding:3px;width:fit-content;margin-bottom:20px}
+.ss-tab-btn{padding:7px 20px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;color:var(--text-muted);transition:var(--transition);border:none;background:none;font-family:inherit}
+.ss-tab-btn.active{background:var(--accent);color:#fff}
+.ss-tab-btn:hover:not(.active){color:var(--text-primary);background:var(--bg-hover)}
+
+.ss-content{flex:1;overflow:auto}
+
+/* Score Tab */
+.ss-score-top{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.ss-score-card{flex:1;min-width:260px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.ss-score-card-title{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+
+.ss-gauge-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0}
+.ss-gauge-svg{width:180px;height:180px}
+.ss-gauge-bg{fill:none;stroke:var(--bg-tertiary);stroke-width:12}
+.ss-gauge-fill{fill:none;stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1),stroke .5s}
+.ss-gauge-text{font-size:42px;font-weight:800;fill:var(--text-primary);text-anchor:middle;dominant-baseline:central}
+.ss-gauge-label{font-size:13px;font-weight:600;text-anchor:middle;dominant-baseline:central}
+
+.ss-sensor-info{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px}
+.ss-sensor-info .label{color:var(--text-muted);font-weight:500}
+.ss-sensor-info .value{color:var(--text-primary);font-weight:600}
+.ss-sensor-status{display:inline-flex;align-items:center;gap:5px}
+.ss-sensor-status .dot{width:8px;height:8px;border-radius:50%}
+.ss-sensor-status .dot.on{background:var(--success);box-shadow:0 0 6px var(--success)}
+.ss-sensor-status .dot.off{background:var(--danger);box-shadow:0 0 6px var(--danger)}
+
+.ss-hourly-section{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.ss-hourly-title{font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:12px}
+.ss-hourly-chart{display:flex;align-items:flex-end;gap:3px;height:160px;padding:10px 0}
+.ss-hourly-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.ss-hourly-bar{width:100%;min-width:8px;border-radius:3px 3px 0 0;transition:height .5s cubic-bezier(.4,0,.2,1)}
+.ss-hourly-label{font-size:9px;color:var(--text-muted)}
+
+.ss-legend{display:flex;gap:12px;margin-top:12px;flex-wrap:wrap}
+.ss-legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary)}
+.ss-legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* People Tab */
+.ss-people-summary{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.ss-people-stat{flex:1;min-width:120px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;text-align:center}
+.ss-people-stat .num{font-size:32px;font-weight:800;line-height:1}
+.ss-people-stat .lbl{font-size:11px;color:var(--text-muted);margin-top:4px}
+
+.ss-people-chart-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:20px}
+.ss-people-chart-wrap canvas{width:100%;height:180px;display:block;border-radius:var(--radius-sm)}
+
+.ss-people-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.ss-person-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:12px;display:flex;align-items:center;gap:10px}
+.ss-person-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.ss-person-info{font-size:12px;line-height:1.6}
+.ss-person-info .pid{font-weight:700;color:var(--text-primary)}
+.ss-person-info .meta{color:var(--text-muted)}
+
+/* 3D View Tab */
+.ss-3d-container{perspective:800px;display:flex;justify-content:center;padding:20px 0}
+.ss-3d-room{position:relative;transform-style:preserve-3d;transform:rotateX(55deg) rotateZ(-45deg);transition:transform .5s}
+.ss-3d-floor{background:linear-gradient(135deg,rgba(108,92,231,.15),rgba(0,206,201,.1));border:2px solid var(--border-light);border-radius:4px;position:relative}
+.ss-3d-furniture{position:absolute;background:var(--bg-hover);border:1px solid var(--border-light);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--text-muted);transform:translateZ(8px);box-shadow:0 4px 0 var(--bg-tertiary)}
+.ss-3d-person{position:absolute;width:14px;height:14px;border-radius:50%;transform:translateZ(16px);box-shadow:0 0 8px currentColor;animation:ss-pulse 2s infinite}
+@keyframes ss-pulse{0%,100%{box-shadow:0 0 6px currentColor;transform:translateZ(16px) scale(1)}50%{box-shadow:0 0 14px currentColor;transform:translateZ(16px) scale(1.15)}}
+.ss-3d-label{position:absolute;bottom:-30px;left:50%;transform:translateX(-50%) rotateZ(45deg) rotateX(-55deg);font-size:11px;color:var(--text-muted);white-space:nowrap}
+
+.ss-3d-info{margin-top:16px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap}
+
+/* Movement Tab */
+.ss-movement-controls{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.ss-time-range{display:flex;gap:2px;background:var(--bg-tertiary);border-radius:var(--radius-sm);padding:2px}
+.ss-time-range button{padding:5px 12px;border:none;background:none;color:var(--text-muted);font-size:11px;font-weight:600;border-radius:4px;cursor:pointer;font-family:inherit;transition:var(--transition)}
+.ss-time-range button.active{background:var(--accent);color:#fff}
+.ss-movement-canvas-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;margin-bottom:16px}
+.ss-movement-canvas-wrap canvas{width:100%;height:350px;display:block;border-radius:var(--radius-sm)}
+
+.ss-heatmap-legend{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-muted)}
+.ss-heatmap-gradient{width:120px;height:12px;border-radius:3px;background:linear-gradient(to right,rgba(116,185,255,.1),rgba(116,185,255,.3),rgba(0,206,201,.5),rgba(253,203,110,.7),rgba(255,107,107,.9))}
+
+/* Occupancy Tab */
+.ss-occupancy-top{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+.ss-occ-plan-wrap{flex:1.2;min-width:300px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;position:relative}
+.ss-occ-plan{position:relative;border:2px solid var(--border-light);border-radius:4px;overflow:hidden}
+.ss-occ-zone{position:absolute;display:flex;align-items:center;justify-content:center;flex-direction:column;border-radius:4px;font-size:11px;font-weight:600;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+.ss-occ-zone .pct{font-size:18px;font-weight:800}
+
+.ss-occ-bars-wrap{flex:1;min-width:250px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.ss-occ-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ss-occ-bar-label{width:70px;font-size:12px;font-weight:600;color:var(--text-secondary);flex-shrink:0}
+.ss-occ-bar-track{flex:1;height:22px;background:var(--bg-tertiary);border-radius:var(--radius-sm);overflow:hidden;position:relative}
+.ss-occ-bar-fill{height:100%;border-radius:var(--radius-sm);transition:width .5s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:11px;font-weight:700;color:#fff;min-width:30px}
 </style>
 </head>
 <body>
@@ -717,6 +816,12 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
         <div class="nav-item" onclick="switchToPage('ranking')"><i class="ri-trophy-line"></i>랭킹 & 분석</div>
         <div class="nav-item" onclick="switchToPage('favorites')"><i class="ri-star-line"></i>즐겨찾기</div>
         <div class="nav-item" onclick="switchToPage('trace')"><i class="ri-line-chart-line"></i>변화추적</div>
+      </div>
+      <div style="height:1px;background:var(--border);margin:6px 12px"></div>
+      <div class="nav-section">
+        <div class="nav-section-title">모니터링</div>
+        <div class="nav-item" onclick="switchToPage('ceremony')"><i class="ri-disc-line"></i>세리머니 관리</div>
+        <div class="nav-item" onclick="switchToPage('smart-sensing')"><i class="ri-sensor-line"></i>스마트 센싱</div>
       </div>
     </nav>
     <div class="sidebar-profile" id="sidebarProfile">
@@ -837,6 +942,8 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
     <div class="mgmt-view" id="rankingView"></div>
     <div class="mgmt-view" id="favoritesView"></div>
     <div class="mgmt-view" id="traceView"></div>
+    <!-- Smart Sensing View -->
+    <div class="mgmt-view" id="smartSensingView"></div>
   </div>
 </div>
 
@@ -2192,8 +2299,11 @@ function switchToPage(page){
   // Update sidebar active states
   document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
 
+  // Stop smart sensing simulation when navigating away
+  if(typeof stopSmartSensing==='function') stopSmartSensing();
+
   // Hide all mgmt views first
-  const allMgmtViews=['storeMgmtView','pcMgmtView','ceremonyView','memberApprovalView','utilizationView','rankingView','favoritesView','traceView'];
+  const allMgmtViews=['storeMgmtView','pcMgmtView','ceremonyView','memberApprovalView','utilizationView','rankingView','favoritesView','traceView','smartSensingView'];
   allMgmtViews.forEach(id=>document.getElementById(id).classList.remove('active'));
 
   // Common setup for non-monitor pages
@@ -2245,8 +2355,14 @@ function switchToPage(page){
     document.getElementById('traceView').classList.add('active');
     document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('변화추적'))i.classList.add('active');});
     renderTrace();
+  } else if(page==='smart-sensing'){
+    setupMgmtPage();
+    document.getElementById('smartSensingView').classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('스마트 센싱'))i.classList.add('active');});
+    startSmartSensing();
   } else {
     // monitor
+    stopSmartSensing();
     topStats.style.display='';
     topRight.style.display='';
     topTabs.style.display='';
@@ -4075,6 +4191,590 @@ async function confirmSuspendMember(id) {
   if (error) { showToast('처리 실패: ' + error.message); return; }
   showToast('계정이 정지되었습니다');
   renderMemberApproval();
+}
+
+// ═══════════════════════════════════════════════════════════
+// SMART SENSING
+// ═══════════════════════════════════════════════════════════
+
+// --- Mock Data ---
+const MMWAVE_SENSORS=[
+  {id:1,roomId:1,model:'IWR6843AOP',ip:'192.168.0.201',connected:true,fps:20},
+  {id:2,roomId:2,model:'IWR6843AOP',ip:'192.168.0.202',connected:true,fps:20},
+  {id:3,roomId:3,model:'IWR6843AOP',ip:'192.168.0.203',connected:false,fps:0},
+];
+
+const ROOM_LAYOUTS=[
+  {roomId:1,name:'팀룸 A',width:6,depth:4,height:2.8,capacity:6,
+   furniture:[
+     {type:'desk',x:1,z:1,w:2.5,d:0.8,label:'데스크 1'},
+     {type:'desk',x:1,z:2.5,w:2.5,d:0.8,label:'데스크 2'},
+     {type:'chair',x:4.5,z:1.5,w:1,d:1,label:'의자'},
+   ],
+   zones:[
+     {id:'zone_a',name:'좌석 A',x:0,z:0,w:3,d:2,color:'#6c5ce7'},
+     {id:'zone_b',name:'좌석 B',x:0,z:2,w:3,d:2,color:'#00cec9'},
+     {id:'zone_c',name:'통로/대기',x:3,z:0,w:3,d:4,color:'#fdcb6e'},
+   ]},
+  {roomId:2,name:'팀룸 B',width:5,depth:3.5,height:2.8,capacity:4,
+   furniture:[
+     {type:'desk',x:0.8,z:0.8,w:2,d:0.7,label:'데스크 1'},
+     {type:'desk',x:0.8,z:2,w:2,d:0.7,label:'데스크 2'},
+   ],
+   zones:[
+     {id:'zone_a',name:'좌석 A',x:0,z:0,w:2.5,d:1.75,color:'#6c5ce7'},
+     {id:'zone_b',name:'좌석 B',x:0,z:1.75,w:2.5,d:1.75,color:'#00cec9'},
+     {id:'zone_c',name:'통로',x:2.5,z:0,w:2.5,d:3.5,color:'#fdcb6e'},
+   ]},
+  {roomId:3,name:'팀룸 C',width:7,depth:5,height:3,capacity:8,
+   furniture:[
+     {type:'desk',x:1,z:1,w:3,d:0.8,label:'데스크 1'},
+     {type:'desk',x:1,z:2.5,w:3,d:0.8,label:'데스크 2'},
+     {type:'desk',x:1,z:4,w:3,d:0.8,label:'데스크 3'},
+     {type:'chair',x:5.5,z:2,w:1.2,d:1.2,label:'소파'},
+   ],
+   zones:[
+     {id:'zone_a',name:'좌석 A',x:0,z:0,w:3.5,d:2.5,color:'#6c5ce7'},
+     {id:'zone_b',name:'좌석 B',x:0,z:2.5,w:3.5,d:2.5,color:'#00cec9'},
+     {id:'zone_c',name:'통로/대기',x:3.5,z:0,w:3.5,d:5,color:'#fdcb6e'},
+   ]},
+];
+
+// Score tiers
+const SS_TIERS=[
+  {min:0,max:0,label:'미감지',color:'var(--text-muted)',hex:'#6b7185'},
+  {min:1,max:20,label:'조용함',color:'var(--info)',hex:'#74b9ff'},
+  {min:21,max:50,label:'보통',color:'var(--success)',hex:'#00cec9'},
+  {min:51,max:80,label:'활발',color:'var(--warning)',hex:'#fdcb6e'},
+  {min:81,max:100,label:'폭발',color:'var(--danger)',hex:'#ff6b6b'},
+];
+
+function ssGetTier(score){
+  if(score<=0) return SS_TIERS[0];
+  for(let i=SS_TIERS.length-1;i>=0;i--){if(score>=SS_TIERS[i].min)return SS_TIERS[i];}
+  return SS_TIERS[0];
+}
+
+// State
+let ssSelectedRoom=0;
+let ssActiveTab='score';
+let ssIntervalId=null;
+let ssSensingData={};
+let ssHourlyHistory={};
+let ssPeopleHistory={};
+let ssTrailData={};
+let ssHeatmapMode=false;
+let ssMovementTimeRange='10min';
+
+// Generate mock sensing data for a room
+function generateSensingData(roomId){
+  const layout=ROOM_LAYOUTS.find(r=>r.roomId===roomId);
+  if(!layout) return {timestamp:Date.now(),people:[],ceremonyScore:0,zoneOccupancy:{}};
+  const sensor=MMWAVE_SENSORS.find(s=>s.roomId===roomId);
+  if(!sensor||!sensor.connected) return {timestamp:Date.now(),people:[],ceremonyScore:0,zoneOccupancy:{}};
+
+  const count=Math.floor(Math.random()*5)+1;
+  const people=[];
+  for(let i=0;i<count;i++){
+    const x=Math.random()*layout.width;
+    const z=Math.random()*layout.depth;
+    const velocity=Math.random()*1.5;
+    const intensity=Math.min(100,Math.floor(velocity*60+Math.random()*20));
+    people.push({id:`P${i+1}`,x:parseFloat(x.toFixed(2)),z:parseFloat(z.toFixed(2)),velocity:parseFloat(velocity.toFixed(2)),intensity});
+  }
+
+  // CeremonyScore based on motion intensities
+  const avgIntensity=people.length?people.reduce((s,p)=>s+p.intensity,0)/people.length:0;
+  const ceremonyScore=Math.min(100,Math.floor(avgIntensity*1.2+Math.random()*10));
+
+  // Zone occupancy
+  const zoneOccupancy={};
+  layout.zones.forEach(zone=>{
+    const inZone=people.filter(p=>p.x>=zone.x&&p.x<=zone.x+zone.w&&p.z>=zone.z&&p.z<=zone.z+zone.d);
+    zoneOccupancy[zone.id]={count:inZone.length,pct:layout.capacity?Math.round(inZone.length/layout.capacity*100):0};
+  });
+
+  return {timestamp:Date.now(),people,ceremonyScore,zoneOccupancy};
+}
+
+// Generate 24-hour history
+function generateHourlyHistory(roomId){
+  const hours=[];
+  const now=new Date();
+  for(let h=0;h<24;h++){
+    const hour=h;
+    const isActive=h>=9&&h<=23;
+    const avgScore=isActive?Math.floor(Math.random()*80)+10:Math.floor(Math.random()*10);
+    const maxScore=isActive?Math.min(100,avgScore+Math.floor(Math.random()*20)):avgScore;
+    const avgCount=isActive?Math.floor(Math.random()*5)+1:Math.floor(Math.random()*2);
+    const maxCount=isActive?avgCount+Math.floor(Math.random()*3):avgCount;
+    hours.push({hour,avgScore,maxScore,avgCount,maxCount});
+  }
+  return hours;
+}
+
+// Generate people count history (24h, every 30 minutes)
+function generatePeopleHistory(roomId){
+  const pts=[];
+  for(let i=0;i<48;i++){
+    const h=Math.floor(i/2);
+    const isActive=h>=9&&h<=23;
+    const count=isActive?Math.floor(Math.random()*6)+1:Math.floor(Math.random()*2);
+    pts.push({time:i*30,count});
+  }
+  return pts;
+}
+
+// Init histories
+ROOM_LAYOUTS.forEach(r=>{
+  ssHourlyHistory[r.roomId]=generateHourlyHistory(r.roomId);
+  ssPeopleHistory[r.roomId]=generatePeopleHistory(r.roomId);
+  ssSensingData[r.roomId]=generateSensingData(r.roomId);
+  ssTrailData[r.roomId]=[];
+});
+
+// Start / Stop
+function startSmartSensing(){
+  stopSmartSensing();
+  renderSmartSensing();
+  ssIntervalId=setInterval(()=>{
+    if(currentPage!=='smart-sensing') return;
+    const roomId=ROOM_LAYOUTS[ssSelectedRoom]?.roomId;
+    if(!roomId) return;
+    const newData=generateSensingData(roomId);
+    ssSensingData[roomId]=newData;
+    // Append trail
+    if(!ssTrailData[roomId]) ssTrailData[roomId]=[];
+    newData.people.forEach(p=>{
+      ssTrailData[roomId].push({x:p.x,z:p.z,t:Date.now(),intensity:p.intensity});
+    });
+    // Keep last 500 trail points
+    if(ssTrailData[roomId].length>500) ssTrailData[roomId]=ssTrailData[roomId].slice(-500);
+    renderSmartSensing();
+  },2000);
+}
+
+function stopSmartSensing(){
+  if(ssIntervalId){clearInterval(ssIntervalId);ssIntervalId=null;}
+}
+
+function switchSSTab(tab){
+  ssActiveTab=tab;
+  renderSmartSensing();
+}
+
+function switchSSRoom(idx){
+  ssSelectedRoom=idx;
+  renderSmartSensing();
+}
+
+// Main render
+function renderSmartSensing(){
+  const el=document.getElementById('smartSensingView');
+  const room=ROOM_LAYOUTS[ssSelectedRoom];
+  if(!room){el.innerHTML='<p>선택된 룸이 없습니다.</p>';return;}
+
+  const tabs=['score','people','3d','movement','occupancy'];
+  const tabLabels=['스코어','인원','3D 뷰','동선','점유율'];
+
+  let html=`<div class="ss-header">
+    <h2><i class="ri-sensor-line"></i> 스마트 센싱</h2>
+    <select class="ss-room-select" onchange="switchSSRoom(this.selectedIndex)">
+      ${ROOM_LAYOUTS.map((r,i)=>`<option${i===ssSelectedRoom?' selected':''}>${r.name}</option>`).join('')}
+    </select>
+  </div>`;
+
+  html+=`<div class="ss-tabs">
+    ${tabs.map((t,i)=>`<button class="ss-tab-btn${ssActiveTab===t?' active':''}" onclick="switchSSTab('${t}')">${tabLabels[i]}</button>`).join('')}
+  </div>`;
+
+  html+=`<div class="ss-content" id="ssContent">`;
+
+  if(ssActiveTab==='score') html+=renderSSScore(room);
+  else if(ssActiveTab==='people') html+=renderSSPeople(room);
+  else if(ssActiveTab==='3d') html+=renderSS3D(room);
+  else if(ssActiveTab==='movement') html+=renderSSMovement(room);
+  else if(ssActiveTab==='occupancy') html+=renderSSOccupancy(room);
+
+  html+=`</div>`;
+  el.innerHTML=html;
+
+  // Post-render canvas/svg work
+  if(ssActiveTab==='people') setTimeout(()=>drawSSPeopleChart(room),50);
+  if(ssActiveTab==='movement') setTimeout(()=>drawSSMovementCanvas(room),50);
+}
+
+// ── Score Tab ──
+function renderSSScore(room){
+  const data=ssSensingData[room.roomId]||{people:[],ceremonyScore:0};
+  const sensor=MMWAVE_SENSORS.find(s=>s.roomId===room.roomId);
+  const score=data.ceremonyScore;
+  const tier=ssGetTier(score);
+
+  // SVG gauge calculations
+  const r=72, cx=90, cy=90;
+  const circumference=2*Math.PI*r;
+  const pct=score/100;
+  const offset=circumference*(1-pct);
+
+  let html=`<div class="ss-score-top">`;
+  // Left: Gauge
+  html+=`<div class="ss-score-card">
+    <div class="ss-score-card-title">실시간 세리머니 스코어</div>
+    <div class="ss-gauge-wrap">
+      <svg class="ss-gauge-svg" viewBox="0 0 180 180">
+        <circle class="ss-gauge-bg" cx="${cx}" cy="${cy}" r="${r}"/>
+        <circle class="ss-gauge-fill" cx="${cx}" cy="${cy}" r="${r}"
+          stroke="${tier.hex}"
+          stroke-dasharray="${circumference}"
+          stroke-dashoffset="${offset}"
+          transform="rotate(-90 ${cx} ${cy})"/>
+        <text class="ss-gauge-text" x="${cx}" y="${cy-8}" style="fill:${tier.hex}">${score}</text>
+        <text class="ss-gauge-label" x="${cx}" y="${cy+20}" style="fill:${tier.hex}">${tier.label}</text>
+      </svg>
+    </div>
+  </div>`;
+
+  // Right: Sensor info
+  html+=`<div class="ss-score-card">
+    <div class="ss-score-card-title">센서 상태</div>
+    <div class="ss-sensor-info" style="margin-top:8px">
+      <span class="label">모델</span><span class="value">${sensor?sensor.model:'N/A'}</span>
+      <span class="label">IP</span><span class="value">${sensor?sensor.ip:'N/A'}</span>
+      <span class="label">연결</span><span class="value"><span class="ss-sensor-status"><span class="dot ${sensor&&sensor.connected?'on':'off'}"></span>${sensor&&sensor.connected?'연결됨':'연결 끊김'}</span></span>
+      <span class="label">감지 인원</span><span class="value" style="color:var(--accent-light)">${data.people.length}명</span>
+      <span class="label">FPS</span><span class="value">${sensor?sensor.fps:0}</span>
+      <span class="label">룸 크기</span><span class="value">${room.width}m x ${room.depth}m x ${room.height}m</span>
+    </div>
+  </div>`;
+  html+=`</div>`;
+
+  // Hourly chart
+  const history=ssHourlyHistory[room.roomId]||[];
+  html+=`<div class="ss-hourly-section">
+    <div class="ss-hourly-title">24시간 세리머니 스코어</div>
+    <div class="ss-hourly-chart">
+      ${history.map(h=>{
+        const t=ssGetTier(h.avgScore);
+        const hPct=Math.max(2,h.avgScore/100*100);
+        return `<div class="ss-hourly-bar-wrap">
+          <div class="ss-hourly-bar" style="height:${hPct}%;background:${t.hex}"></div>
+          <div class="ss-hourly-label">${String(h.hour).padStart(2,'0')}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="ss-legend">
+      ${SS_TIERS.map(t=>`<div class="ss-legend-item"><div class="ss-legend-dot" style="background:${t.hex}"></div>${t.label} (${t.min}${t.max>t.min?'-'+t.max:''})</div>`).join('')}
+    </div>
+  </div>`;
+
+  return html;
+}
+
+// ── People Tab ──
+function renderSSPeople(room){
+  const data=ssSensingData[room.roomId]||{people:[],ceremonyScore:0};
+  const people=data.people;
+  const maxToday=Math.max(people.length,Math.floor(Math.random()*3)+people.length);
+  const pct=room.capacity?Math.round(people.length/room.capacity*100):0;
+
+  let html=`<div class="ss-people-summary">
+    <div class="ss-people-stat"><div class="num" style="color:var(--accent-light)">${people.length}</div><div class="lbl">현재 인원</div></div>
+    <div class="ss-people-stat"><div class="num">${room.capacity}</div><div class="lbl">정원</div></div>
+    <div class="ss-people-stat"><div class="num" style="color:${pct>80?'var(--danger)':pct>50?'var(--warning)':'var(--success)'}">${pct}%</div><div class="lbl">점유율</div></div>
+    <div class="ss-people-stat"><div class="num" style="color:var(--info)">${maxToday}</div><div class="lbl">최대 인원 (오늘)</div></div>
+  </div>`;
+
+  html+=`<div class="ss-people-chart-wrap">
+    <div class="ss-hourly-title">24시간 인원 변화</div>
+    <canvas id="ssPeopleCanvas" width="800" height="180" style="background:var(--bg-tertiary);border-radius:var(--radius-sm)"></canvas>
+  </div>`;
+
+  html+=`<div class="ss-hourly-title" style="margin-bottom:10px">감지된 인원</div>`;
+  html+=`<div class="ss-people-list">`;
+  people.forEach(p=>{
+    const t=ssGetTier(p.intensity);
+    html+=`<div class="ss-person-card">
+      <div class="ss-person-dot" style="background:${t.hex};box-shadow:0 0 6px ${t.hex}"></div>
+      <div class="ss-person-info">
+        <div class="pid">${p.id}</div>
+        <div class="meta">위치: (${p.x}, ${p.z})m</div>
+        <div class="meta">속도: ${p.velocity}m/s | 강도: ${p.intensity}</div>
+      </div>
+    </div>`;
+  });
+  html+=`</div>`;
+  return html;
+}
+
+function drawSSPeopleChart(room){
+  const canvas=document.getElementById('ssPeopleCanvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const w=canvas.width, h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+
+  const history=ssPeopleHistory[room.roomId]||[];
+  if(!history.length) return;
+
+  const maxCount=Math.max(6,...history.map(p=>p.count));
+  const padL=40,padR=10,padT=10,padB=24;
+  const chartW=w-padL-padR, chartH=h-padT-padB;
+
+  // Grid lines
+  ctx.strokeStyle='#2e3144';
+  ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=padT+chartH*(1-i/4);
+    ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(w-padR,y);ctx.stroke();
+    ctx.fillStyle='#6b7185';ctx.font='10px Pretendard';ctx.textAlign='right';
+    ctx.fillText(Math.round(maxCount*i/4),padL-6,y+3);
+  }
+
+  // X labels
+  ctx.fillStyle='#6b7185';ctx.font='9px Pretendard';ctx.textAlign='center';
+  for(let i=0;i<48;i+=4){
+    const x=padL+(i/(history.length-1))*chartW;
+    ctx.fillText(`${Math.floor(i/2)}h`,x,h-4);
+  }
+
+  // Area fill
+  ctx.beginPath();
+  ctx.moveTo(padL,padT+chartH);
+  history.forEach((p,i)=>{
+    const x=padL+(i/(history.length-1))*chartW;
+    const y=padT+chartH*(1-p.count/maxCount);
+    if(i===0) ctx.lineTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.lineTo(padL+chartW,padT+chartH);
+  ctx.closePath();
+  const grad=ctx.createLinearGradient(0,padT,0,padT+chartH);
+  grad.addColorStop(0,'rgba(108,92,231,.35)');
+  grad.addColorStop(1,'rgba(108,92,231,.02)');
+  ctx.fillStyle=grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  history.forEach((p,i)=>{
+    const x=padL+(i/(history.length-1))*chartW;
+    const y=padT+chartH*(1-p.count/maxCount);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle='#6c5ce7';
+  ctx.lineWidth=2;
+  ctx.stroke();
+}
+
+// ── 3D View Tab ──
+function renderSS3D(room){
+  const data=ssSensingData[room.roomId]||{people:[]};
+  const scale=60; // pixels per meter
+  const floorW=room.width*scale;
+  const floorD=room.depth*scale;
+
+  let html=`<div class="ss-3d-container">
+    <div class="ss-3d-room">
+      <div class="ss-3d-floor" style="width:${floorW}px;height:${floorD}px">`;
+
+  // Furniture
+  room.furniture.forEach(f=>{
+    html+=`<div class="ss-3d-furniture" style="left:${f.x*scale}px;top:${f.z*scale}px;width:${f.w*scale}px;height:${f.d*scale}px">${f.label}</div>`;
+  });
+
+  // People
+  data.people.forEach(p=>{
+    const t=ssGetTier(p.intensity);
+    const left=Math.min(floorW-14,Math.max(0,p.x*scale-7));
+    const top=Math.min(floorD-14,Math.max(0,p.z*scale-7));
+    html+=`<div class="ss-3d-person" style="left:${left}px;top:${top}px;background:${t.hex};color:${t.hex}" title="${p.id}: 강도 ${p.intensity}"></div>`;
+  });
+
+  html+=`<div class="ss-3d-label">${room.name} (${room.width}m x ${room.depth}m)</div>`;
+  html+=`</div></div></div>`;
+
+  // Legend
+  html+=`<div class="ss-3d-info">
+    <div class="ss-legend">
+      ${SS_TIERS.map(t=>`<div class="ss-legend-item"><div class="ss-legend-dot" style="background:${t.hex};border-radius:50%"></div>${t.label}</div>`).join('')}
+    </div>
+  </div>`;
+
+  return html;
+}
+
+// ── Movement Tab ──
+function renderSSMovement(room){
+  const timeRanges=[{key:'10min',label:'최근 10분'},{key:'1hour',label:'1시간'},{key:'today',label:'오늘'}];
+  let html=`<div class="ss-movement-controls">
+    <div class="ss-time-range">
+      ${timeRanges.map(tr=>`<button class="${ssMovementTimeRange===tr.key?'active':''}" onclick="ssMovementTimeRange='${tr.key}';renderSmartSensing()">${tr.label}</button>`).join('')}
+    </div>
+    <button class="btn" onclick="ssHeatmapMode=!ssHeatmapMode;renderSmartSensing()" style="margin-left:auto">
+      <i class="ri-fire-line"></i> ${ssHeatmapMode?'동선 모드':'히트맵 모드'}
+    </button>
+  </div>`;
+
+  html+=`<div class="ss-movement-canvas-wrap">
+    <canvas id="ssMovementCanvas" width="800" height="350" style="background:var(--bg-tertiary);border-radius:var(--radius-sm)"></canvas>
+  </div>`;
+
+  html+=`<div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">`;
+  if(ssHeatmapMode){
+    html+=`<div class="ss-heatmap-legend"><span>낮음</span><div class="ss-heatmap-gradient"></div><span>높음</span></div>`;
+  } else {
+    html+=`<div class="ss-legend">
+      ${SS_TIERS.slice(1).map(t=>`<div class="ss-legend-item"><div class="ss-legend-dot" style="background:${t.hex}"></div>${t.label}</div>`).join('')}
+    </div>`;
+  }
+  html+=`</div>`;
+
+  return html;
+}
+
+function drawSSMovementCanvas(room){
+  const canvas=document.getElementById('ssMovementCanvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const w=canvas.width, h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+
+  const pad=30;
+  const scaleX=(w-pad*2)/room.width;
+  const scaleY=(h-pad*2)/room.depth;
+
+  // Room outline
+  ctx.strokeStyle='#3a3d50';
+  ctx.lineWidth=2;
+  ctx.strokeRect(pad,pad,room.width*scaleX,room.depth*scaleY);
+
+  // Furniture
+  ctx.fillStyle='rgba(42,45,62,.8)';
+  ctx.strokeStyle='#3a3d50';
+  ctx.lineWidth=1;
+  room.furniture.forEach(f=>{
+    const fx=pad+f.x*scaleX, fy=pad+f.z*scaleY;
+    ctx.fillRect(fx,fy,f.w*scaleX,f.d*scaleY);
+    ctx.strokeRect(fx,fy,f.w*scaleX,f.d*scaleY);
+    ctx.fillStyle='#6b7185';ctx.font='9px Pretendard';ctx.textAlign='center';
+    ctx.fillText(f.label,fx+f.w*scaleX/2,fy+f.d*scaleY/2+3);
+    ctx.fillStyle='rgba(42,45,62,.8)';
+  });
+
+  const trail=ssTrailData[room.roomId]||[];
+
+  // Time filter
+  const now=Date.now();
+  let cutoff=now-10*60*1000; // 10 min
+  if(ssMovementTimeRange==='1hour') cutoff=now-60*60*1000;
+  if(ssMovementTimeRange==='today') cutoff=now-24*60*60*1000;
+  const filteredTrail=trail.filter(p=>p.t>=cutoff);
+
+  if(ssHeatmapMode){
+    // Heatmap: grid-based
+    const gridSize=10;
+    const cols=Math.ceil(room.width*scaleX/gridSize);
+    const rows=Math.ceil(room.depth*scaleY/gridSize);
+    const grid=Array.from({length:rows},()=>Array(cols).fill(0));
+    let maxVal=1;
+    filteredTrail.forEach(p=>{
+      const col=Math.min(cols-1,Math.max(0,Math.floor((p.x/room.width)*cols)));
+      const row=Math.min(rows-1,Math.max(0,Math.floor((p.z/room.depth)*rows)));
+      grid[row][col]++;
+      if(grid[row][col]>maxVal) maxVal=grid[row][col];
+    });
+
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        if(grid[r][c]===0) continue;
+        const intensity=grid[r][c]/maxVal;
+        let color;
+        if(intensity<0.25) color=`rgba(116,185,255,${intensity*1.5})`;
+        else if(intensity<0.5) color=`rgba(0,206,201,${intensity*1.2})`;
+        else if(intensity<0.75) color=`rgba(253,203,110,${intensity})`;
+        else color=`rgba(255,107,107,${intensity})`;
+        ctx.fillStyle=color;
+        ctx.fillRect(pad+c*gridSize,pad+r*gridSize,gridSize,gridSize);
+      }
+    }
+  } else {
+    // Trail mode: draw fading polylines
+    if(filteredTrail.length>1){
+      for(let i=1;i<filteredTrail.length;i++){
+        const p0=filteredTrail[i-1], p1=filteredTrail[i];
+        const age=(now-p1.t)/(now-cutoff);
+        const alpha=Math.max(0.05,1-age);
+        const t=ssGetTier(p1.intensity);
+        ctx.beginPath();
+        ctx.moveTo(pad+p0.x*scaleX,pad+p0.z*scaleY);
+        ctx.lineTo(pad+p1.x*scaleX,pad+p1.z*scaleY);
+        ctx.strokeStyle=t.hex;
+        ctx.globalAlpha=alpha;
+        ctx.lineWidth=2;
+        ctx.stroke();
+      }
+      ctx.globalAlpha=1;
+    }
+
+    // Draw current positions
+    const data=ssSensingData[room.roomId]||{people:[]};
+    data.people.forEach(p=>{
+      const t=ssGetTier(p.intensity);
+      const px=pad+p.x*scaleX, py=pad+p.z*scaleY;
+      ctx.beginPath();
+      ctx.arc(px,py,6,0,Math.PI*2);
+      ctx.fillStyle=t.hex;
+      ctx.fill();
+      ctx.fillStyle='#fff';ctx.font='bold 8px Pretendard';ctx.textAlign='center';
+      ctx.fillText(p.id,px,py+3);
+    });
+  }
+
+  // Room label
+  ctx.fillStyle='#6b7185';ctx.font='11px Pretendard';ctx.textAlign='left';
+  ctx.fillText(`${room.name} (${room.width}m x ${room.depth}m)`,pad,pad-10);
+}
+
+// ── Occupancy Tab ──
+function renderSSOccupancy(room){
+  const data=ssSensingData[room.roomId]||{zoneOccupancy:{}};
+  const scale=60;
+  const planW=room.width*scale;
+  const planH=room.depth*scale;
+
+  let html=`<div class="ss-occupancy-top">`;
+
+  // Left: 2D plan with zones
+  html+=`<div class="ss-occ-plan-wrap">
+    <div class="ss-hourly-title" style="margin-bottom:10px">구역별 점유율</div>
+    <div class="ss-occ-plan" style="width:${planW}px;height:${planH}px;background:var(--bg-tertiary)">`;
+
+  room.zones.forEach(zone=>{
+    const occ=data.zoneOccupancy[zone.id]||{count:0,pct:0};
+    const opacity=Math.max(0.2,occ.pct/100*0.7+0.15);
+    html+=`<div class="ss-occ-zone" style="left:${zone.x*scale}px;top:${zone.z*scale}px;width:${zone.w*scale}px;height:${zone.d*scale}px;background:${zone.color};opacity:${opacity}">
+      <span>${zone.name}</span>
+      <span class="pct">${occ.pct}%</span>
+    </div>`;
+  });
+
+  html+=`</div></div>`;
+
+  // Right: Bar chart
+  html+=`<div class="ss-occ-bars-wrap">
+    <div class="ss-hourly-title" style="margin-bottom:16px">구역별 점유율 비교</div>`;
+  room.zones.forEach(zone=>{
+    const occ=data.zoneOccupancy[zone.id]||{count:0,pct:0};
+    html+=`<div class="ss-occ-bar-row">
+      <div class="ss-occ-bar-label">${zone.name}</div>
+      <div class="ss-occ-bar-track">
+        <div class="ss-occ-bar-fill" style="width:${Math.max(8,occ.pct)}%;background:${zone.color}">${occ.pct}%</div>
+      </div>
+    </div>`;
+  });
+  html+=`</div></div>`;
+
+  return html;
 }
 
 // ═══════════════════════════════════════════════════════════
