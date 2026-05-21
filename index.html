@@ -537,6 +537,82 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
   .agent-step::after{display:none}
 }
 
+/* ═══════════════════════════════════════════════════════════
+   UTILIZATION ANALYSIS VIEWS
+   ═══════════════════════════════════════════════════════════ */
+.util-summary-cards{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.util-summary-card{flex:1;min-width:180px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px 24px;display:flex;align-items:center;gap:16px}
+.util-summary-card .usc-icon{width:48px;height:48px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.util-summary-card .usc-body{display:flex;flex-direction:column}
+.util-summary-card .usc-value{font-size:28px;font-weight:800;line-height:1.1}
+.util-summary-card .usc-label{font-size:11px;color:var(--text-muted);margin-top:2px;font-weight:500}
+
+.util-tab-filter{display:flex;gap:2px;background:var(--bg-tertiary);border-radius:var(--radius-md);padding:3px;width:fit-content;margin-bottom:20px}
+.util-tab-btn{padding:7px 20px;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;color:var(--text-muted);transition:var(--transition);border:none;background:none;font-family:inherit}
+.util-tab-btn.active{background:var(--accent);color:#fff}
+.util-tab-btn:hover:not(.active){color:var(--text-primary);background:var(--bg-hover)}
+
+.util-store-list{display:flex;flex-direction:column;gap:8px}
+.util-store-card{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-md);cursor:pointer;transition:var(--transition)}
+.util-store-card:hover{background:var(--bg-hover);border-color:var(--border-light)}
+.util-rank-badge{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+.util-rank-badge.gold{background:linear-gradient(135deg,#f9ca24,#f0932b);color:#000}
+.util-rank-badge.silver{background:linear-gradient(135deg,#dfe6e9,#b2bec3);color:#000}
+.util-rank-badge.bronze{background:linear-gradient(135deg,#e17055,#d63031);color:#fff}
+.util-rank-badge.normal{background:var(--bg-tertiary);color:var(--text-muted)}
+.util-store-info{flex:1;min-width:0}
+.util-store-name{font-size:14px;font-weight:700;margin-bottom:2px;display:flex;align-items:center;gap:6px}
+.util-store-name .type-badge{font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px}
+.util-store-name .type-badge.franchise{background:var(--accent-bg);color:var(--accent-light)}
+.util-store-name .type-badge.competitor{background:var(--danger-bg);color:var(--danger)}
+.util-store-meta{font-size:11px;color:var(--text-muted);display:flex;gap:12px;flex-wrap:wrap}
+.util-bar-wrap{width:180px;flex-shrink:0}
+.util-bar-label{font-size:11px;font-weight:600;margin-bottom:3px;text-align:right}
+.util-bar-track{height:8px;background:var(--bg-primary);border-radius:4px;overflow:hidden}
+.util-bar-fill{height:100%;border-radius:4px;transition:width .5s ease}
+.util-fav-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;font-size:20px;transition:var(--transition);flex-shrink:0;border-radius:50%}
+.util-fav-btn:hover{background:var(--bg-hover)}
+.util-fav-btn.active{color:#fdcb6e}
+.util-fav-btn.inactive{color:var(--text-muted)}
+
+/* Hourly chart modal */
+.hourly-chart{display:flex;align-items:flex-end;gap:3px;height:120px;padding:10px 0}
+.hourly-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.hourly-bar{width:100%;border-radius:2px 2px 0 0;transition:height .3s;min-height:2px}
+.hourly-label{font-size:9px;color:var(--text-muted)}
+.hourly-val{font-size:9px;font-weight:600}
+
+/* Distance filter buttons */
+.dist-filter{display:flex;gap:4px;margin-bottom:16px}
+.dist-btn{padding:5px 14px;border-radius:var(--radius-sm);font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg-tertiary);color:var(--text-secondary);transition:var(--transition);font-family:inherit}
+.dist-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.dist-btn:hover:not(.active){background:var(--bg-hover)}
+
+/* Trace view */
+.trace-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px;padding:16px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius-md)}
+.trace-date-group{display:flex;align-items:center;gap:6px}
+.trace-date-group input[type="date"]{padding:7px 12px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:inherit}
+.trace-date-group input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(0.7)}
+.trace-mode-group{display:flex;align-items:center;gap:8px}
+.trace-mode-group select,.trace-mode-group input[type="number"]{padding:7px 12px;background:var(--bg-tertiary);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:12px;font-family:inherit}
+.trace-mode-group select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%239aa0b0' viewBox='0 0 24 24'%3E%3Cpath d='M12 15l-5-5h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;min-width:140px}
+.trace-mode-group input[type="number"]{width:80px}
+.change-up{color:var(--success);font-weight:700}
+.change-down{color:var(--danger);font-weight:700}
+.change-neutral{color:var(--text-muted);font-weight:600}
+
+/* Favorites empty state */
+.fav-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:12px}
+.fav-empty i{font-size:48px;color:var(--text-muted);opacity:.3}
+.fav-empty p{font-size:14px;color:var(--text-muted)}
+
+/* Settings - equipment specs table */
+.spec-table{width:100%;border-collapse:separate;border-spacing:0;font-size:12px;border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden}
+.spec-table th{padding:8px 12px;background:var(--bg-tertiary);color:var(--text-muted);font-size:11px;font-weight:600;text-align:left;border-bottom:1px solid var(--border)}
+.spec-table td{padding:8px 12px;border-bottom:1px solid var(--border)}
+.spec-table tr:last-child td{border-bottom:none}
+.spec-table tr:hover td{background:var(--bg-hover)}
+
 /* Mobile hamburger button */
 .mobile-menu-btn{display:none;background:none;border:none;color:var(--text-primary);font-size:22px;cursor:pointer;padding:4px 8px;border-radius:var(--radius-sm);transition:var(--transition)}
 .mobile-menu-btn:hover{background:var(--bg-hover)}
@@ -606,6 +682,13 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
   /* Detail panel */
   .detail-panel{width:100%!important;max-width:none}
 }
+
+@media(max-width:900px){
+  .util-summary-cards{flex-direction:column}
+  .util-store-card{flex-wrap:wrap}
+  .util-bar-wrap{width:100%}
+  .trace-controls{flex-direction:column;align-items:flex-start}
+}
 </style>
 </head>
 <body>
@@ -626,6 +709,14 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
         <div class="nav-section-title">운영</div>
         <div class="nav-item" onclick="switchToPage('store-mgmt')"><i class="ri-store-2-line"></i>매장 관리</div>
         <div class="nav-item admin-only" onclick="switchToPage('member-approval')" style="display:none"><i class="ri-user-settings-line"></i>가입 승인</div>
+      </div>
+      <div style="height:1px;background:var(--border);margin:6px 12px"></div>
+      <div class="nav-section">
+        <div class="nav-section-title">가동률 분석</div>
+        <div class="nav-item" onclick="switchToPage('utilization')"><i class="ri-bar-chart-grouped-line"></i>가동률 현황</div>
+        <div class="nav-item" onclick="switchToPage('ranking')"><i class="ri-trophy-line"></i>랭킹 & 분석</div>
+        <div class="nav-item" onclick="switchToPage('favorites')"><i class="ri-star-line"></i>즐겨찾기</div>
+        <div class="nav-item" onclick="switchToPage('trace')"><i class="ri-line-chart-line"></i>변화추적</div>
       </div>
     </nav>
     <div class="sidebar-profile" id="sidebarProfile">
@@ -741,6 +832,11 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
     <div class="mgmt-view" id="ceremonyView"></div>
     <!-- Member Approval View (admin only) -->
     <div class="mgmt-view" id="memberApprovalView"></div>
+    <!-- Utilization Analysis Views -->
+    <div class="mgmt-view" id="utilizationView"></div>
+    <div class="mgmt-view" id="rankingView"></div>
+    <div class="mgmt-view" id="favoritesView"></div>
+    <div class="mgmt-view" id="traceView"></div>
   </div>
 </div>
 
@@ -812,6 +908,61 @@ select.form-input{appearance:none;background-image:url("data:image/svg+xml,%3Csv
             <div class="settings-field-value readonly">2026-04-10</div>
           </div>
         </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">핑 설정</div>
+        <div class="settings-row">
+          <div class="settings-field">
+            <div class="settings-field-label">핑 간격</div>
+            <div class="settings-field-value">
+              <select id="setPingInterval" style="flex:1;background:none;border:none;color:var(--text-primary);font-size:13px;font-family:inherit;outline:none;appearance:none">
+                <option value="1">1분</option><option value="5" selected>5분</option><option value="10">10분</option><option value="20">20분</option><option value="30">30분</option><option value="60">60분</option>
+              </select>
+            </div>
+          </div>
+          <div class="settings-field">
+            <div class="settings-field-label">타임아웃 (초)</div>
+            <div class="settings-field-value">
+              <input type="number" id="setPingTimeout" value="10" min="1" max="120" style="flex:1;background:none;border:none;color:var(--text-primary);font-size:13px;font-family:inherit;outline:none">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">표시 범위</div>
+        <div class="settings-row">
+          <div class="settings-field">
+            <div class="settings-field-label">가맹점 최소 가동률 (%)</div>
+            <div class="settings-field-value">
+              <input type="number" id="setFranchiseMin" value="0" min="0" max="100" style="flex:1;background:none;border:none;color:var(--text-primary);font-size:13px;font-family:inherit;outline:none">
+            </div>
+          </div>
+          <div class="settings-field">
+            <div class="settings-field-label">가맹점 최대 가동률 (%)</div>
+            <div class="settings-field-value">
+              <input type="number" id="setFranchiseMax" value="100" min="0" max="100" style="flex:1;background:none;border:none;color:var(--text-primary);font-size:13px;font-family:inherit;outline:none">
+            </div>
+          </div>
+        </div>
+        <div class="settings-row">
+          <div class="settings-field">
+            <div class="settings-field-label">경쟁점 최소 가동률 (%)</div>
+            <div class="settings-field-value">
+              <input type="number" id="setCompetitorMin" value="0" min="0" max="100" style="flex:1;background:none;border:none;color:var(--text-primary);font-size:13px;font-family:inherit;outline:none">
+            </div>
+          </div>
+          <div class="settings-field">
+            <div class="settings-field-label">경쟁점 최대 가동률 (%)</div>
+            <div class="settings-field-value">
+              <input type="number" id="setCompetitorMax" value="100" min="0" max="100" style="flex:1;background:none;border:none;color:var(--text-primary);font-size:13px;font-family:inherit;outline:none">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">시설사양 관리</div>
+        <div id="specTableWrap"></div>
+        <button class="btn btn-primary" style="margin-top:10px" onclick="addEquipmentSpec()"><i class="ri-add-line"></i> 사양 추가</button>
       </div>
     </div>
     <div class="settings-footer">
@@ -1948,6 +2099,7 @@ document.addEventListener('click',e=>{
 function openSettings(){
   document.getElementById('profileMenu').classList.remove('open');
   document.getElementById('settingsOv').classList.add('visible');
+  renderSpecTable();
 }
 function closeSettings(){
   document.getElementById('settingsOv').classList.remove('visible');
@@ -2040,63 +2192,65 @@ function switchToPage(page){
   // Update sidebar active states
   document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
 
-  if(page==='store-mgmt'){
+  // Hide all mgmt views first
+  const allMgmtViews=['storeMgmtView','pcMgmtView','ceremonyView','memberApprovalView','utilizationView','rankingView','favoritesView','traceView'];
+  allMgmtViews.forEach(id=>document.getElementById(id).classList.remove('active'));
+
+  // Common setup for non-monitor pages
+  function setupMgmtPage(){
     topStats.style.display='none';
     topRight.style.display='none';
     topTabs.style.display='none';
     editToolbar.classList.remove('visible');editMode=false;
     workspace.style.display='none';
+  }
+
+  if(page==='store-mgmt'){
+    setupMgmtPage();
     storeMgmt.classList.add('active');
-    pcMgmt.classList.remove('active');
-    document.getElementById('ceremonyView').classList.remove('active');
-    document.getElementById('memberApprovalView').classList.remove('active');
     document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('매장 관리'))i.classList.add('active');});
     renderStoreMgmt();
   } else if(page==='pc-mgmt'){
-    topStats.style.display='none';
-    topRight.style.display='none';
-    topTabs.style.display='none';
-    editToolbar.classList.remove('visible');editMode=false;
-    workspace.style.display='none';
-    storeMgmt.classList.remove('active');
+    setupMgmtPage();
     pcMgmt.classList.add('active');
-    document.getElementById('ceremonyView').classList.remove('active');
-    document.getElementById('memberApprovalView').classList.remove('active');
     document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('PC 등록/수정'))i.classList.add('active');});
     renderPcMgmt();
   } else if(page==='ceremony'){
-    topStats.style.display='none';
-    topRight.style.display='none';
-    topTabs.style.display='none';
-    editToolbar.classList.remove('visible');editMode=false;
-    workspace.style.display='none';
-    storeMgmt.classList.remove('active');
-    pcMgmt.classList.remove('active');
+    setupMgmtPage();
     document.getElementById('ceremonyView').classList.add('active');
     document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('세리머니 관리'))i.classList.add('active');});
     renderCeremony();
   } else if(page==='member-approval'){
-    topStats.style.display='none';
-    topRight.style.display='none';
-    topTabs.style.display='none';
-    editToolbar.classList.remove('visible');editMode=false;
-    workspace.style.display='none';
-    storeMgmt.classList.remove('active');
-    pcMgmt.classList.remove('active');
-    document.getElementById('ceremonyView').classList.remove('active');
+    setupMgmtPage();
     document.getElementById('memberApprovalView').classList.add('active');
     document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('가입 승인'))i.classList.add('active');});
     renderMemberApproval();
+  } else if(page==='utilization'){
+    setupMgmtPage();
+    document.getElementById('utilizationView').classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('가동률 현황'))i.classList.add('active');});
+    renderUtilization();
+  } else if(page==='ranking'){
+    setupMgmtPage();
+    document.getElementById('rankingView').classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('랭킹 & 분석'))i.classList.add('active');});
+    renderRanking();
+  } else if(page==='favorites'){
+    setupMgmtPage();
+    document.getElementById('favoritesView').classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('즐겨찾기'))i.classList.add('active');});
+    renderFavorites();
+  } else if(page==='trace'){
+    setupMgmtPage();
+    document.getElementById('traceView').classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.includes('변화추적'))i.classList.add('active');});
+    renderTrace();
   } else {
     // monitor
     topStats.style.display='';
     topRight.style.display='';
     topTabs.style.display='';
     workspace.style.display='';
-    storeMgmt.classList.remove('active');
-    pcMgmt.classList.remove('active');
-    document.getElementById('ceremonyView').classList.remove('active');
-    document.getElementById('memberApprovalView').classList.remove('active');
     document.querySelectorAll('.nav-item[data-view]').forEach(i=>i.classList.toggle('active',i.dataset.view===curView));
     switchView(curView);
   }
@@ -3369,6 +3523,436 @@ function drawCeremonyChart(){
     const y=pad.top+ch-ch*(v/maxVal);
     ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle='#ff6b6b';ctx.fill();
   });
+}
+
+// ═══════════════════════════════════════════════════════════
+// UTILIZATION ANALYSIS - MOCK DATA
+// ═══════════════════════════════════════════════════════════
+const UTIL_GPU_SPECS=['RTX 4090','RTX 4080','RTX 4070 Ti','RTX 4060 Ti','RTX 3080','RTX 3070','RTX 3060','RTX 2080','RX 7900 XTX','RX 7800 XT'];
+const UTIL_ADDR_PREFIX=['서울 강남구','서울 마포구','서울 송파구','서울 서초구','서울 종로구','경기 수원시','경기 성남시','부산 해운대구','부산 서면','대전 유성구','인천 부평구','대구 동성로','광주 충장로','울산 삼산동','제주 시청로'];
+const UTIL_STORE_BASE=['넷타임','피카','게임팩토리','플레이존','게임챔프','아이게임','PC타임','디지털존','사이버랜드','라운지PC','포인트PC','올킬PC','블루스크린','그린PC','매직PC','파워넷','비트존','코어PC','스카이넷','드래곤PC','엘리트PC','프라임PC','마스터PC','클라우드PC','스타PC','킹PC','탑PC','메가PC','원더PC','플래시PC','크로스PC','센트럴PC','퍼펙트PC','골든PC','실버PC','레드PC','블루PC','그린라운지','화이트존','블랙PC','다이아몬드PC','크리스탈PC','선샤인PC','문라이트PC','갤럭시PC','코스모스PC','네뷸라PC','인피니티PC','제로PC','알파PC'];
+
+const UTIL_STORES=[];
+(function generateUtilStores(){
+  for(let i=0;i<50;i++){
+    const isFranchise=i<25;
+    const name=UTIL_STORE_BASE[i%UTIL_STORE_BASE.length]+(i>=UTIL_STORE_BASE.length?' '+(Math.floor(i/UTIL_STORE_BASE.length)+1)+'호점':'');
+    const pcCount=Math.floor(40+Math.random()*120);
+    const gpuSpec=UTIL_GPU_SPECS[Math.floor(Math.random()*UTIL_GPU_SPECS.length)];
+    const addr=UTIL_ADDR_PREFIX[i%UTIL_ADDR_PREFIX.length]+' '+(100+Math.floor(Math.random()*900))+'번길 '+Math.floor(1+Math.random()*50);
+    const baseUtil=20+Math.random()*60;
+    const hourlyUtil=Array.from({length:24},(_, h)=>{
+      let base=baseUtil;
+      if(h>=10&&h<=14)base+=15+Math.random()*10;
+      if(h>=18&&h<=23)base+=20+Math.random()*15;
+      if(h>=0&&h<=6)base-=15+Math.random()*10;
+      return Math.max(0,Math.min(100,base+Math.random()*10-5));
+    });
+    const avgUtil=Math.round(hourlyUtil.reduce((a,v)=>a+v,0)/24);
+    UTIL_STORES.push({
+      idx:i,name,type:isFranchise?'franchise':'competitor',
+      pcCount,gpuSpec,addr,avgUtil,hourlyUtil,
+      isFavorite:i<5,
+      lat:37.5+Math.random()*0.05,lng:127.0+Math.random()*0.05
+    });
+  }
+  UTIL_STORES.sort((a,b)=>b.avgUtil-a.avgUtil);
+})();
+
+const EQUIPMENT_SPECS=[
+  {idx:1,type:0,code:'I9-14900K',name:'Intel i9-14900K'},
+  {idx:2,type:0,code:'I7-14700K',name:'Intel i7-14700K'},
+  {idx:3,type:0,code:'I5-14600K',name:'Intel i5-14600K'},
+  {idx:4,type:1,code:'RTX4090',name:'NVIDIA RTX 4090'},
+  {idx:5,type:1,code:'RTX4080',name:'NVIDIA RTX 4080'},
+  {idx:6,type:1,code:'RTX4070Ti',name:'NVIDIA RTX 4070 Ti'},
+  {idx:7,type:2,code:'SMART-DESK-A',name:'스마트책상 A형'},
+  {idx:8,type:3,code:'MECH-KB-1',name:'기계식키보드 청축'},
+  {idx:9,type:4,code:'TWIN-MOUSE',name:'투마우스 세트'},
+  {idx:10,type:5,code:'MON-27QHD',name:'27인치 QHD 모니터'},
+  {idx:11,type:6,code:'SHOP-IN-SHOP',name:'샵인샵 키오스크'},
+];
+const SPEC_TYPE_NAMES=['CPU','GPU','스마트책상','기계식키보드','투마우스','모니터','샵인샵'];
+
+let utilTabFilter='all';
+let rankingDistFilter=1000;
+let traceMode='range';
+let traceRangeValue=50;
+let traceChangeValue=10;
+let favTabFilter='all';
+
+// ═══════════════════════════════════════════════════════════
+// UTILIZATION VIEW
+// ═══════════════════════════════════════════════════════════
+function renderUtilization(){
+  const el=document.getElementById('utilizationView');
+  const filtered=utilTabFilter==='all'?UTIL_STORES:UTIL_STORES.filter(s=>s.type===utilTabFilter);
+  const franchiseCount=UTIL_STORES.filter(s=>s.type==='franchise').length;
+  const competitorCount=UTIL_STORES.filter(s=>s.type==='competitor').length;
+  const avgAll=UTIL_STORES.length?Math.round(UTIL_STORES.reduce((a,s)=>a+s.avgUtil,0)/UTIL_STORES.length):0;
+
+  let html=`<div class="mgmt-header"><h2><i class="ri-bar-chart-grouped-line" style="color:var(--accent-light)"></i> 가동률 현황</h2></div>`;
+
+  html+=`<div class="util-summary-cards">
+    <div class="util-summary-card"><div class="usc-icon" style="background:var(--accent-bg);color:var(--accent-light)"><i class="ri-store-2-line"></i></div><div class="usc-body"><div class="usc-value" style="color:var(--text-primary)">${UTIL_STORES.length}</div><div class="usc-label">총 매장</div></div></div>
+    <div class="util-summary-card"><div class="usc-icon" style="background:var(--success-bg);color:var(--success)"><i class="ri-percent-line"></i></div><div class="usc-body"><div class="usc-value" style="color:var(--success)">${avgAll}%</div><div class="usc-label">평균 가동률</div></div></div>
+    <div class="util-summary-card"><div class="usc-icon" style="background:var(--accent-bg);color:var(--accent-light)"><i class="ri-building-line"></i></div><div class="usc-body"><div class="usc-value" style="color:var(--accent-light)">${franchiseCount}</div><div class="usc-label">가맹점 수</div></div></div>
+    <div class="util-summary-card"><div class="usc-icon" style="background:var(--danger-bg);color:var(--danger)"><i class="ri-sword-line"></i></div><div class="usc-body"><div class="usc-value" style="color:var(--danger)">${competitorCount}</div><div class="usc-label">경쟁점 수</div></div></div>
+  </div>`;
+
+  html+=`<div class="util-tab-filter">
+    <button class="util-tab-btn${utilTabFilter==='all'?' active':''}" onclick="utilTabFilter='all';renderUtilization()">전체</button>
+    <button class="util-tab-btn${utilTabFilter==='franchise'?' active':''}" onclick="utilTabFilter='franchise';renderUtilization()">가맹점</button>
+    <button class="util-tab-btn${utilTabFilter==='competitor'?' active':''}" onclick="utilTabFilter='competitor';renderUtilization()">경쟁점</button>
+  </div>`;
+
+  html+='<div class="util-store-list">';
+  filtered.forEach((s,i)=>{
+    const rankClass=i===0?'gold':i===1?'silver':i===2?'bronze':'normal';
+    const barColor=s.avgUtil>=70?'var(--success)':s.avgUtil>=40?'var(--warning)':'var(--danger)';
+    const typeBadge=s.type==='franchise'?'<span class="type-badge franchise">가맹</span>':'<span class="type-badge competitor">경쟁</span>';
+    html+=`<div class="util-store-card" onclick="showUtilDetailModal(${s.idx})">
+      <div class="util-rank-badge ${rankClass}">${i+1}</div>
+      <div class="util-store-info">
+        <div class="util-store-name">${s.name} ${typeBadge}</div>
+        <div class="util-store-meta"><span><i class="ri-computer-line"></i> ${s.pcCount}대</span><span><i class="ri-cpu-line"></i> ${s.gpuSpec}</span><span><i class="ri-map-pin-line"></i> ${s.addr}</span></div>
+      </div>
+      <div class="util-bar-wrap">
+        <div class="util-bar-label" style="color:${barColor}">${s.avgUtil}%</div>
+        <div class="util-bar-track"><div class="util-bar-fill" style="width:${s.avgUtil}%;background:${barColor}"></div></div>
+      </div>
+      <button class="util-fav-btn ${s.isFavorite?'active':'inactive'}" onclick="event.stopPropagation();toggleUtilFav(${s.idx})" title="${s.isFavorite?'즐겨찾기 해제':'즐겨찾기 추가'}">
+        <i class="${s.isFavorite?'ri-star-fill':'ri-star-line'}"></i>
+      </button>
+    </div>`;
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+function toggleUtilFav(idx){
+  const s=UTIL_STORES.find(x=>x.idx===idx);
+  if(s){s.isFavorite=!s.isFavorite;showToast(s.isFavorite?s.name+' 즐겨찾기 추가':s.name+' 즐겨찾기 해제');}
+  if(currentPage==='utilization')renderUtilization();
+  else if(currentPage==='ranking')renderRanking();
+  else if(currentPage==='favorites')renderFavorites();
+}
+
+function showUtilDetailModal(idx){
+  const s=UTIL_STORES.find(x=>x.idx===idx);
+  if(!s)return;
+  let barsHtml='';
+  s.hourlyUtil.forEach((v,h)=>{
+    const pct=Math.round(v);
+    const barH=Math.max(2,(pct/100)*100);
+    const c=pct>=70?'var(--success)':pct>=40?'var(--warning)':'var(--danger)';
+    barsHtml+=`<div class="hourly-bar-wrap"><div class="hourly-val" style="color:${c}">${pct}</div><div class="hourly-bar" style="height:${barH}px;background:${c}"></div><div class="hourly-label">${String(h).padStart(2,'0')}</div></div>`;
+  });
+  const typeBadge=s.type==='franchise'?'<span class="type-badge franchise" style="font-size:12px;padding:2px 10px">가맹점</span>':'<span class="type-badge competitor" style="font-size:12px;padding:2px 10px">경쟁점</span>';
+  showModal(`<div class="modal-hdr"><h3><i class="ri-store-2-line" style="color:var(--accent-light);margin-right:6px"></i>${s.name}</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        ${typeBadge}
+        <span style="font-size:12px;color:var(--text-muted)"><i class="ri-computer-line"></i> ${s.pcCount}대</span>
+        <span style="font-size:12px;color:var(--text-muted)"><i class="ri-cpu-line"></i> ${s.gpuSpec}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:6px"><i class="ri-map-pin-line"></i> ${s.addr}</div>
+      <div style="display:flex;align-items:center;gap:12px;margin:16px 0;padding:12px 16px;background:var(--bg-tertiary);border-radius:var(--radius-md)">
+        <span style="font-size:13px;font-weight:600">평균 가동률</span>
+        <span style="font-size:24px;font-weight:800;color:${s.avgUtil>=70?'var(--success)':s.avgUtil>=40?'var(--warning)':'var(--danger)'}; margin-left:auto">${s.avgUtil}%</span>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:8px">시간대별 가동률</div>
+      <div class="hourly-chart" style="background:var(--bg-tertiary);border-radius:var(--radius-md);padding:12px">${barsHtml}</div>
+    </div>`,true);
+}
+
+// ═══════════════════════════════════════════════════════════
+// RANKING VIEW
+// ═══════════════════════════════════════════════════════════
+function renderRanking(){
+  const el=document.getElementById('rankingView');
+  const sorted=[...UTIL_STORES].sort((a,b)=>b.avgUtil-a.avgUtil);
+  const top5=sorted.slice(0,5);
+  const bottom5=sorted.slice(-5).reverse();
+  const avgAll=UTIL_STORES.length?Math.round(UTIL_STORES.reduce((a,s)=>a+s.avgUtil,0)/UTIL_STORES.length):0;
+  const maxUtil=sorted[0]?sorted[0].avgUtil:0;
+  const minUtil=sorted[sorted.length-1]?sorted[sorted.length-1].avgUtil:0;
+
+  let html=`<div class="mgmt-header"><h2><i class="ri-trophy-line" style="color:var(--warning)"></i> 랭킹 & 분석</h2></div>`;
+
+  html+=`<div class="util-summary-cards">
+    <div class="util-summary-card"><div class="usc-icon" style="background:var(--success-bg);color:var(--success)"><i class="ri-percent-line"></i></div><div class="usc-body"><div class="usc-value" style="color:var(--success)">${avgAll}%</div><div class="usc-label">전체 평균</div></div></div>
+    <div class="util-summary-card"><div class="usc-icon" style="background:var(--accent-bg);color:var(--accent-light)"><i class="ri-arrow-up-line"></i></div><div class="usc-body"><div class="usc-value" style="color:var(--accent-light)">${maxUtil}%</div><div class="usc-label">최고 가동률</div></div></div>
+    <div class="util-summary-card"><div class="usc-icon" style="background:var(--danger-bg);color:var(--danger)"><i class="ri-arrow-down-line"></i></div><div class="usc-body"><div class="usc-value" style="color:var(--danger)">${minUtil}%</div><div class="usc-label">최저 가동률</div></div></div>
+    <div class="util-summary-card"><div class="usc-icon" style="background:var(--warning-bg);color:var(--warning)"><i class="ri-store-2-line"></i></div><div class="usc-body"><div class="usc-value" style="color:var(--warning)">${UTIL_STORES.length}</div><div class="usc-label">분석 매장</div></div></div>
+  </div>`;
+
+  html+='<div class="util-store-list">';
+  sorted.forEach((s,i)=>{
+    const rankClass=i===0?'gold':i===1?'silver':i===2?'bronze':'normal';
+    const barColor=s.avgUtil>=70?'var(--success)':s.avgUtil>=40?'var(--warning)':'var(--danger)';
+    const typeBadge=s.type==='franchise'?'<span class="type-badge franchise">가맹</span>':'<span class="type-badge competitor">경쟁</span>';
+    html+=`<div class="util-store-card">
+      <div class="util-rank-badge ${rankClass}">${i+1}</div>
+      <div class="util-store-info" onclick="showUtilDetailModal(${s.idx})" style="cursor:pointer">
+        <div class="util-store-name">${s.name} ${typeBadge}</div>
+        <div class="util-store-meta"><span><i class="ri-computer-line"></i> ${s.pcCount}대</span><span><i class="ri-cpu-line"></i> ${s.gpuSpec}</span><span><i class="ri-map-pin-line"></i> ${s.addr}</span></div>
+      </div>
+      <div class="util-bar-wrap">
+        <div class="util-bar-label" style="color:${barColor}">${s.avgUtil}%</div>
+        <div class="util-bar-track"><div class="util-bar-fill" style="width:${s.avgUtil}%;background:${barColor}"></div></div>
+      </div>
+      <button class="btn" style="flex-shrink:0;font-size:11px" onclick="showCompetitionModal(${s.idx})"><i class="ri-radar-line"></i> 경쟁분석</button>
+      <button class="util-fav-btn ${s.isFavorite?'active':'inactive'}" onclick="toggleUtilFav(${s.idx})" title="${s.isFavorite?'즐겨찾기 해제':'즐겨찾기 추가'}">
+        <i class="${s.isFavorite?'ri-star-fill':'ri-star-line'}"></i>
+      </button>
+    </div>`;
+  });
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+function showCompetitionModal(idx){
+  const s=UTIL_STORES.find(x=>x.idx===idx);
+  if(!s)return;
+  const distKm=rankingDistFilter/1000;
+  const nearby=UTIL_STORES.filter(x=>x.idx!==s.idx).map(x=>{
+    const dlat=x.lat-s.lat,dlng=x.lng-s.lng;
+    const dist=Math.sqrt(dlat*dlat+dlng*dlng)*111000;
+    return {...x,dist:Math.round(dist)};
+  }).filter(x=>x.dist<=rankingDistFilter).sort((a,b)=>a.dist-b.dist);
+
+  let nearbyHtml='';
+  if(nearby.length===0){
+    nearbyHtml='<div style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px">반경 내 매장이 없습니다</div>';
+  } else {
+    nearby.forEach(n=>{
+      const barColor=n.avgUtil>=70?'var(--success)':n.avgUtil>=40?'var(--warning)':'var(--danger)';
+      const typeBadge=n.type==='franchise'?'<span class="type-badge franchise">가맹</span>':'<span class="type-badge competitor">경쟁</span>';
+      let miniChart='';
+      n.hourlyUtil.forEach((v,h)=>{
+        if(h%2!==0)return;
+        const barH=Math.max(1,(Math.round(v)/100)*24);
+        const c=Math.round(v)>=70?'var(--success)':Math.round(v)>=40?'var(--warning)':'var(--danger)';
+        miniChart+=`<div style="width:4px;height:${barH}px;background:${c};border-radius:1px"></div>`;
+      });
+      nearbyHtml+=`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border)">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600;margin-bottom:2px">${n.name} ${typeBadge}</div>
+          <div style="font-size:10px;color:var(--text-muted)">${n.dist}m | ${n.pcCount}대 | ${n.gpuSpec}</div>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:1px;height:24px">${miniChart}</div>
+        <div style="font-size:14px;font-weight:700;color:${barColor};min-width:40px;text-align:right">${n.avgUtil}%</div>
+      </div>`;
+    });
+  }
+
+  showModal(`<div class="modal-hdr"><h3><i class="ri-radar-line" style="color:var(--accent-light);margin-right:6px"></i>경쟁분석 - ${s.name}</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:12px 16px;background:var(--bg-tertiary);border-radius:var(--radius-md)">
+        <span style="font-size:13px;font-weight:600">${s.name}</span>
+        <span style="margin-left:auto;font-size:20px;font-weight:800;color:${s.avgUtil>=70?'var(--success)':s.avgUtil>=40?'var(--warning)':'var(--danger)'}">${s.avgUtil}%</span>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:8px">반경 선택</div>
+      <div class="dist-filter" id="distFilterBtns">
+        <button class="dist-btn${rankingDistFilter===500?' active':''}" onclick="rankingDistFilter=500;showCompetitionModal(${s.idx})">500m</button>
+        <button class="dist-btn${rankingDistFilter===1000?' active':''}" onclick="rankingDistFilter=1000;showCompetitionModal(${s.idx})">1km</button>
+        <button class="dist-btn${rankingDistFilter===2000?' active':''}" onclick="rankingDistFilter=2000;showCompetitionModal(${s.idx})">2km</button>
+        <button class="dist-btn${rankingDistFilter===3000?' active':''}" onclick="rankingDistFilter=3000;showCompetitionModal(${s.idx})">3km</button>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:8px">반경 ${distKm}km 내 매장 (${nearby.length}개)</div>
+      <div style="border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;max-height:300px;overflow-y:auto">
+        ${nearbyHtml}
+      </div>
+    </div>`,true);
+}
+
+// ═══════════════════════════════════════════════════════════
+// FAVORITES VIEW
+// ═══════════════════════════════════════════════════════════
+function renderFavorites(){
+  const el=document.getElementById('favoritesView');
+  let favs=UTIL_STORES.filter(s=>s.isFavorite);
+  if(favTabFilter!=='all')favs=favs.filter(s=>s.type===favTabFilter);
+
+  let html=`<div class="mgmt-header"><h2><i class="ri-star-line" style="color:var(--warning)"></i> 즐겨찾기</h2></div>`;
+
+  html+=`<div class="util-tab-filter">
+    <button class="util-tab-btn${favTabFilter==='all'?' active':''}" onclick="favTabFilter='all';renderFavorites()">전체</button>
+    <button class="util-tab-btn${favTabFilter==='franchise'?' active':''}" onclick="favTabFilter='franchise';renderFavorites()">가맹점</button>
+    <button class="util-tab-btn${favTabFilter==='competitor'?' active':''}" onclick="favTabFilter='competitor';renderFavorites()">경쟁점</button>
+  </div>`;
+
+  if(favs.length===0){
+    html+=`<div class="fav-empty"><i class="ri-star-line"></i><p>즐겨찾기한 매장이 없습니다</p><p style="font-size:12px;color:var(--text-muted)">가동률 현황이나 랭킹에서 별표를 클릭하여 추가하세요</p></div>`;
+  } else {
+    html+='<div class="util-store-list">';
+    favs.forEach(s=>{
+      const barColor=s.avgUtil>=70?'var(--success)':s.avgUtil>=40?'var(--warning)':'var(--danger)';
+      const typeBadge=s.type==='franchise'?'<span class="type-badge franchise">가맹</span>':'<span class="type-badge competitor">경쟁</span>';
+      html+=`<div class="util-store-card" onclick="showUtilDetailModal(${s.idx})">
+        <div class="util-store-info">
+          <div class="util-store-name">${s.name} ${typeBadge}</div>
+          <div class="util-store-meta"><span><i class="ri-computer-line"></i> ${s.pcCount}대</span><span><i class="ri-cpu-line"></i> ${s.gpuSpec}</span><span><i class="ri-map-pin-line"></i> ${s.addr}</span></div>
+        </div>
+        <div class="util-bar-wrap">
+          <div class="util-bar-label" style="color:${barColor}">${s.avgUtil}%</div>
+          <div class="util-bar-track"><div class="util-bar-fill" style="width:${s.avgUtil}%;background:${barColor}"></div></div>
+        </div>
+        <button class="util-fav-btn active" onclick="event.stopPropagation();toggleUtilFav(${s.idx})" title="즐겨찾기 해제">
+          <i class="ri-star-fill"></i>
+        </button>
+      </div>`;
+    });
+    html+='</div>';
+  }
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// TRACE VIEW
+// ═══════════════════════════════════════════════════════════
+function renderTrace(){
+  const el=document.getElementById('traceView');
+
+  let html=`<div class="mgmt-header"><h2><i class="ri-line-chart-line" style="color:var(--info)"></i> 변화추적</h2></div>`;
+
+  html+=`<div class="trace-controls">
+    <div class="trace-date-group">
+      <span style="font-size:12px;font-weight:600;color:var(--text-secondary)">기간</span>
+      <input type="date" id="traceStart" value="2026-05-12">
+      <span style="color:var(--text-muted)">~</span>
+      <input type="date" id="traceEnd" value="2026-05-19">
+    </div>
+    <div style="width:1px;height:24px;background:var(--border)"></div>
+    <div class="trace-mode-group">
+      <select id="traceModeSel" onchange="traceMode=this.value;renderTrace()">
+        <option value="range"${traceMode==='range'?' selected':''}>가동률 범위</option>
+        <option value="change"${traceMode==='change'?' selected':''}>가동률 변동</option>
+      </select>
+      <input type="number" id="traceThreshold" value="${traceMode==='range'?traceRangeValue:traceChangeValue}" min="0" max="100" onchange="${traceMode==='range'?'traceRangeValue':'traceChangeValue'}=parseInt(this.value)">
+      <span style="font-size:12px;color:var(--text-muted)">%</span>
+    </div>
+    <button class="btn btn-primary" onclick="renderTrace()"><i class="ri-search-line"></i> 검색</button>
+  </div>`;
+
+  // Generate trace results
+  let results=[];
+  if(traceMode==='range'){
+    results=UTIL_STORES.filter(s=>s.avgUtil>=traceRangeValue).map(s=>{
+      const prevUtil=Math.max(0,Math.min(100,s.avgUtil+Math.floor(Math.random()*20)-10));
+      const change=s.avgUtil-prevUtil;
+      return{...s,prevUtil,curUtil:s.avgUtil,change};
+    });
+  } else {
+    results=UTIL_STORES.map(s=>{
+      const prevUtil=Math.max(0,Math.min(100,s.avgUtil+Math.floor(Math.random()*30)-15));
+      const change=s.avgUtil-prevUtil;
+      return{...s,prevUtil,curUtil:s.avgUtil,change};
+    }).filter(r=>Math.abs(r.change)>=traceChangeValue);
+  }
+  results.sort((a,b)=>Math.abs(b.change)-Math.abs(a.change));
+
+  html+=`<div style="margin-bottom:12px;font-size:12px;color:var(--text-muted)">검색 결과: <strong style="color:var(--text-primary)">${results.length}</strong>개 매장</div>`;
+
+  html+=`<div style="overflow-x:auto"><table class="mgmt-table">
+    <thead><tr><th>순위</th><th>매장명</th><th>유형</th><th>PC수</th><th>이전 가동률</th><th>현재 가동률</th><th>변동폭</th><th>변동방향</th></tr></thead>
+    <tbody>`;
+  results.forEach((r,i)=>{
+    const arrow=r.change>0?'<i class="ri-arrow-up-line"></i>':r.change<0?'<i class="ri-arrow-down-line"></i>':'<i class="ri-subtract-line"></i>';
+    const changeClass=r.change>0?'change-up':r.change<0?'change-down':'change-neutral';
+    const typeLbl=r.type==='franchise'?'가맹점':'경쟁점';
+    const prevColor=r.prevUtil>=70?'var(--success)':r.prevUtil>=40?'var(--warning)':'var(--danger)';
+    const curColor=r.curUtil>=70?'var(--success)':r.curUtil>=40?'var(--warning)':'var(--danger)';
+    html+=`<tr style="cursor:pointer" onclick="showUtilDetailModal(${r.idx})">
+      <td style="text-align:center;font-weight:600">${i+1}</td>
+      <td><strong>${r.name}</strong></td>
+      <td><span class="type-badge ${r.type}" style="font-size:10px;padding:1px 6px;border-radius:3px;${r.type==='franchise'?'background:var(--accent-bg);color:var(--accent-light)':'background:var(--danger-bg);color:var(--danger)'}">${typeLbl}</span></td>
+      <td style="text-align:center">${r.pcCount}</td>
+      <td style="text-align:center;color:${prevColor};font-weight:600">${r.prevUtil}%</td>
+      <td style="text-align:center;color:${curColor};font-weight:600">${r.curUtil}%</td>
+      <td style="text-align:center" class="${changeClass}">${r.change>0?'+':''}${r.change}%</td>
+      <td style="text-align:center" class="${changeClass}">${arrow}</td>
+    </tr>`;
+  });
+  if(results.length===0){
+    html+=`<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted)">조건에 맞는 매장이 없습니다</td></tr>`;
+  }
+  html+='</tbody></table></div>';
+  el.innerHTML=html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// EQUIPMENT SPECS TABLE (Settings)
+// ═══════════════════════════════════════════════════════════
+function renderSpecTable(){
+  const wrap=document.getElementById('specTableWrap');
+  if(!wrap)return;
+  let html=`<table class="spec-table">
+    <thead><tr><th>No.</th><th>유형</th><th>코드</th><th>사양명</th><th style="width:80px">관리</th></tr></thead>
+    <tbody>`;
+  EQUIPMENT_SPECS.forEach(s=>{
+    html+=`<tr>
+      <td>${s.idx}</td>
+      <td>${SPEC_TYPE_NAMES[s.type]||'기타'}</td>
+      <td style="font-weight:600;color:var(--accent-light)">${s.code}</td>
+      <td>${s.name}</td>
+      <td>
+        <button class="btn" style="padding:2px 6px;font-size:10px" onclick="editEquipmentSpec(${s.idx})"><i class="ri-edit-line"></i></button>
+        <button class="btn btn-danger" style="padding:2px 6px;font-size:10px" onclick="deleteEquipmentSpec(${s.idx})"><i class="ri-delete-bin-line"></i></button>
+      </td>
+    </tr>`;
+  });
+  html+='</tbody></table>';
+  wrap.innerHTML=html;
+}
+
+function addEquipmentSpec(){
+  const typeOpts=SPEC_TYPE_NAMES.map((t,i)=>`<option value="${i}">${t}</option>`).join('');
+  showModal(`<div class="modal-hdr"><h3>사양 추가</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">유형</label><select class="form-input" id="specType">${typeOpts}</select></div>
+      <div class="form-group"><label class="form-label">코드</label><input class="form-input" id="specCode" placeholder="예: RTX5090"></div>
+      <div class="form-group"><label class="form-label">사양명</label><input class="form-input" id="specName" placeholder="예: NVIDIA RTX 5090"></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-primary" onclick="confirmAddSpec()">추가</button></div>`);
+}
+
+function confirmAddSpec(){
+  const type=parseInt(document.getElementById('specType').value);
+  const code=document.getElementById('specCode').value.trim();
+  const name=document.getElementById('specName').value.trim();
+  if(!code||!name){showToast('코드와 사양명을 입력하세요');return;}
+  const maxIdx=EQUIPMENT_SPECS.length?Math.max(...EQUIPMENT_SPECS.map(s=>s.idx)):0;
+  EQUIPMENT_SPECS.push({idx:maxIdx+1,type,code,name});
+  hideModal();renderSpecTable();showToast('사양이 추가되었습니다');
+}
+
+function editEquipmentSpec(idx){
+  const spec=EQUIPMENT_SPECS.find(s=>s.idx===idx);
+  if(!spec)return;
+  const typeOpts=SPEC_TYPE_NAMES.map((t,i)=>`<option value="${i}"${i===spec.type?' selected':''}>${t}</option>`).join('');
+  showModal(`<div class="modal-hdr"><h3>사양 수정</h3><button class="detail-close" onclick="hideModal()"><i class="ri-close-line"></i></button></div>
+    <div class="modal-body">
+      <div class="form-group"><label class="form-label">유형</label><select class="form-input" id="specType">${typeOpts}</select></div>
+      <div class="form-group"><label class="form-label">코드</label><input class="form-input" id="specCode" value="${spec.code}"></div>
+      <div class="form-group"><label class="form-label">사양명</label><input class="form-input" id="specName" value="${spec.name}"></div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="hideModal()">취소</button><button class="btn btn-primary" onclick="confirmEditSpec(${idx})">저장</button></div>`);
+}
+
+function confirmEditSpec(idx){
+  const spec=EQUIPMENT_SPECS.find(s=>s.idx===idx);
+  if(!spec)return;
+  spec.type=parseInt(document.getElementById('specType').value);
+  spec.code=document.getElementById('specCode').value.trim()||spec.code;
+  spec.name=document.getElementById('specName').value.trim()||spec.name;
+  hideModal();renderSpecTable();showToast('사양이 수정되었습니다');
+}
+
+function deleteEquipmentSpec(idx){
+  const i=EQUIPMENT_SPECS.findIndex(s=>s.idx===idx);
+  if(i!==-1){EQUIPMENT_SPECS.splice(i,1);renderSpecTable();showToast('사양이 삭제되었습니다');}
 }
 
 // ═══════════════════════════════════════════════════════════
